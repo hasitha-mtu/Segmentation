@@ -53,14 +53,14 @@ def train_model():
     plt.show()
     return None
 
-# if __name__ == "__main__":
-#     print(tf.config.list_physical_devices('GPU'))
-#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
-#     if len(physical_devices) > 0:
-#         train_model()
-
 if __name__ == "__main__":
     print(tf.config.list_physical_devices('GPU'))
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     if len(physical_devices) > 0:
-        load_with_trained_model()
+        train_model()
+
+# if __name__ == "__main__":
+#     print(tf.config.list_physical_devices('GPU'))
+#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
+#     if len(physical_devices) > 0:
+#         load_with_trained_model()
