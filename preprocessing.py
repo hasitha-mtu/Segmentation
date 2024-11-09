@@ -59,6 +59,14 @@ def get_train_and_validation_data():
 
     return (train_input_images, train_targets), (val_input_imgs, val_targets)
 
+def display_mask(pred):
+    mask = np.argmax(pred, axis=-1)
+    mask *= 127
+    plt.axis("off")
+    plt.imshow(mask)
+    plt.show()
+
+
 if __name__ == "__main__":
     get_train_and_validation_data()
 
