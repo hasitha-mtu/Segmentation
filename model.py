@@ -29,6 +29,11 @@ def get_model(img_size, num_classes):
     outputs = layers.Conv2D(num_classes, 3, activation="softmax", padding="same")(x)
 
     model = keras.Model(inputs, outputs)
+    model.compile(
+        optimizer="rmsprop",
+        loss="sparse_categorical_crossentropy",
+        metrics=["accuracy"]
+    )
     return model
 
 if __name__ == "__main__":
