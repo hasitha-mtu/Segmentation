@@ -4,7 +4,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.utils import array_to_img
 from datetime import datetime
-from model import get_model
+from model import get_model1
 from preprocessing import img_size, get_train_and_validation_data, display_mask
 
 
@@ -31,7 +31,7 @@ def train_model():
             histogram_freq=1
         )
     ]
-    model = get_model(img_size=img_size, num_classes=3)
+    model = get_model1(img_size=img_size, num_classes=3)
     print(f"Model information: {model.summary()}")
     history = model.fit(
         train_input_images,
