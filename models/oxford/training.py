@@ -10,7 +10,7 @@ from preprocessing import img_size, get_train_and_validation_data, display_mask
 
 def load_with_trained_model():
     _, (val_input_imgs, _) = get_train_and_validation_data()
-    model = keras.models.load_model("oxford_segmentation.keras")
+    model = keras.models.load_model("saved_model/oxford_segmentation.keras")
     i = 4
     test_image = val_input_imgs[i]
     plt.axis("off")
@@ -23,7 +23,7 @@ def train_model():
     (train_input_images, train_targets), (val_input_imgs, val_targets) = get_train_and_validation_data()
     callbacks = [
         keras.callbacks.ModelCheckpoint(
-            filepath="oxford_segmentation.keras",
+            filepath="saved_model/oxford_segmentation.keras",
             save_best_only=True
         ),
         keras.callbacks.TensorBoard(
