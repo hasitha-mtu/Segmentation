@@ -6,7 +6,7 @@ from tensorflow.image import resize
 from glob import glob
 from tqdm import tqdm
 
-image_path = "./input/water_v1/JPEGImages/ADE20K"
+image_path = "../../input/water_v1/JPEGImages/ADE20K"
 img_size = (256, 256)
 
 def load_image(path: str):

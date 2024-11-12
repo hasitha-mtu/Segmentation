@@ -1,3 +1,5 @@
 .idea/
 __pycache__/
 input/
+models/oxford/logs/
+models/oxford/saved_model/

@@ -4,7 +4,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.utils import array_to_img
 from datetime import datetime
-from model import get_model1
+from models.oxford.model import get_model1
 from preprocessing import img_size, get_train_and_validation_data, display_mask
 
 

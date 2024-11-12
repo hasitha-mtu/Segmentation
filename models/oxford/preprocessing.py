@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow.keras.utils import load_img, img_to_array
 
-input_dir = "input/images/"
-target_dir = "input/annotations/trimaps/"
+input_dir = "../../input/images/"
+target_dir = "../../input/annotations/trimaps/"
 img_size = (200, 200)
 
 def display_target(target_array):
