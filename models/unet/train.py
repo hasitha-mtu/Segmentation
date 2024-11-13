@@ -47,7 +47,7 @@ def train_model(path, restore=True):
     cbs = [
         CSVLogger('C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\logs\\unet_logs.csv', separator=',', append=False),
         ModelCheckpoint("C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\ckpt\ckpt-{epoch}", save_freq="epoch"),
-        ShowProgress(),
+        # ShowProgress(),
         tensorboard
     ]
     # Create a MirroredStrategy.
@@ -60,7 +60,7 @@ def train_model(path, restore=True):
     history = model.fit(
                     X_train,
                     y_train,
-                    epochs=50,
+                    epochs=100,
                     batch_size=16,
                     validation_data=(X_val, y_val),
                     callbacks=cbs
