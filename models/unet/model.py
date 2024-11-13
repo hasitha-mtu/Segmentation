@@ -155,7 +155,7 @@ class UNet:
         return model
 
 
-def unet_model(IMG_WIDTH, IMG_HIGHT, IMG_CHANNELS):
+def unet_model1(IMG_WIDTH, IMG_HIGHT, IMG_CHANNELS):
     inputs = tf.keras.layers.Input((IMG_WIDTH, IMG_HIGHT, IMG_CHANNELS))
 
     # Contraction path
@@ -208,7 +208,7 @@ def unet_model(IMG_WIDTH, IMG_HIGHT, IMG_CHANNELS):
     c9 = tf.keras.layers.Dropout(0.1)(c9)
     c9 = tf.keras.layers.Conv2D(16, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c9)
 
-    outputs = tf.keras.layers.Conv2D(1, (1, 1), activation='sigmoid')(c9)
+    outputs = tf.keras.layers.Conv2D(3, kernel_size=3, activation='sigmoid', padding='same')(c9)
 
     model = tf.keras.Model(
         inputs=[inputs],
@@ -220,32 +220,107 @@ def unet_model(IMG_WIDTH, IMG_HIGHT, IMG_CHANNELS):
         metrics=['accuracy', f1_score, precision_m, recall_m]
     )
 
+    print(f"Model : {model.summary()}")
+
+    return model
+
+def unet_model(IMG_WIDTH, IMG_HIGHT, IMG_CHANNELS):
+    inputs = tf.keras.layers.Input((IMG_WIDTH, IMG_HIGHT, IMG_CHANNELS))
+
+    # Contraction path
+    c1 = tf.keras.layers.Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(inputs)
+    c1 = tf.keras.layers.Dropout(0.1)(c1)
+    c1 = tf.keras.layers.Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c1)
+    p1 = tf.keras.layers.MaxPooling2D((2, 2))(c1)
+
+    c2 = tf.keras.layers.Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(p1)
+    c2 = tf.keras.layers.Dropout(0.1)(c2)
+    c2 = tf.keras.layers.Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c2)
+    p2 = tf.keras.layers.MaxPooling2D((2, 2))(c2)
+
+    c3 = tf.keras.layers.Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(p2)
+    c3 = tf.keras.layers.Dropout(0.2)(c3)
+    c3 = tf.keras.layers.Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c3)
+    p3 = tf.keras.layers.MaxPooling2D((2, 2))(c3)
+
+    c4 = tf.keras.layers.Conv2D(256, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(p3)
+    c4 = tf.keras.layers.Dropout(0.2)(c4)
+    c4 = tf.keras.layers.Conv2D(256, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c4)
+    p4 = tf.keras.layers.MaxPooling2D(pool_size=(2, 2))(c4)
+
+    c5 = tf.keras.layers.Conv2D(512, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(p4)
+    c5 = tf.keras.layers.Dropout(0.3)(c5)
+    c5 = tf.keras.layers.Conv2D(512, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c5)
+
+    # Expansive path
+    u6 = tf.keras.layers.Conv2DTranspose(256, (2, 2), strides=(2, 2), padding='same')(c5)
+    u6 = tf.keras.layers.concatenate([u6, c4])
+    c6 = tf.keras.layers.Conv2D(256, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(u6)
+    c6 = tf.keras.layers.Dropout(0.2)(c6)
+    c6 = tf.keras.layers.Conv2D(256, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c6)
+
+    u7 = tf.keras.layers.Conv2DTranspose(128, (2, 2), strides=(2, 2), padding='same')(c6)
+    u7 = tf.keras.layers.concatenate([u7, c3])
+    c7 = tf.keras.layers.Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(u7)
+    c7 = tf.keras.layers.Dropout(0.2)(c7)
+    c7 = tf.keras.layers.Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c7)
+
+    u8 = tf.keras.layers.Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same')(c7)
+    u8 = tf.keras.layers.concatenate([u8, c2])
+    c8 = tf.keras.layers.Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(u8)
+    c8 = tf.keras.layers.Dropout(0.1)(c8)
+    c8 = tf.keras.layers.Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c8)
+
+    u9 = tf.keras.layers.Conv2DTranspose(32, (2, 2), strides=(2, 2), padding='same')(c8)
+    u9 = tf.keras.layers.concatenate([u9, c1], axis=3)
+    c9 = tf.keras.layers.Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(u9)
+    c9 = tf.keras.layers.Dropout(0.1)(c9)
+    c9 = tf.keras.layers.Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same')(c9)
+
+    outputs = tf.keras.layers.Conv2D(3, kernel_size=3, activation='sigmoid', padding='same')(c9)
+
+    model = tf.keras.Model(
+        inputs=[inputs],
+        outputs=[outputs]
+    )
+    model.compile(
+        optimizer='adam',
+        loss='binary_crossentropy',
+        metrics=['accuracy', f1_score, precision_m, recall_m]
+    )
+
+    print(f"Model : {model.summary()}")
+
     return model
 
 if __name__ == '__main__':
-    # Configurations
-    length = 224  # Length of the Image (2D Signal)
-    width = 224  # Width of the Image
-    model_name = 'UNet'  # Name of the Segmentation Model
-    model_depth = 5  # Number of Levels in the Segmentation Model
-    model_width = 64  # Width of the Initial Layer, subsequent layers depend on this
-    kernel_size = 3  # Size of the Kernels/Filter
-    num_channel = 1  # Number of Channels in the Model
-    D_S = 1  # Turn on Deep Supervision
-    A_E = 0  # Turn on AutoEncoder Mode for Feature Extraction
-    A_G = 1  # Turn on for Guided Attention
-    LSTM = 1  # Turn on for BiConvLSTM
-    problem_type = 'Regression'  # Problem Type: Classification or Regression
-    output_nums = 1  # Number of Class for Classification Problems, always '1' for Regression Problems
-    is_transconv = True  # True: Transposed Convolution, False: UpSampling
-    '''Only required if the AutoEncoder Mode is turned on'''
-    feature_number = 1024  # Number of Features to be Extracted
-    #
-    Model = UNet(length, width, model_depth, num_channel, model_width, kernel_size, problem_type=problem_type, output_nums=output_nums,
-                 ds=D_S, ae=A_E, ag=A_G, lstm=LSTM, is_transconv=is_transconv).UNet()
-    Model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0003),
-                  loss=tf.keras.losses.MeanAbsoluteError(),
-                  metrics=tf.keras.metrics.MeanSquaredError())
-    Model.summary()
+    unet_model1(256, 256, 3)
+    unet_model(256, 256, 3)
+
+# if __name__ == '__main__':
+#     # Configurations
+#     length = 224  # Length of the Image (2D Signal)
+#     width = 224  # Width of the Image
+#     model_name = 'UNet'  # Name of the Segmentation Model
+#     model_depth = 5  # Number of Levels in the Segmentation Model
+#     model_width = 64  # Width of the Initial Layer, subsequent layers depend on this
+#     kernel_size = 3  # Size of the Kernels/Filter
+#     num_channel = 1  # Number of Channels in the Model
+#     D_S = 1  # Turn on Deep Supervision
+#     A_E = 0  # Turn on AutoEncoder Mode for Feature Extraction
+#     A_G = 1  # Turn on for Guided Attention
+#     LSTM = 1  # Turn on for BiConvLSTM
+#     problem_type = 'Regression'  # Problem Type: Classification or Regression
+#     output_nums = 1  # Number of Class for Classification Problems, always '1' for Regression Problems
+#     is_transconv = True  # True: Transposed Convolution, False: UpSampling
+#     '''Only required if the AutoEncoder Mode is turned on'''
+#     feature_number = 1024  # Number of Features to be Extracted
+#     #
+#     Model = UNet(length, width, model_depth, num_channel, model_width, kernel_size, problem_type=problem_type, output_nums=output_nums,
+#                  ds=D_S, ae=A_E, ag=A_G, lstm=LSTM, is_transconv=is_transconv).UNet()
+#     Model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0003),
+#                   loss=tf.keras.losses.MeanAbsoluteError(),
+#                   metrics=tf.keras.metrics.MeanSquaredError())
+#     Model.summary()
 
 

@@ -1,6 +1,4 @@
-import tensorflow as tf
 from tensorflow.keras import backend as K
-from tensorflow.python.ops.metrics_impl import true_positives
 
 
 # recall

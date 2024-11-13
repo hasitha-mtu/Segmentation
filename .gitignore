@@ -3,3 +3,5 @@ __pycache__/
 input/
 models/oxford/logs/
 models/oxford/saved_model/
+models/unet/16_ckpt/
+models/unet/logs/
