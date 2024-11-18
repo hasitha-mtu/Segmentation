@@ -14,8 +14,7 @@ from data import load_drone_dataset
 from model import unet_model
 
 
-def train_model(path, restore=True):
-    (X_train, y_train), (X_val, y_val) = load_drone_dataset(path)
+def train_model(X_train, y_train, X_val, y_val, restore=True):
     print(f'X_train shape : {X_train.shape}')
     print(f'y_train shape : {y_train.shape}')
 
@@ -47,7 +46,6 @@ def train_model(path, restore=True):
     cbs = [
         CSVLogger('C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\logs\\unet_logs.csv', separator=',', append=False),
         ModelCheckpoint("C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\ckpt\ckpt-{epoch}", save_freq="epoch"),
-        # ShowProgress(),
         tensorboard
     ]
     # Create a MirroredStrategy.
@@ -98,8 +96,7 @@ def make_or_restore_model(restore):
         print("Creating fresh model")
         return unet_model(256, 256, 3)
 
-def load_with_trained_model(path, count=5):
-    _, (X_val, y_val) = load_drone_dataset(path)
+def load_with_trained_model(X_val, y_val, count=5):
     checkpoints = ["C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\ckpt" + name for name in os.listdir("ckpt")]
     print(f"Checkpoints: {checkpoints}")
     if checkpoints:
@@ -141,4 +138,6 @@ if __name__ == "__main__":
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     print(f"physical_devices : {physical_devices}")
     if len(physical_devices) > 0:
-        train_model("C:\\Users\\nimbus\PycharmProjects\Segmentation\input\drone_dataset\images", restore=False)
+        (X_train, y_train), (X_val, y_val) = load_drone_dataset("C:\\Users\\nimbus\PycharmProjects\Segmentation\input\drone_dataset\images")
+        train_model(X_train, y_train, X_val, y_val, restore=False)
+        load_with_trained_model(X_val, y_val, count=10)
