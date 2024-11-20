@@ -12,6 +12,7 @@ from numpy.random import randint
 
 from data import load_drone_dataset
 from model import unet_model
+from models.unet.utils import f1_score, precision_m, recall_m
 
 
 def train_model(X_train, y_train, X_val, y_val, restore=True):
@@ -83,7 +84,7 @@ def train_model(X_train, y_train, X_val, y_val, restore=True):
 
 def make_or_restore_model(restore):
     if restore:
-        checkpoints = ["C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\ckpt" + name for name in os.listdir("ckpt")]
+        checkpoints = ["C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\ckpt\\" + name for name in os.listdir("ckpt")]
         print(f"Checkpoints: {checkpoints}")
         if checkpoints:
             latest_checkpoint = max(checkpoints, key=os.path.getctime)
@@ -97,12 +98,13 @@ def make_or_restore_model(restore):
         return unet_model(256, 256, 3)
 
 def load_with_trained_model(X_val, y_val, count=5):
-    checkpoints = ["C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\ckpt" + name for name in os.listdir("ckpt")]
+    checkpoints = ["C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\ckpt\\" + name for name in os.listdir("ckpt")]
     print(f"Checkpoints: {checkpoints}")
     if checkpoints:
         latest_checkpoint = max(checkpoints, key=os.path.getctime)
         print(f"Restoring from {latest_checkpoint}")
-        model = keras.models.load_model(latest_checkpoint)
+        model = keras.models.load_model(latest_checkpoint,
+                                        custom_objects = {"f1_score": f1_score, "precision_m": precision_m, "recall_m": recall_m})
         for i in range(count):
             id = randint(len(X_val))
             image = X_val[id]
@@ -139,5 +141,16 @@ if __name__ == "__main__":
     print(f"physical_devices : {physical_devices}")
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_drone_dataset("C:\\Users\\nimbus\PycharmProjects\Segmentation\input\drone_dataset\images")
-        train_model(X_train, y_train, X_val, y_val, restore=False)
+        # train_model(X_train, y_train, X_val, y_val, restore=False)
         load_with_trained_model(X_val, y_val, count=10)
+
+
+# if __name__ == "__main__":
+#     checkpoints = ["C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\ckpt\\" + name for name in
+#                    os.listdir("ckpt")]
+#     print(f"Checkpoints: {checkpoints}")
+#     if checkpoints:
+#         latest_checkpoint = max(checkpoints, key=os.path.getctime)
+#         print(f"Restoring from {latest_checkpoint}")
+#         model = keras.models.load_model(latest_checkpoint, custom_objects = {"f1_score": f1_score, "precision_m": precision_m, "recall_m": recall_m})
+#         print(f"model: {model}")
