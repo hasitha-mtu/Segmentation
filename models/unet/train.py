@@ -18,10 +18,15 @@ def train_model(X_train, y_train, X_val, y_val, restore=True):
     print(f'X_train shape : {X_train.shape}')
     print(f'y_train shape : {y_train.shape}')
 
+    log_dir_path = os.path.join(os.getcwd(), "logs/fit")
+    os.makedirs(log_dir_path, exist_ok=True)
     tensorboard = keras.callbacks.TensorBoard(
-        log_dir = "C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\logs\\fit\\" + datetime.now().strftime("%Y%m%d-%H%M%S"),
+        log_dir = log_dir_path + datetime.now().strftime("%Y%m%d-%H%M%S"),
         histogram_freq=1
     )
+
+    ckpt_dir_path = os.path.join(os.getcwd(), "ckpt")
+    os.makedirs(ckpt_dir_path, exist_ok=True)
 
     class ShowProgress(Callback):
         def on_epoch_end(self, epoch, logs=None):
@@ -138,6 +143,6 @@ if __name__ == "__main__":
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     print(f"physical_devices : {physical_devices}")
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_drone_dataset("C:\\Users\\nimbus\PycharmProjects\Segmentation\input\drone_dataset\images")
+        (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../input/drone/images")
         train_model(X_train, y_train, X_val, y_val, restore=False)
         load_with_trained_model(X_val, y_val, count=10)
