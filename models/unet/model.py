@@ -1,7 +1,9 @@
+import keras
 import numpy as np
 from tensorflow.keras import layers, Input, Model
 import tensorflow as tf
 from utils import recall_m, precision_m, f1_score
+from tensorflow.python.keras.utils.vis_utils import plot_model
 
 def conv_block(inputs, model_width, kernel, multiplier):
     x = layers.Conv2D(model_width * multiplier, kernel, padding="same")(inputs)
@@ -424,6 +426,8 @@ def unet_model(image_width, image_height, image_channels):
     )
 
     print(f"Model : {model.summary()}")
+
+    keras.utils.plot_model(model, "unet_model.png", show_shapes=True)
 
     return model
 

@@ -99,12 +99,16 @@ def load_with_trained_model(X_val, y_val, count=5):
             mask = y_val[id]
             pred_mask = model.predict(np.expand_dims(image, 0))[0]
             plt.figure(figsize=(10, 8))
-            plt.subplot(1, 3, 1)
+            plt.subplot(1, 4, 1)
             show_image(image, title="Original Image")
-            plt.subplot(1, 3, 2)
+            plt.subplot(1, 4, 2)
             show_image(mask, title="Original Mask")
-            plt.subplot(1, 3, 3)
+            plt.subplot(1, 4, 3)
             show_image(pred_mask, title="Predicted Mask")
+            plt.subplot(1, 4, 4)
+            pred_modified_mask = np.argmax(pred_mask, axis=-1)
+            pred_modified_mask *= 127
+            show_image(pred_modified_mask, title="Predicted Modified Mask")
             plt.tight_layout()
             plt.show()
     else:
@@ -123,18 +127,19 @@ def show_image(image, title=None):
     plt.title(title)
     plt.axis('off')
 
+# if __name__ == "__main__":
+#     print(tf.config.list_physical_devices('GPU'))
+#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
+#     print(f"physical_devices : {physical_devices}")
+#     if len(physical_devices) > 0:
+#         (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../input/drone/images")
+#         train_model(X_train, y_train, X_val, y_val, restore=False)
+#         load_with_trained_model(X_val, y_val, count=10)
+
 if __name__ == "__main__":
     print(tf.config.list_physical_devices('GPU'))
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     print(f"physical_devices : {physical_devices}")
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../input/drone/images")
-        train_model(X_train, y_train, X_val, y_val, restore=False)
         load_with_trained_model(X_val, y_val, count=10)
-
-# if __name__ == "__main__":
-#     print(tf.config.list_physical_devices('GPU'))
-#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
-#     print(f"physical_devices : {physical_devices}")
-#     if len(physical_devices) > 0:
-#         load_with_trained_model([], [], count=10)
