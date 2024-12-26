@@ -4,4 +4,5 @@ input/
 models/oxford/logs/
 models/oxford/saved_model/
 models/unet/16_ckpt/
+models/unet/ckpt/
 models/unet/logs/
