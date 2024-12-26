@@ -13,6 +13,8 @@ from numpy.random import randint
 from data import load_drone_dataset
 from model import unet_model
 
+from utils import recall_m, precision_m, f1_score
+
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet\ckpt"
 
@@ -43,7 +45,7 @@ def train_model(X_train, y_train, X_val, y_val, restore=True):
     history = model.fit(
                     X_train,
                     y_train,
-                    epochs=10,
+                    epochs=500,
                     batch_size=16,
                     validation_data=(X_val, y_val),
                     callbacks=cbs
@@ -87,7 +89,10 @@ def load_with_trained_model(X_val, y_val, count=5):
     if checkpoints:
         latest_checkpoint = max(checkpoints, key=os.path.getctime)
         print(f"Restoring from {latest_checkpoint}")
-        model = keras.models.load_model(latest_checkpoint)
+        model = keras.models.load_model(latest_checkpoint,
+                                        custom_objects={'recall_m':recall_m,
+                                                        'precision_m':precision_m,
+                                                        'f1_score':f1_score})
         for i in range(count):
             id = randint(len(X_val))
             image = X_val[id]
