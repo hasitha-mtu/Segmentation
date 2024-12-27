@@ -421,7 +421,7 @@ def unet_model(image_width, image_height, image_channels):
     )
     model.compile(
         optimizer='adam',
-        loss='binary_crossentropy',
+        loss=dice_loss,
         metrics=['accuracy', f1_score, precision_m, recall_m]
     )
 
@@ -430,6 +430,12 @@ def unet_model(image_width, image_height, image_channels):
     keras.utils.plot_model(model, "unet_model.png", show_shapes=True)
 
     return model
+
+def dice_loss(y_true, y_pred):
+    smooth = 1e-6
+    intersection = tf.reduce_sum(y_true * y_pred)
+    union = tf.reduce_sum(y_true) + tf.reduce_sum(y_pred)
+    return 1 - (2. * intersection + smooth) / (union + smooth)
 
 if __name__ == '__main__':
     unet_model(256, 256, 3)

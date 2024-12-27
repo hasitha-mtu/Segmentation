@@ -45,7 +45,7 @@ def train_model(X_train, y_train, X_val, y_val, restore=True):
     history = model.fit(
                     X_train,
                     y_train,
-                    epochs=500,
+                    epochs=100,
                     batch_size=16,
                     validation_data=(X_val, y_val),
                     callbacks=cbs
@@ -127,19 +127,19 @@ def show_image(image, title=None):
     plt.title(title)
     plt.axis('off')
 
-# if __name__ == "__main__":
-#     print(tf.config.list_physical_devices('GPU'))
-#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
-#     print(f"physical_devices : {physical_devices}")
-#     if len(physical_devices) > 0:
-#         (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../input/drone/images")
-#         train_model(X_train, y_train, X_val, y_val, restore=False)
-#         load_with_trained_model(X_val, y_val, count=10)
-
 if __name__ == "__main__":
     print(tf.config.list_physical_devices('GPU'))
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     print(f"physical_devices : {physical_devices}")
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../input/drone/images")
+        train_model(X_train, y_train, X_val, y_val, restore=False)
         load_with_trained_model(X_val, y_val, count=10)
+
+# if __name__ == "__main__":
+#     print(tf.config.list_physical_devices('GPU'))
+#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
+#     print(f"physical_devices : {physical_devices}")
+#     if len(physical_devices) > 0:
+#         (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../input/drone/images")
+#         load_with_trained_model(X_val, y_val, count=10)
