@@ -100,16 +100,12 @@ def load_with_trained_model(X_val, y_val, count=5):
             mask = y_val[id]
             pred_mask = model.predict(np.expand_dims(image, 0))[0]
             plt.figure(figsize=(10, 8))
-            plt.subplot(1, 4, 1)
+            plt.subplot(1, 3, 1)
             show_image(image, title="Original Image")
-            plt.subplot(1, 4, 2)
+            plt.subplot(1, 3, 2)
             show_image(mask, title="Original Mask")
-            plt.subplot(1, 4, 3)
+            plt.subplot(1, 3, 3)
             show_image(pred_mask, title="Predicted Mask")
-            plt.subplot(1, 4, 4)
-            pred_modified_mask = np.argmax(pred_mask, axis=-1)
-            pred_modified_mask *= 127
-            show_image(pred_modified_mask, title="Predicted Modified Mask")
             plt.tight_layout()
             plt.show()
     else:
