@@ -15,6 +15,8 @@ def load_drone_dataset(path, file_extension = "jpg"):
     train_paths = all_image_paths[:300]
     print(f"train image count : {len(train_paths)}")
     x_train, y_train = load_drone_images(train_paths)
+    print(f'load_drone_dataset|x_train shape : {x_train.shape}')
+    print(f'load_drone_dataset|y_train shape : {y_train.shape}')
     test_paths = all_image_paths[300:]
     print(f"test image count : {len(test_paths)}")
     x_test, y_test = load_drone_images(test_paths)
