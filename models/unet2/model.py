@@ -27,7 +27,7 @@ up_stack = [
 ]
 
 def unet_model(output_channels:int):
-  inputs = tf.keras.layers.Input(shape=[256, 256, 3])
+  inputs = tf.keras.layers.Input((256, 256, 3))
 
   # Downsampling through the model
   skips = down_stack(inputs)
