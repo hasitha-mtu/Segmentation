@@ -31,8 +31,11 @@ def unet_model(output_channels:int):
 
   # Downsampling through the model
   skips = down_stack(inputs)
+  print(f'skips : {skips}')
   x = skips[-1]
+  print(f'x : {x}')
   skips = reversed(skips[:-1])
+  print(f'skips : {skips}')
 
   # Upsampling and establishing the skip connections
   for up, skip in zip(up_stack, skips):
