@@ -54,7 +54,7 @@ def unet_model(output_channels:int):
   print(f"Model : {model.summary()}")
 
   model.compile(optimizer='adam',
-                loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
                 metrics=['accuracy'])
 
   keras.utils.plot_model(model, "unet_model.png", show_shapes=True)
