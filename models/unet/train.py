@@ -14,39 +14,26 @@ from data import load_drone_dataset
 from model import unet_model
 from models.unet.utils import f1_score, precision_m, recall_m
 
+from utils import recall_m, precision_m, f1_score, dice_loss
+
+LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet\logs"
+CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet\ckpt"
 
 def train_model(X_train, y_train, X_val, y_val, restore=True):
     print(f'X_train shape : {X_train.shape}')
     print(f'y_train shape : {y_train.shape}')
 
+    os.makedirs(LOG_DIR, exist_ok=True)
     tensorboard = keras.callbacks.TensorBoard(
-        log_dir = "C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\logs\\fit\\" + datetime.now().strftime("%Y%m%d-%H%M%S"),
+        log_dir = os.path.join(LOG_DIR, datetime.now().strftime("%Y%m%d-%H%M%S")),
         histogram_freq=1
     )
 
-    class ShowProgress(Callback):
-        def on_epoch_end(self, epoch, logs=None):
-            id = randint(len(X_val))
-            image = X_val[id]
-            mask = y_val[id]
-            pred_mask = self.model(tf.expand_dims(image, axis=0))[0]
-
-            plt.figure(figsize=(10, 8))
-            plt.subplot(1, 3, 1)
-            show_image(image, title="Original Image")
-
-            plt.subplot(1, 3, 2)
-            show_image(mask, title="Original Mask")
-
-            plt.subplot(1, 3, 3)
-            show_image(pred_mask, title="Predicted Mask")
-
-            plt.tight_layout()
-            plt.show()
+    os.makedirs(CKPT_DIR, exist_ok=True)
 
     cbs = [
-        CSVLogger('C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\logs\\unet_logs.csv', separator=',', append=False),
-        ModelCheckpoint("C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\ckpt\ckpt-{epoch}", save_freq="epoch"),
+        CSVLogger(LOG_DIR+'/unet_logs.csv', separator=',', append=False),
+        ModelCheckpoint(CKPT_DIR+'/ckpt-{epoch}', save_freq="epoch"),
         tensorboard
     ]
     # Create a MirroredStrategy.
@@ -59,7 +46,7 @@ def train_model(X_train, y_train, X_val, y_val, restore=True):
     history = model.fit(
                     X_train,
                     y_train,
-                    epochs=300,
+                    epochs=500,
                     batch_size=16,
                     validation_data=(X_val, y_val),
                     callbacks=cbs
@@ -84,7 +71,7 @@ def train_model(X_train, y_train, X_val, y_val, restore=True):
 
 def make_or_restore_model(restore):
     if restore:
-        checkpoints = ["C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\ckpt\\" + name for name in os.listdir("ckpt")]
+        checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
         print(f"Checkpoints: {checkpoints}")
         if checkpoints:
             latest_checkpoint = max(checkpoints, key=os.path.getctime)
@@ -98,13 +85,16 @@ def make_or_restore_model(restore):
         return unet_model(256, 256, 3)
 
 def load_with_trained_model(X_val, y_val, count=5):
-    checkpoints = ["C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\ckpt\\" + name for name in os.listdir("ckpt")]
+    checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
     print(f"Checkpoints: {checkpoints}")
     if checkpoints:
         latest_checkpoint = max(checkpoints, key=os.path.getctime)
         print(f"Restoring from {latest_checkpoint}")
         model = keras.models.load_model(latest_checkpoint,
-                                        custom_objects = {"f1_score": f1_score, "precision_m": precision_m, "recall_m": recall_m})
+                                        custom_objects={'recall_m':recall_m,
+                                                        'precision_m':precision_m,
+                                                        'f1_score':f1_score,
+                                                        'dice_loss':dice_loss})
         for i in range(count):
             id = randint(len(X_val))
             image = X_val[id]
@@ -140,9 +130,10 @@ if __name__ == "__main__":
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     print(f"physical_devices : {physical_devices}")
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_drone_dataset("C:\\Users\\nimbus\PycharmProjects\Segmentation\input\drone_dataset\images")
+        (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../input/drone/images")
         train_model(X_train, y_train, X_val, y_val, restore=False)
         load_with_trained_model(X_val, y_val, count=10)
+
 
 
 # if __name__ == "__main__":
@@ -154,3 +145,11 @@ if __name__ == "__main__":
 #         print(f"Restoring from {latest_checkpoint}")
 #         model = keras.models.load_model(latest_checkpoint, custom_objects = {"f1_score": f1_score, "precision_m": precision_m, "recall_m": recall_m})
 #         print(f"model: {model}")
+
+# if __name__ == "__main__":
+#     print(tf.config.list_physical_devices('GPU'))
+#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
+#     print(f"physical_devices : {physical_devices}")
+#     if len(physical_devices) > 0:
+#         (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../input/drone/images")
+#         load_with_trained_model(X_val, y_val, count=10)

@@ -1,4 +1,5 @@
 from tensorflow.keras import backend as K
+import tensorflow as tf
 
 
 # recall
@@ -22,3 +23,8 @@ def f1_score(y_true, y_pred):
     f1_score = 2 * ((precision * recall) / (precision + recall + K.epsilon()))
     return f1_score
 
+def dice_loss(y_true, y_pred):
+    smooth = 1e-6
+    intersection = tf.reduce_sum(y_true * y_pred)
+    union = tf.reduce_sum(y_true) + tf.reduce_sum(y_pred)
+    return 1 - (2. * intersection + smooth) / (union + smooth)

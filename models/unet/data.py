@@ -1,10 +1,7 @@
-import pandas as pd
 import numpy as np
-import h5py
 from glob import glob
-import matplotlib.pyplot as plt
 from keras.utils import load_img, img_to_array
-from tensorflow.image import resize
+import tensorflow as tf
 from tqdm import tqdm
 import random
 import os
@@ -39,12 +36,12 @@ def load_image(path: str):
     img = load_img(path)
     img_array = img_to_array(img)
     normalized_img_array = img_array/255.
-    resized_img = resize(normalized_img_array, (256, 256))
+    resized_img = tf.image.resize(normalized_img_array, (256, 256), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
     return resized_img
 
 if __name__ == "__main__":
     print('load image for testing')
-    (x_train, y_train),(x_test, y_test) = load_drone_dataset("C:\\Users\\nimbus\PycharmProjects\Segmentation\input\drone_dataset\images")
+    (x_train, y_train),(x_test, y_test) = load_drone_dataset("../../input/drone/images")
     print(f"train data shape: {x_train.shape}")
     print(f"test data shape: {x_test.shape}")
 
