@@ -59,7 +59,7 @@ def train_model(X_train, y_train, X_val, y_val, restore=True):
     history = model.fit(
                     X_train,
                     y_train,
-                    epochs=100,
+                    epochs=300,
                     batch_size=16,
                     validation_data=(X_val, y_val),
                     callbacks=cbs
@@ -141,7 +141,7 @@ if __name__ == "__main__":
     print(f"physical_devices : {physical_devices}")
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_drone_dataset("C:\\Users\\nimbus\PycharmProjects\Segmentation\input\drone_dataset\images")
-        # train_model(X_train, y_train, X_val, y_val, restore=False)
+        train_model(X_train, y_train, X_val, y_val, restore=False)
         load_with_trained_model(X_val, y_val, count=10)
 
 
