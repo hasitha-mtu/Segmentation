@@ -9,6 +9,7 @@ from keras.callbacks import (Callback,
                              CSVLogger)
 import numpy as np
 from numpy.random import randint
+import cv2
 
 from data import load_drone_dataset
 from model import unet_model
@@ -100,12 +101,15 @@ def load_with_trained_model(X_val, y_val, count=5):
             mask = y_val[id]
             pred_mask = model.predict(np.expand_dims(image, 0))[0]
             plt.figure(figsize=(10, 8))
-            plt.subplot(1, 3, 1)
+            plt.subplot(1, 4, 1)
             show_image(image, title="Original Image")
-            plt.subplot(1, 3, 2)
+            plt.subplot(1, 4, 2)
             show_image(mask, title="Original Mask")
-            plt.subplot(1, 3, 3)
+            plt.subplot(1, 4, 3)
             show_image(pred_mask, title="Predicted Mask")
+            processed_pred_mask = post_process_mask(pred_mask)
+            plt.subplot(1, 4, 4)
+            show_image(processed_pred_mask, title="Processed Predicted Mask")
             plt.tight_layout()
             plt.show()
     else:
@@ -123,6 +127,12 @@ def show_image(image, title=None):
     plt.imshow(image)
     plt.title(title)
     plt.axis('off')
+
+def post_process_mask(mask):
+    kernel = np.ones((3,3), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)  # Close small gaps
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)   # Remove noise
+    return mask
 
 if __name__ == "__main__":
     print(tf.config.list_physical_devices('GPU'))
