@@ -1,10 +1,13 @@
 .idea/
 __pycache__/
+models/unet/__pycache__/
 input/
 models/oxford/logs/
 models/oxford/saved_model/
 models/unet/16_ckpt/
+models/unet/64_ckpt/
 models/unet/ckpt/
 models/unet/logs/
 models/unet2/logs/
 models/unet2/ckpt/
+

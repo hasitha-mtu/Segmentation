@@ -13,6 +13,7 @@ import cv2
 
 from data import load_drone_dataset
 from model import unet_model
+from models.unet.utils import f1_score, precision_m, recall_m
 
 from utils import recall_m, precision_m, f1_score, dice_loss
 
@@ -142,6 +143,18 @@ if __name__ == "__main__":
         (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../input/drone/images")
         train_model(X_train, y_train, X_val, y_val, restore=False)
         load_with_trained_model(X_val, y_val, count=10)
+
+
+
+# if __name__ == "__main__":
+#     checkpoints = ["C:\\Users\\nimbus\PycharmProjects\Segmentation\models\\unet\ckpt\\" + name for name in
+#                    os.listdir("ckpt")]
+#     print(f"Checkpoints: {checkpoints}")
+#     if checkpoints:
+#         latest_checkpoint = max(checkpoints, key=os.path.getctime)
+#         print(f"Restoring from {latest_checkpoint}")
+#         model = keras.models.load_model(latest_checkpoint, custom_objects = {"f1_score": f1_score, "precision_m": precision_m, "recall_m": recall_m})
+#         print(f"model: {model}")
 
 # if __name__ == "__main__":
 #     print(tf.config.list_physical_devices('GPU'))
