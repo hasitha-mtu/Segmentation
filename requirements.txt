@@ -4,3 +4,4 @@ keras==2.10.0
 matplotlib==3.9.2
 numpy==1.26.4
 protobuf==3.19.6
+pydot==2.0.0
