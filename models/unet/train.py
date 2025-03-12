@@ -13,7 +13,6 @@ import cv2
 
 from data import load_drone_dataset
 from model import unet_model
-from models.unet.utils import f1_score, precision_m, recall_m
 
 from utils import recall_m, precision_m, f1_score, dice_loss
 
@@ -140,7 +139,7 @@ if __name__ == "__main__":
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     print(f"physical_devices : {physical_devices}")
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../input/drone/images")
+        (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../../../DataCollection/drone/images")
         train_model(X_train, y_train, X_val, y_val, restore=False)
         load_with_trained_model(X_val, y_val, count=10)
 
