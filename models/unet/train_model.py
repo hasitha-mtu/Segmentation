@@ -9,7 +9,6 @@ from keras.callbacks import (Callback,
                              CSVLogger)
 import numpy as np
 from numpy.random import randint
-import cv2
 
 from data import load_drone_dataset
 from model import unet_model
