@@ -10,4 +10,5 @@ models/unet/ckpt/
 models/unet/logs/
 models/unet2/logs/
 models/unet2/ckpt/
+data/
 
