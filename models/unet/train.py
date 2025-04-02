@@ -46,7 +46,7 @@ def train_model(X_train, y_train, X_val, y_val, restore=True):
     history = model.fit(
                     X_train,
                     y_train,
-                    epochs=500,
+                    epochs=50,
                     batch_size=16,
                     validation_data=(X_val, y_val),
                     callbacks=cbs
@@ -139,7 +139,8 @@ if __name__ == "__main__":
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     print(f"physical_devices : {physical_devices}")
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../../../DataCollection/drone/images")
+        # (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../../../DataCollection/drone/images")
+        (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../../../DataCollection/Seg1/images", file_extension="png")
         train_model(X_train, y_train, X_val, y_val, restore=False)
         load_with_trained_model(X_val, y_val, count=10)
 
