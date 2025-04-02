@@ -28,3 +28,26 @@ def dice_loss(y_true, y_pred):
     intersection = tf.reduce_sum(y_true * y_pred)
     union = tf.reduce_sum(y_true) + tf.reduce_sum(y_pred)
     return 1 - (2. * intersection + smooth) / (union + smooth)
+
+def masked_loss(y_true, y_pred, mask):
+    """Compute loss only for labeled pixels."""
+    loss_fn = tf.keras.losses.BinaryCrossentropy(from_logits=True)
+    loss = loss_fn(y_true * mask, y_pred * mask)
+    return loss
+
+# Train with Partial Labels Using Masked Loss
+def masked_dice_loss(y_true, y_pred, mask):
+    """
+    Compute Dice Loss but only for labeled pixels (mask > 0).
+    y_true: Ground truth segmentation (partial labels)
+    y_pred: Model prediction
+    mask: Binary mask (1 = labeled pixel, 0 = unlabeled)
+    """
+    smooth = 1e-6
+    y_true = tf.cast(y_true, tf.float32)
+    y_pred = tf.cast(y_pred, tf.float32)
+
+    intersection = tf.reduce_sum(y_true * y_pred * mask)
+    union = tf.reduce_sum(y_true * mask) + tf.reduce_sum(y_pred * mask)
+
+    return 1 - (2.0 * intersection + smooth) / (union + smooth)

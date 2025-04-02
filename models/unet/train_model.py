@@ -45,7 +45,7 @@ def train_model(X_train, y_train, X_val, y_val, num_channels, restore=True):
     history = model.fit(
                     X_train,
                     y_train,
-                    epochs=50,
+                    epochs=20,
                     batch_size=16,
                     validation_data=(X_val, y_val),
                     callbacks=cbs
@@ -132,6 +132,6 @@ if __name__ == "__main__":
     if len(physical_devices) > 0:
         # (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../../../DataCollection/drone/images")
         (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../../../DataCollection/Seg1/images", file_extension="png", num_channels=5)
-        # train_model(X_train, y_train, X_val, y_val, 5, restore=False)
+        train_model(X_train, y_train, X_val, y_val, 5, restore=False)
         load_with_trained_model(X_val, y_val, count=10)
 
