@@ -421,7 +421,7 @@ def unet_model(image_width, image_height, image_channels):
     )
     model.compile(
         optimizer='adam',
-        loss=masked_dice_loss,
+        loss=dice_loss,
         metrics=['accuracy', f1_score, precision_m, recall_m]
     )
 
