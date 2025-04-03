@@ -12,11 +12,10 @@ from numpy.random import randint
 
 from data import load_drone_dataset
 from model import unet_model
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, dice_loss
 
-from utils import recall_m, precision_m, f1_score, dice_loss
-
-LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet\logs"
-CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet\ckpt"
+LOG_DIR = "/models/wsl/logs"
+CKPT_DIR = "/models/wsl/ckpt"
 
 def train_model(X_train, y_train, X_val, y_val, num_channels, restore=True):
     print(f'X_train shape : {X_train.shape}')
@@ -31,7 +30,7 @@ def train_model(X_train, y_train, X_val, y_val, num_channels, restore=True):
     os.makedirs(CKPT_DIR, exist_ok=True)
 
     cbs = [
-        CSVLogger(LOG_DIR+'/unet_logs.csv', separator=',', append=False),
+        CSVLogger(LOG_DIR+'/wsl_unet_logs.csv', separator=',', append=False),
         ModelCheckpoint(CKPT_DIR+'/ckpt-{epoch}', save_freq="epoch"),
         tensorboard
     ]
@@ -70,7 +69,7 @@ def train_model(X_train, y_train, X_val, y_val, num_channels, restore=True):
 
 def make_or_restore_model(restore, num_channels):
     if restore:
-        checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
+        checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("/ckpt")]
         print(f"Checkpoints: {checkpoints}")
         if checkpoints:
             latest_checkpoint = max(checkpoints, key=os.path.getctime)
@@ -84,7 +83,7 @@ def make_or_restore_model(restore, num_channels):
         return unet_model(256, 256, num_channels)
 
 def load_with_trained_model(X_val, y_val, count=5):
-    checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
+    checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("/ckpt")]
     print(f"Checkpoints: {checkpoints}")
     if checkpoints:
         latest_checkpoint = max(checkpoints, key=os.path.getctime)
