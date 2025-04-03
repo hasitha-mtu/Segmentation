@@ -9,8 +9,9 @@ from keras.callbacks import (Callback,
                              CSVLogger)
 import numpy as np
 from numpy.random import randint
+from tensorflow.python.ops.metrics_impl import percentage_below
 
-from data import load_drone_dataset
+from data import load_dataset
 from model import unet_model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
 
@@ -131,10 +132,8 @@ if __name__ == "__main__":
     print(tf.__version__)
     print(tf.executing_eagerly())
 
-
     if len(physical_devices) > 0:
-        # (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../../../DataCollection/drone/images")
-        (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../../../DataCollection/Seg1/images", file_extension="png", num_channels=5)
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../data/test/images", file_extension="JPG", num_channels=5, percentage=0.7)
         train_model(X_train, y_train, X_val, y_val, 5, restore=False)
         load_with_trained_model(X_val, y_val, count=10)
 

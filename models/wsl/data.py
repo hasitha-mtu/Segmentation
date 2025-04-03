@@ -29,7 +29,7 @@ def load_drone_images(paths, channels=3):
         image = get_image(path)
         images[i] = image
         mask_path = path.replace("images", "annotations")
-        mask_path = mask_path.replace("jpg", "png")
+        mask_path = mask_path.replace(".JPG", "_water_mask.png")
         mask = load_image(mask_path)
         masks[i] = mask
     return images, masks
@@ -58,6 +58,21 @@ def get_image(path):
     stacked_image = np.dstack((rgb, ndwi, edges))
     # print(f'Stacked image shape: {stacked_image.shape}')
     return stacked_image
+
+def load_dataset(path, file_extension = "JPG", num_channels=5, percentage=0.7):
+    total_images = len(os.listdir(path))
+    print(f'total number of images in path is {total_images}')
+    all_image_paths = sorted(glob(path + "/*."+file_extension))
+    random.Random(1337).shuffle(all_image_paths)
+    print(all_image_paths)
+    train_size = int(len(all_image_paths) * percentage)
+    train_paths = all_image_paths[:train_size]
+    print(f"train image count : {len(train_paths)}")
+    x_train, y_train = load_drone_images(train_paths, channels=num_channels)
+    test_paths = all_image_paths[train_size:]
+    print(f"test image count : {len(test_paths)}")
+    x_test, y_test = load_drone_images(test_paths, channels=num_channels)
+    return (x_train, y_train),(x_test, y_test)
 
 if __name__ == "__main__":
     sample_image = "../../data/samples/sample1.JPG"
