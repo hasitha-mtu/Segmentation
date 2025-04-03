@@ -1,7 +1,7 @@
 import keras
 from tensorflow.keras import layers
 import tensorflow as tf
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, dice_loss
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
 
 
 def encoding_block(inputs, filters, dropout, batch_normalization=True, pooling=True, kernel_size=(3,3), activation="relu",
@@ -61,7 +61,7 @@ def unet_model(image_width, image_height, image_channels):
     )
     model.compile(
         optimizer='adam',
-        loss=dice_loss,
+        loss=masked_dice_loss,
         metrics=['accuracy', f1_score, precision_m, recall_m]
     )
 

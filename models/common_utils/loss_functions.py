@@ -36,7 +36,7 @@ def masked_loss(y_true, y_pred, mask):
     return loss
 
 # Train with Partial Labels Using Masked Loss
-def masked_dice_loss(y_true, y_pred, mask):
+def masked_dice_loss(y_true, y_pred):
     """
     Compute Dice Loss but only for labeled pixels (mask > 0).
     y_true: Ground truth segmentation (partial labels)
@@ -46,6 +46,8 @@ def masked_dice_loss(y_true, y_pred, mask):
     smooth = 1e-6
     y_true = tf.cast(y_true, tf.float32)
     y_pred = tf.cast(y_pred, tf.float32)
+
+    mask = tf.where(tf.math.is_nan(y_true), 0.0, 1.0)
 
     intersection = tf.reduce_sum(y_true * y_pred * mask)
     union = tf.reduce_sum(y_true * mask) + tf.reduce_sum(y_pred * mask)

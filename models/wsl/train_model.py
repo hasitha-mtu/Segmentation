@@ -12,10 +12,10 @@ from numpy.random import randint
 
 from data import load_drone_dataset
 from model import unet_model
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, dice_loss
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
 
-LOG_DIR = "/models/wsl/logs"
-CKPT_DIR = "/models/wsl/ckpt"
+LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\logs"
+CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\ckpt"
 
 def train_model(X_train, y_train, X_val, y_val, num_channels, restore=True):
     print(f'X_train shape : {X_train.shape}')
@@ -69,7 +69,7 @@ def train_model(X_train, y_train, X_val, y_val, num_channels, restore=True):
 
 def make_or_restore_model(restore, num_channels):
     if restore:
-        checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("/ckpt")]
+        checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
         print(f"Checkpoints: {checkpoints}")
         if checkpoints:
             latest_checkpoint = max(checkpoints, key=os.path.getctime)
@@ -83,7 +83,7 @@ def make_or_restore_model(restore, num_channels):
         return unet_model(256, 256, num_channels)
 
 def load_with_trained_model(X_val, y_val, count=5):
-    checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("/ckpt")]
+    checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
     print(f"Checkpoints: {checkpoints}")
     if checkpoints:
         latest_checkpoint = max(checkpoints, key=os.path.getctime)
@@ -92,7 +92,7 @@ def load_with_trained_model(X_val, y_val, count=5):
                                         custom_objects={'recall_m':recall_m,
                                                         'precision_m':precision_m,
                                                         'f1_score':f1_score,
-                                                        'dice_loss':dice_loss})
+                                                        'masked_dice_loss':masked_dice_loss})
         for i in range(count):
             id = randint(len(X_val))
             image = X_val[id]
@@ -128,6 +128,10 @@ if __name__ == "__main__":
     print(tf.config.list_physical_devices('GPU'))
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     print(f"physical_devices : {physical_devices}")
+    print(tf.__version__)
+    print(tf.executing_eagerly())
+
+
     if len(physical_devices) > 0:
         # (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../../../DataCollection/drone/images")
         (X_train, y_train), (X_val, y_val) = load_drone_dataset("../../../../DataCollection/Seg1/images", file_extension="png", num_channels=5)
