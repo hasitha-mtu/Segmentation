@@ -29,7 +29,7 @@ def load_drone_images(paths, channels=3):
         image = get_image(path)
         images[i] = image
         mask_path = path.replace("images", "annotations")
-        mask_path = mask_path.replace(".JPG", "_water_mask.png")
+        mask_path = mask_path.replace(".jpg", ".png")
         mask = load_image(mask_path)
         masks[i] = mask
     return images, masks

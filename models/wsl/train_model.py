@@ -18,7 +18,7 @@ from models.common_utils.loss_functions import  recall_m, precision_m, f1_score,
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\ckpt"
 
-def train_model(X_train, y_train, X_val, y_val, num_channels, restore=True):
+def train_model(epoch_count, X_train, y_train, X_val, y_val, num_channels, restore=True):
     print(f'X_train shape : {X_train.shape}')
     print(f'y_train shape : {y_train.shape}')
 
@@ -45,8 +45,8 @@ def train_model(X_train, y_train, X_val, y_val, num_channels, restore=True):
     history = model.fit(
                     X_train,
                     y_train,
-                    epochs=20,
-                    batch_size=16,
+                    epochs=epoch_count,
+                    batch_size=1,
                     validation_data=(X_val, y_val),
                     callbacks=cbs
                 )
@@ -131,9 +131,9 @@ if __name__ == "__main__":
     print(f"physical_devices : {physical_devices}")
     print(tf.__version__)
     print(tf.executing_eagerly())
-
+    epochs = 50
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../data/test/images", file_extension="JPG", num_channels=5, percentage=0.7)
-        train_model(X_train, y_train, X_val, y_val, 5, restore=False)
-        load_with_trained_model(X_val, y_val, count=10)
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images", file_extension="jpg", num_channels=5, percentage=0.7)
+        train_model(epochs, X_train, y_train, X_val, y_val, 5, restore=False)
+        load_with_trained_model(X_val, y_val, count=3)
 
