@@ -20,7 +20,7 @@ LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\log
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\ckpt"
 OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\output"
 
-def train_model(epoch_count, X_train, y_train, X_val, y_val, num_channels, restore=True):
+def train_model(epoch_count, X_train, y_train, X_val, y_val, num_channels, size = (256, 256), restore=True):
     print(f'X_train shape : {X_train.shape}')
     print(f'y_train shape : {y_train.shape}')
 
@@ -42,7 +42,7 @@ def train_model(epoch_count, X_train, y_train, X_val, y_val, num_channels, resto
     print("Number of devices: {}".format(strategy.num_replicas_in_sync))
 
     with strategy.scope():
-        model = make_or_restore_model(restore, num_channels)
+        model = make_or_restore_model(restore, num_channels, size)
 
     history = model.fit(
                     X_train,
@@ -70,7 +70,8 @@ def train_model(epoch_count, X_train, y_train, X_val, y_val, num_channels, resto
     plt.show()
     return None
 
-def make_or_restore_model(restore, num_channels):
+def make_or_restore_model(restore, num_channels, size):
+    (width, height) = size
     if restore:
         checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
         print(f"Checkpoints: {checkpoints}")
@@ -80,10 +81,10 @@ def make_or_restore_model(restore, num_channels):
             return keras.models.load_model(latest_checkpoint)
         else:
             print("Creating fresh model")
-            return unet_model(256, 256, num_channels)
+            return unet_model(width, height, num_channels)
     else:
         print("Creating fresh model")
-        return unet_model(256, 256, num_channels)
+        return unet_model(width, height, num_channels)
 
 def load_with_trained_model(X_val, y_val):
     checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
@@ -139,7 +140,7 @@ if __name__ == "__main__":
     print(tf.executing_eagerly())
     epochs = 100
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images", file_extension="jpg", num_channels=5, percentage=0.7)
-        # train_model(epochs, X_train, y_train, X_val, y_val, 5, restore=False)
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images", size = (512, 512), file_extension="jpg", num_channels=5, percentage=0.7)
+        train_model(epochs, X_train, y_train, X_val, y_val, 5, size = (512, 512), restore=False)
         load_with_trained_model(X_val, y_val)
 

@@ -73,7 +73,7 @@ def unet_model(image_width, image_height, image_channels):
 
 
 if __name__ == '__main__':
-    unet_model(256, 256, 3)
+    unet_model(512, 512, 5)
 
 
 
