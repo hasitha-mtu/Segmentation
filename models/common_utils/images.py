@@ -126,6 +126,26 @@ def load_ndwi_edge_map(image_path, edge_map_type = 'canny'):
         return {'rgb':rgb_image, 'ndwi': ndwi, 'edge_map': edge_map}
 
 
+def compute_ndwi(rgb_image):
+    green = rgb_image[:, :, 1].astype(float)
+    nir_fake = rgb_image[:, :, 0].astype(float)  # Substitute (since no NIR)
+    ndwi = (green - nir_fake) / (green + nir_fake + 1e-6)
+    ndwi = np.clip(ndwi, -1, 1)
+    return ndwi
+
+def compute_edges(rgb_image):
+    gray = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2GRAY)
+    edges = cv2.Canny(gray, 100, 200)
+    return edges / 255.0
+
+def stack_rgb_ndwi_edges(image_path):
+    rgb_image = cv2.imread(image_path)
+    rgb_image = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2RGB)
+    ndwi = compute_ndwi(rgb_image)
+    edges = compute_edges(rgb_image)
+    stacked = np.dstack((rgb_image, ndwi, edges))
+    return stacked.astype(np.float32)
+
 if __name__ == "__main__":
     sample1_image = "../../data/samples/sample1.JPG"
     sample2_image = "../../data/samples/sample2.JPG"
