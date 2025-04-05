@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from itertools import count
 
 import keras.callbacks_v1
 import matplotlib.pyplot as plt
@@ -17,6 +18,7 @@ from models.common_utils.loss_functions import  recall_m, precision_m, f1_score,
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\ckpt"
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\output"
 
 def train_model(epoch_count, X_train, y_train, X_val, y_val, num_channels, restore=True):
     print(f'X_train shape : {X_train.shape}')
@@ -83,7 +85,7 @@ def make_or_restore_model(restore, num_channels):
         print("Creating fresh model")
         return unet_model(256, 256, num_channels)
 
-def load_with_trained_model(X_val, y_val, count=5):
+def load_with_trained_model(X_val, y_val):
     checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
     print(f"Checkpoints: {checkpoints}")
     if checkpoints:
@@ -94,7 +96,7 @@ def load_with_trained_model(X_val, y_val, count=5):
                                                         'precision_m':precision_m,
                                                         'f1_score':f1_score,
                                                         'masked_dice_loss':masked_dice_loss})
-        for i in range(count):
+        for i in range(len(X_val)):
             id = randint(len(X_val))
             image = X_val[id]
             mask = y_val[id]
@@ -102,11 +104,11 @@ def load_with_trained_model(X_val, y_val, count=5):
             plt.figure(figsize=(10, 8))
             plt.subplot(1, 3, 1)
             rgb_image = image[:, :, :3]
-            show_image(rgb_image, title="Original Image")
+            show_image(rgb_image, index=i, title="Original Image")
             plt.subplot(1, 3, 2)
-            show_image(mask, title="Original Mask")
+            show_image(mask, index=i, title="Original Mask")
             plt.subplot(1, 3, 3)
-            show_image(pred_mask, title="Predicted Mask")
+            show_image(pred_mask, index=i, title="Predicted Mask", save=True)
             plt.tight_layout()
             plt.show()
     else:
@@ -120,7 +122,11 @@ def display_mask(pred):
     plt.imshow(mask)
     plt.show()
 
-def show_image(image, title=None):
+def show_image(image, index, title=None, save=False):
+    if save:
+        file_name = f"{OUTPUT_DIR}/predicted_mask_{index}.png"
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        plt.imsave(file_name, image)
     plt.imshow(image)
     plt.title(title)
     plt.axis('off')
@@ -131,9 +137,9 @@ if __name__ == "__main__":
     print(f"physical_devices : {physical_devices}")
     print(tf.__version__)
     print(tf.executing_eagerly())
-    epochs = 50
+    epochs = 100
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images", file_extension="jpg", num_channels=5, percentage=0.7)
-        train_model(epochs, X_train, y_train, X_val, y_val, 5, restore=False)
-        load_with_trained_model(X_val, y_val, count=3)
+        # train_model(epochs, X_train, y_train, X_val, y_val, 5, restore=False)
+        load_with_trained_model(X_val, y_val)
 

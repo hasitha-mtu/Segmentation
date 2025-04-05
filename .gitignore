@@ -13,4 +13,5 @@ models/unet2/ckpt/
 data/
 models/wsl/ckpt/
 models/wsl/logs/
+models/wsl/output/
 
