@@ -80,7 +80,7 @@ def load_dataset(path, size = (256, 256), file_extension = "JPG", num_channels=5
     return (x_train, y_train),(x_test, y_test)
 
 if __name__ == "__main__":
-    sample_image = "../../data/samples/sample1.JPG"
+    sample_image = "../../input/samples/sample1.JPG"
     size = (256, 256)
     get_image(size, sample_image)
     img = load_image(size, sample_image)

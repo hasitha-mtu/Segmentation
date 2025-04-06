@@ -139,7 +139,7 @@ if __name__ == "__main__":
     epochs = 50
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
-                                                          size = (512, 512),
+                                                          size = (512, 512), # (3956, 5280)
                                                           file_extension="jpg",
                                                           num_channels=5,
                                                           percentage=0.7)
