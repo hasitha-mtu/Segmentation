@@ -12,7 +12,7 @@ from numpy.random import randint
 
 from data import load_dataset
 from model import unet_model
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, partial_crossentropy
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\ckpt"
@@ -94,7 +94,7 @@ def load_with_trained_model(X_val, y_val):
                                         custom_objects={'recall_m':recall_m,
                                                         'precision_m':precision_m,
                                                         'f1_score':f1_score,
-                                                        'partial_crossentropy':partial_crossentropy})
+                                                        'masked_dice_loss':masked_dice_loss})
         for i in range(len(X_val)):
             id = randint(len(X_val))
             image = X_val[id]
