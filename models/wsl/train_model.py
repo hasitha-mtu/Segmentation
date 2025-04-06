@@ -1,6 +1,5 @@
 import os
 from datetime import datetime
-from itertools import count
 
 import keras.callbacks_v1
 import matplotlib.pyplot as plt
@@ -10,11 +9,10 @@ from keras.callbacks import (Callback,
                              CSVLogger)
 import numpy as np
 from numpy.random import randint
-from tensorflow.python.ops.metrics_impl import percentage_below
 
 from data import load_dataset
 from model import unet_model
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, partial_crossentropy
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\ckpt"
@@ -96,7 +94,7 @@ def load_with_trained_model(X_val, y_val):
                                         custom_objects={'recall_m':recall_m,
                                                         'precision_m':precision_m,
                                                         'f1_score':f1_score,
-                                                        'masked_dice_loss':masked_dice_loss})
+                                                        'partial_crossentropy':partial_crossentropy})
         for i in range(len(X_val)):
             id = randint(len(X_val))
             image = X_val[id]
@@ -138,9 +136,15 @@ if __name__ == "__main__":
     print(f"physical_devices : {physical_devices}")
     print(tf.__version__)
     print(tf.executing_eagerly())
-    epochs = 100
+    epochs = 50
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images", size = (512, 512), file_extension="jpg", num_channels=5, percentage=0.7)
-        train_model(epochs, X_train, y_train, X_val, y_val, 5, size = (512, 512), restore=False)
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
+                                                          size = (512, 512),
+                                                          file_extension="jpg",
+                                                          num_channels=5,
+                                                          percentage=0.7)
+        train_model(epochs, X_train, y_train, X_val, y_val, 5,
+                    size = (512, 512),
+                    restore=False)
         load_with_trained_model(X_val, y_val)
 

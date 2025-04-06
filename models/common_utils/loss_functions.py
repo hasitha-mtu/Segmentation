@@ -54,3 +54,14 @@ def masked_dice_loss(y_true, y_pred):
 
     return 1 - (2.0 * intersection + smooth) / (union + smooth)
 
+def partial_crossentropy(y_true, y_pred):
+    """
+    y_true: [batch, h, w, 1] - with labels: 1 (water), 0 (non-water), -1 (ignore)
+    y_pred: [batch, h, w, 1] - predicted probability map
+    """
+    mask = tf.not_equal(y_true, -1)
+    y_true_clipped = tf.where(mask, y_true, tf.zeros_like(y_true))
+    loss = tf.keras.losses.binary_crossentropy(y_true_clipped, y_pred)
+    loss = tf.where(mask, loss, tf.zeros_like(loss))
+    return tf.reduce_mean(loss)
+
