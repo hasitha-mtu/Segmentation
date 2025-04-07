@@ -19,7 +19,7 @@ def show_image(dir_path, image, index, title=None, save=False):
     plt.title(title)
     plt.axis('off')
 
-def overlay_mask_on_image(image, predicted_mask, alpha=0.5):
+def overlay_mask_on_image(image, predicted_mask, alpha=0.4):
     """
     Overlays a predicted binary mask on an image.
 
@@ -66,5 +66,97 @@ def overlay_mask_on_image(image, predicted_mask, alpha=0.5):
 
     # Blend images
     blended = cv2.addWeighted(image, 1 - alpha, mask_colored, alpha, 0)
+
+    return blended
+
+def create_blue_mask(predicted_mask):
+    """
+    Convert binary mask to solid blue RGB overlay.
+    """
+    blue_mask = np.zeros((predicted_mask.shape[0], predicted_mask.shape[1], 3), dtype=np.uint8)
+    blue_mask[:, :, 0] = 255  # Blue channel
+    return blue_mask
+
+# def overlay_confident_mask(image, predicted_mask, alpha=0.5, threshold=0.5, color=(255, 0, 0)):
+#     """
+#     Overlay mask only on confident regions (where mask > threshold).
+#
+#     Parameters:
+#     - image: original image (H, W, 3), float64 or uint8
+#     - predicted_mask: soft mask (H, W), float in [0, 1]
+#     - alpha: transparency of overlay
+#     - threshold: confidence threshold (e.g., 0.5)
+#     - color: BGR color to overlay (e.g., (255, 0, 0) for blue)
+#
+#     Returns:
+#     - blended image with overlay only on confident regions
+#     """
+#     # Normalize image to uint8
+#     if image.dtype != np.uint8:
+#         if image.max() <= 1.0:
+#             image = (image * 255).astype(np.uint8)
+#         else:
+#             image = image.astype(np.uint8)
+#
+#     # Convert RGB to BGR for OpenCV (if needed)
+#     if image.shape[2] == 3:
+#         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+#
+#     # Create a binary mask of confident areas
+#     confident_mask = (predicted_mask > threshold).astype(np.uint8)
+#
+#     # Create a blank color mask
+#     color_mask = np.zeros_like(image, dtype=np.uint8)
+#     # color_mask[:, :] = color  # BGR
+#     color_mask[:] = color  # This will be shape (H, W, 3)
+#
+#     # Apply confident mask as a 3-channel mask
+#     confident_mask_3ch = np.stack([confident_mask]*3, axis=-1)
+#
+#     # Only overlay color where confident
+#     overlay = np.where(confident_mask_3ch, color_mask, 0)
+#
+#     # Blend only confident areas
+#     blended = image.copy()
+#     blended = cv2.addWeighted(blended, 1.0, overlay, alpha, 0)
+#
+#     return blended
+
+def overlay_confident_mask(image, predicted_mask, alpha=0.5, threshold=0.5, color=(255, 0, 0)):
+    """
+    Overlay a colored mask on confident regions only (mask > threshold).
+    """
+
+    # Convert image to uint8
+    if image.dtype != np.uint8:
+        if image.max() <= 1.0:
+            image = (image * 255).astype(np.uint8)
+        else:
+            image = image.astype(np.uint8)
+
+    # Convert RGB to BGR (OpenCV default)
+    if image.shape[2] == 3:
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+    # Binary mask of confident predictions
+    confident_mask = (predicted_mask > threshold).astype(np.uint8)
+
+    # # Expand to 3 channels
+    # confident_mask_3ch = np.stack([confident_mask]*3, axis=-1)
+
+    # Create color mask (same shape as image)
+    # color_mask = np.zeros_like(image, dtype=np.uint8)
+    # color_mask[:] = color  # This will be shape (H, W, 3)
+    color_mask = np.full_like(image, color, dtype=np.uint8)
+
+    print(f'overlay_mask_on_image|confident_mask shape is {confident_mask.shape}')
+    print(f'overlay_mask_on_image|color_mask shape is {color_mask.shape}')
+    # print(f'overlay_mask_on_image|confident_mask_3ch shape is {confident_mask_3ch.shape}')
+
+    # Only keep color where confident
+    overlay = color_mask * confident_mask
+
+    # Blend
+    blended = cv2.addWeighted(image, 1.0, overlay, alpha, 0)
 
     return blended
