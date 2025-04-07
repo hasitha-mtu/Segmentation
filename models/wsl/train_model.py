@@ -123,15 +123,16 @@ if __name__ == "__main__":
     print(f"physical_devices : {physical_devices}")
     print(tf.__version__)
     print(tf.executing_eagerly())
-    epochs = 50
+    image_size = (1024, 1024) # actual size is (5280, 3956)
+    epochs = 100
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
-                                                          size = (512, 512), # (3956, 5280)
+                                                          size = image_size,
                                                           file_extension="jpg",
                                                           num_channels=5,
                                                           percentage=0.7)
-        # train_model(epochs, X_train, y_train, X_val, y_val, 5,
-        #             size = (512, 512),
-        #             restore=False)
+        train_model(epochs, X_train, y_train, X_val, y_val, 5,
+                    size = image_size,
+                    restore=False)
         load_with_trained_model(X_val, y_val)
 
