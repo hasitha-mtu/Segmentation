@@ -102,16 +102,43 @@ def load_with_trained_model(X_val, y_val):
             mask = y_val[id]
             pred_mask = model.predict(np.expand_dims(image, 0))[0]
             plt.figure(figsize=(10, 8))
-            plt.subplot(1, 4, 1)
+            plt.subplot(1, 2, 1)
             rgb_image = image[:, :, :3]
             show_image(OUTPUT_DIR, rgb_image, index=i, title="Original Image")
-            plt.subplot(1, 4, 2)
-            show_image(OUTPUT_DIR, mask, index=i, title="Original Mask")
-            plt.subplot(1, 4, 3)
-            show_image(OUTPUT_DIR, pred_mask, index=i, title="Predicted Mask", save=True)
-            plt.subplot(1, 4, 4)
+            plt.subplot(1, 2, 2)
             blended_mask = overlay_mask_on_image(rgb_image, pred_mask)
-            show_image(OUTPUT_DIR, blended_mask, index=i, title="Prediction", save=True)
+            show_image(OUTPUT_DIR, blended_mask, index=i, title="Predicted Mask", save=True)
+            plt.tight_layout()
+            plt.show()
+    else:
+        print("No preloaded model")
+    return None
+
+def load_with_trained_model1(X_val, y_val):
+    checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
+    print(f"Checkpoints: {checkpoints}")
+    if checkpoints:
+        latest_checkpoint = max(checkpoints, key=os.path.getctime)
+        print(f"Restoring from {latest_checkpoint}")
+        model = keras.models.load_model(latest_checkpoint,
+                                        custom_objects={'recall_m':recall_m,
+                                                        'precision_m':precision_m,
+                                                        'f1_score':f1_score,
+                                                        'masked_dice_loss':masked_dice_loss})
+        for i in range(len(X_val)):
+            id = randint(len(X_val))
+            image = X_val[id]
+            mask = y_val[id]
+            pred_mask = model.predict(np.expand_dims(image, 0))[0]
+            plt.figure(figsize=(10, 8))
+            plt.subplot(1, 3, 1)
+            rgb_image = image[:, :, :3]
+            show_image(OUTPUT_DIR, rgb_image, index=i, title="Original Image")
+            plt.subplot(1, 3, 2)
+            show_image(OUTPUT_DIR, mask, index=i, title="Original Mask")
+            plt.subplot(1, 3, 3)
+            blended_mask = overlay_mask_on_image(rgb_image, pred_mask)
+            show_image(OUTPUT_DIR, blended_mask, index=i, title="Predicted Mask", save=True)
             plt.tight_layout()
             plt.show()
     else:
@@ -134,8 +161,8 @@ if __name__ == "__main__":
                                                           file_extension="jpg",
                                                           num_channels=5,
                                                           percentage=0.7)
-        train_model(epochs, batch_size, X_train, y_train, X_val, y_val, 5,
-                    size = image_size,
-                    restore=False)
+        # train_model(epochs, batch_size, X_train, y_train, X_val, y_val, 5,
+        #             size = image_size,
+        #             restore=False)
         load_with_trained_model(X_val, y_val)
 

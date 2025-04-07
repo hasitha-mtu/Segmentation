@@ -146,8 +146,15 @@ def stack_rgb_ndwi_edges(image_path):
     stacked = np.dstack((rgb_image, ndwi, edges))
     return stacked.astype(np.float32)
 
+# if __name__ == "__main__":
+#     sample1_image = "../../input/samples/sample1.JPG"
+#     # calculate_ndwi(sample3_image)
+#     calculate_ndwi_with_edge_detection(sample1_image)
+
 if __name__ == "__main__":
     sample1_image = "../../input/samples/sample1.JPG"
-    # calculate_ndwi(sample3_image)
-    calculate_ndwi_with_edge_detection(sample1_image)
-
+    sample1_mask = "../../input/samples/sample1_mask.png"
+    image = cv2.imread(sample1_image)
+    image_mask = cv2.imread(sample1_mask)
+    print(f'Image shape : {image.shape}')
+    print(f'Image mask shape : {image_mask.shape}')
