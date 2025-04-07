@@ -13,7 +13,7 @@ from numpy.random import randint
 from data import load_dataset
 from model import unet_model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
-from models.wsl.wsl_utils import show_image, overlay_mask_on_image
+from models.wsl.wsl_utils import show_image, overlay_mask_on_image, overlay_mask
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\ckpt"
@@ -106,7 +106,7 @@ def load_with_trained_model(X_val, y_val):
             rgb_image = image[:, :, :3]
             show_image(OUTPUT_DIR, rgb_image, index=i, title="Original Image")
             plt.subplot(1, 2, 2)
-            blended_mask = overlay_mask_on_image(rgb_image, pred_mask)
+            blended_mask = overlay_mask(rgb_image, pred_mask, alpha=0.2)
             show_image(OUTPUT_DIR, blended_mask, index=i, title="Predicted Mask", save=True)
             plt.tight_layout()
             plt.show()
@@ -137,7 +137,7 @@ def load_with_trained_model1(X_val, y_val):
             plt.subplot(1, 3, 2)
             show_image(OUTPUT_DIR, mask, index=i, title="Original Mask")
             plt.subplot(1, 3, 3)
-            blended_mask = overlay_mask_on_image(rgb_image, pred_mask)
+            blended_mask = overlay_mask(rgb_image, pred_mask, alpha=0.2)
             show_image(OUTPUT_DIR, blended_mask, index=i, title="Predicted Mask", save=True)
             plt.tight_layout()
             plt.show()
