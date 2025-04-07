@@ -13,6 +13,7 @@ from numpy.random import randint
 from data import load_dataset
 from model import unet_model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
+from models.wsl.wsl_utils import show_image, overlay_mask_on_image
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\ckpt"
@@ -103,32 +104,18 @@ def load_with_trained_model(X_val, y_val):
             plt.figure(figsize=(10, 8))
             plt.subplot(1, 3, 1)
             rgb_image = image[:, :, :3]
-            show_image(rgb_image, index=i, title="Original Image")
+            show_image(OUTPUT_DIR, rgb_image, index=i, title="Original Image")
             plt.subplot(1, 3, 2)
-            show_image(mask, index=i, title="Original Mask")
+            show_image(OUTPUT_DIR, mask, index=i, title="Original Mask")
             plt.subplot(1, 3, 3)
-            show_image(pred_mask, index=i, title="Predicted Mask", save=True)
+            blended_mask = overlay_mask_on_image(rgb_image, pred_mask)
+            show_image(OUTPUT_DIR, blended_mask, index=i, title="Predicted Mask", save=True)
             plt.tight_layout()
             plt.show()
     else:
         print("No preloaded model")
     return None
 
-def display_mask(pred):
-    mask = np.argmax(pred, axis=-1)
-    mask *= 127
-    plt.axis("off")
-    plt.imshow(mask)
-    plt.show()
-
-def show_image(image, index, title=None, save=False):
-    if save:
-        file_name = f"{OUTPUT_DIR}/predicted_mask_{index}.png"
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
-        plt.imsave(file_name, image)
-    plt.imshow(image)
-    plt.title(title)
-    plt.axis('off')
 
 if __name__ == "__main__":
     print(tf.config.list_physical_devices('GPU'))
@@ -143,8 +130,8 @@ if __name__ == "__main__":
                                                           file_extension="jpg",
                                                           num_channels=5,
                                                           percentage=0.7)
-        train_model(epochs, X_train, y_train, X_val, y_val, 5,
-                    size = (512, 512),
-                    restore=False)
+        # train_model(epochs, X_train, y_train, X_val, y_val, 5,
+        #             size = (512, 512),
+        #             restore=False)
         load_with_trained_model(X_val, y_val)
 
