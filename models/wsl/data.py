@@ -49,7 +49,7 @@ def format_image(size, img):
     return resized_img
 
 def get_image(size, path):
-    image_data = load_ndwi_edge_map(path)
+    image_data = load_ndwi_edge_map(path, edge_map_type='sobel')
     rgb = format_image(size, image_data['rgb'])
     # print(f'RGB shape: {rgb.shape}')
     ndwi = format_image(size, image_data['ndwi'])

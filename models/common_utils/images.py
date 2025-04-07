@@ -147,9 +147,7 @@ def stack_rgb_ndwi_edges(image_path):
     return stacked.astype(np.float32)
 
 if __name__ == "__main__":
-    sample1_image = "../../data/samples/sample1.JPG"
-    sample2_image = "../../data/samples/sample2.JPG"
-    sample3_image = "../../data/samples/sample3.JPG"
+    sample1_image = "../../input/samples/sample1.JPG"
     # calculate_ndwi(sample3_image)
-    calculate_ndwi_with_edge_detection(sample3_image)
+    calculate_ndwi_with_edge_detection(sample1_image)
 
