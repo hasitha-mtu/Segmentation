@@ -19,7 +19,7 @@ LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\log
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\ckpt"
 OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\wsl\output"
 
-def train_model(epoch_count, X_train, y_train, X_val, y_val, num_channels, size = (256, 256), restore=True):
+def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_channels, size = (256, 256), restore=True):
     print(f'X_train shape : {X_train.shape}')
     print(f'y_train shape : {y_train.shape}')
 
@@ -47,7 +47,7 @@ def train_model(epoch_count, X_train, y_train, X_val, y_val, num_channels, size 
                     X_train,
                     y_train,
                     epochs=epoch_count,
-                    batch_size=1,
+                    batch_size=batch_size,
                     validation_data=(X_val, y_val),
                     callbacks=cbs
                 )
@@ -102,14 +102,16 @@ def load_with_trained_model(X_val, y_val):
             mask = y_val[id]
             pred_mask = model.predict(np.expand_dims(image, 0))[0]
             plt.figure(figsize=(10, 8))
-            plt.subplot(1, 3, 1)
+            plt.subplot(1, 4, 1)
             rgb_image = image[:, :, :3]
             show_image(OUTPUT_DIR, rgb_image, index=i, title="Original Image")
-            plt.subplot(1, 3, 2)
+            plt.subplot(1, 4, 2)
             show_image(OUTPUT_DIR, mask, index=i, title="Original Mask")
-            plt.subplot(1, 3, 3)
+            plt.subplot(1, 4, 3)
+            show_image(OUTPUT_DIR, pred_mask, index=i, title="Predicted Mask", save=True)
+            plt.subplot(1, 4, 4)
             blended_mask = overlay_mask_on_image(rgb_image, pred_mask)
-            show_image(OUTPUT_DIR, blended_mask, index=i, title="Predicted Mask", save=True)
+            show_image(OUTPUT_DIR, blended_mask, index=i, title="Prediction", save=True)
             plt.tight_layout()
             plt.show()
     else:
@@ -124,15 +126,16 @@ if __name__ == "__main__":
     print(tf.__version__)
     print(tf.executing_eagerly())
     image_size = (512, 512) # actual size is (5280, 3956)
-    epochs = 100
+    epochs = 50
+    batch_size = 1
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           num_channels=5,
                                                           percentage=0.7)
-        # train_model(epochs, X_train, y_train, X_val, y_val, 5,
-        #             size = image_size,
-        #             restore=False)
+        train_model(epochs, batch_size, X_train, y_train, X_val, y_val, 5,
+                    size = image_size,
+                    restore=False)
         load_with_trained_model(X_val, y_val)
 

@@ -19,7 +19,7 @@ def show_image(dir_path, image, index, title=None, save=False):
     plt.title(title)
     plt.axis('off')
 
-def overlay_mask_on_image(image, predicted_mask, alpha=0.4):
+def overlay_mask_on_image(image, predicted_mask, alpha=0.5):
     """
     Overlays a predicted binary mask on an image.
 
