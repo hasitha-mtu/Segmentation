@@ -24,8 +24,8 @@ def load_drone_dataset(path, file_extension = "jpg", num_channels=5):
 
 def load_drone_images(size, paths, channels=3):
     (width, height) = size
-    images = np.zeros(shape=(len(paths), height, width, channels))
-    masks = np.zeros(shape=(len(paths), height, width, 3))
+    images = np.zeros(shape=(len(paths), width, height, channels))
+    masks = np.zeros(shape=(len(paths), width, height, 3))
     for i, path in tqdm(enumerate(paths), total=len(paths), desc="Loading"):
         image = get_image(size, path)
         images[i] = image
