@@ -12,7 +12,10 @@ def display_mask(pred):
 
 def show_image(dir_path, image, index, title=None, save=False):
     if save:
-        file_name = f"{dir_path}/predicted_mask_{index}.png"
+        if title:
+            file_name = f"{dir_path}/{title}_{index}.png"
+        else:
+            file_name = f"{dir_path}/predicted_mask_{index}.png"
         os.makedirs(dir_path, exist_ok=True)
         plt.imsave(file_name, image)
     plt.imshow(image)

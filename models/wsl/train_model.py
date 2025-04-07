@@ -99,15 +99,14 @@ def load_with_trained_model(X_val, y_val):
         for i in range(len(X_val)):
             id = randint(len(X_val))
             image = X_val[id]
-            mask = y_val[id]
             pred_mask = model.predict(np.expand_dims(image, 0))[0]
             plt.figure(figsize=(10, 8))
             plt.subplot(1, 2, 1)
             rgb_image = image[:, :, :3]
-            show_image(OUTPUT_DIR, rgb_image, index=i, title="Original Image")
+            show_image(OUTPUT_DIR, rgb_image, index=i, title="Original_Image", save=True)
             plt.subplot(1, 2, 2)
-            blended_mask = overlay_mask(rgb_image, pred_mask, alpha=0.2)
-            show_image(OUTPUT_DIR, blended_mask, index=i, title="Predicted Mask", save=True)
+            blended_mask = overlay_mask(rgb_image, pred_mask, alpha=0.3)
+            show_image(OUTPUT_DIR, blended_mask, index=i, title="Predicted_Mask", save=True)
             plt.tight_layout()
             plt.show()
     else:
