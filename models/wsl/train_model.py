@@ -152,7 +152,7 @@ if __name__ == "__main__":
     print(tf.__version__)
     print(tf.executing_eagerly())
     image_size = (512, 512) # actual size is (5280, 3956)
-    epochs = 50
+    epochs = 30
     batch_size = 1
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
@@ -160,8 +160,8 @@ if __name__ == "__main__":
                                                           file_extension="jpg",
                                                           num_channels=5,
                                                           percentage=0.7)
-        # train_model(epochs, batch_size, X_train, y_train, X_val, y_val, 5,
-        #             size = image_size,
-        #             restore=False)
+        train_model(epochs, batch_size, X_train, y_train, X_val, y_val, 5,
+                    size = image_size,
+                    restore=False)
         load_with_trained_model(X_val, y_val)
 
