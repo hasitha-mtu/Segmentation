@@ -154,13 +154,14 @@ if __name__ == "__main__":
     image_size = (512, 512) # actual size is (5280, 3956)
     epochs = 30
     batch_size = 1
+    channels = 10
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
                                                           size = image_size,
                                                           file_extension="jpg",
-                                                          num_channels=5,
+                                                          num_channels=channels,
                                                           percentage=0.7)
-        train_model(epochs, batch_size, X_train, y_train, X_val, y_val, 5,
+        train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channels,
                     size = image_size,
                     restore=False)
         load_with_trained_model(X_val, y_val)
