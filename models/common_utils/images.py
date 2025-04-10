@@ -2,7 +2,9 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import cv2
 import numpy as np
-
+from glob import glob
+import random
+from skimage.feature import local_binary_pattern
 
 def read_image(path):
     image = mpimg.imread(path)
@@ -133,9 +135,14 @@ def compute_ndwi(rgb_image):
     ndwi = np.clip(ndwi, -1, 1)
     return ndwi
 
-def compute_edges(rgb_image):
+def compute_edges(rgb_image, edge_type='canny'):
     gray = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2GRAY)
-    edges = cv2.Canny(gray, 100, 200)
+    if edge_type == 'canny':
+        edges = cv2.Canny(gray, 100, 200)
+    else:
+        sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=5)  # Horizontal edges
+        sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=5)  # Vertical edges
+        edges = cv2.magnitude(sobelx, sobely)  # Compute gradient magnitude
     return edges / 255.0
 
 def stack_rgb_ndwi_edges(image_path):
@@ -146,15 +153,151 @@ def stack_rgb_ndwi_edges(image_path):
     stacked = np.dstack((rgb_image, ndwi, edges))
     return stacked.astype(np.float32)
 
+def compute_lbp(rgb_image):
+    gray = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2GRAY)
+    lbp = local_binary_pattern(gray, P=8, R=1, method="uniform")
+    return lbp / 255.0
+
+def compute_hsv(rgb_image):
+    hsv = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
+    saturation = hsv[:, :, 1]
+    value = hsv[:, :, 2]
+    return saturation  / 255.0, value / 255.0
+
+def compute_shadow_mask(rgb_image, threshold = 0.05):
+    gray = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2GRAY)
+    shadow_mask = (gray < threshold).astype(np.uint8)
+    return shadow_mask / 255.0
+
+def compute_morphological_edge(rgb_image):
+    gray = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2GRAY)
+    sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
+    sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=3)
+    gradient_mag = np.sqrt(sobelx ** 2 + sobely ** 2)
+    return gradient_mag / 255.0
+
+# Channel	Description
+# 1-3	RGB
+# 4	NDWI (from RGB)
+# 5	Canny edges
+# 6	LBP (texture)
+# 7	HSV Saturation
+# 8	Gradient magnitude (Sobel)
+
+def stack_input_channels(image_path):
+    rgb_image = cv2.imread(image_path)
+    rgb_image = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2RGB)
+    ndwi = compute_ndwi(rgb_image)
+    canny = compute_edges(rgb_image)
+    lbp = compute_lbp(rgb_image)
+    hsv_saturation, hsv_value = compute_hsv(rgb_image)
+    gradient_mag = compute_morphological_edge(rgb_image)
+    shadow_mask = compute_shadow_mask(rgb_image)
+    stacked = np.dstack((rgb_image, ndwi, canny, lbp, hsv_saturation, hsv_value, gradient_mag, shadow_mask))
+    return stacked.astype(np.float32)
+
+def plot_colors(image_path):
+    # Load image in RGB format
+    image = cv2.imread(image_path)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    # Split into R, G, B channels
+    R, G, B = image[:, :, 0], image[:, :, 1], image[:, :, 2]
+
+    # Plot
+    plt.figure(figsize=(12, 4))
+
+    plt.subplot(1, 3, 1)
+    plt.imshow(R, cmap='Reds')
+    plt.title('Red Channel')
+    plt.axis('off')
+
+    plt.subplot(1, 3, 2)
+    plt.imshow(G, cmap='Greens')
+    plt.title('Green Channel')
+    plt.axis('off')
+
+    plt.subplot(1, 3, 3)
+    plt.imshow(B, cmap='Blues')
+    plt.title('Blue Channel')
+    plt.axis('off')
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_details(image_path):
+    rgb = cv2.imread(image_path)
+    rgb = cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB)
+
+    ndwi = compute_ndwi(rgb)
+    canny_edge = compute_edges(rgb)
+    sobel_edge = compute_edges(rgb, edge_type='sobel')
+
+    red = rgb[:, :, 0].astype(float)
+    green = rgb[:, :, 1].astype(float)
+    blue = rgb[:, :, 2].astype(float)
+
+    plt.figure(figsize=(20, 18))
+
+    plt.subplot(1, 4, 1)
+    plt.imshow(rgb)
+    plt.title('RGB')
+    plt.axis('off')
+
+    plt.subplot(1, 4, 2)
+    plt.imshow(red, cmap='Reds')
+    plt.title('Red')
+    plt.axis('off')
+
+    plt.subplot(1, 4, 3)
+    plt.imshow(green, cmap='Greens')
+    plt.title('Green')
+    plt.axis('off')
+
+    plt.subplot(1, 4, 4)
+    plt.imshow(blue, cmap='Blues')
+    plt.title('Blue')
+    plt.axis('off')
+
+    plt.subplot(2, 4, 1)
+    plt.imshow(rgb)
+    plt.title('RGB')
+    plt.axis('off')
+
+    plt.subplot(2, 4, 2)
+    plt.imshow(ndwi)
+    plt.title('NDWI')
+    plt.axis('off')
+
+    plt.subplot(2, 4, 3)
+    plt.imshow(canny_edge)
+    plt.title('Canny')
+    plt.axis('off')
+
+    plt.subplot(2, 4, 4)
+    plt.imshow(sobel_edge)
+    plt.title('Sobel')
+    plt.axis('off')
+
+    plt.show()
+
+if __name__ == "__main__":
+    path = "../../input/samples/crookstown/images"
+    image_paths = sorted(glob(path + "/*.jpg"))
+    random.Random(1337).shuffle(image_paths)
+    for i in range(10):
+        plot_details(image_paths[i])
+
 # if __name__ == "__main__":
 #     sample1_image = "../../input/samples/sample1.JPG"
 #     # calculate_ndwi(sample3_image)
 #     calculate_ndwi_with_edge_detection(sample1_image)
 
-if __name__ == "__main__":
-    sample1_image = "../../input/samples/sample1.JPG"
-    sample1_mask = "../../input/samples/sample1_mask.png"
-    image = cv2.imread(sample1_image)
-    image_mask = cv2.imread(sample1_mask)
-    print(f'Image shape : {image.shape}')
-    print(f'Image mask shape : {image_mask.shape}')
+# if __name__ == "__main__":
+#     sample1_image = "../../input/samples/sample1.JPG"
+#     sample1_mask = "../../input/samples/sample1_mask.png"
+#     image = cv2.imread(sample1_image)
+#     image_mask = cv2.imread(sample1_mask)
+#     print(f'Image shape : {image.shape}')
+#     print(f'Image mask shape : {image_mask.shape}')
