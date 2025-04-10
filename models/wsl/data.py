@@ -6,7 +6,7 @@ from tqdm import tqdm
 import random
 import os
 
-from models.common_utils.images import load_ndwi_edge_map, stack_rgb_ndwi_edges
+from models.common_utils.images import load_ndwi_edge_map, stack_input_channels, format_image
 
 def load_drone_dataset(path, file_extension = "jpg", num_channels=5):
     total_images = len(os.listdir(path))
@@ -27,7 +27,7 @@ def load_drone_images(size, paths, channels=3):
     images = np.zeros(shape=(len(paths), width, height, channels))
     masks = np.zeros(shape=(len(paths), width, height, 3))
     for i, path in tqdm(enumerate(paths), total=len(paths), desc="Loading"):
-        image = get_image(size, path)
+        image = get_stacked_image(size, path)
         images[i] = image
         mask_path = path.replace("images", "annotations")
         mask_path = mask_path.replace(".jpg", ".png")
@@ -37,12 +37,6 @@ def load_drone_images(size, paths, channels=3):
 
 def load_image(size, path: str):
     img = load_img(path)
-    img_array = img_to_array(img)
-    normalized_img_array = img_array/255.
-    resized_img = tf.image.resize(normalized_img_array, size, method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
-    return resized_img
-
-def format_image(size, img):
     img_array = img_to_array(img)
     normalized_img_array = img_array/255.
     resized_img = tf.image.resize(normalized_img_array, size, method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
@@ -60,8 +54,8 @@ def get_image(size, path):
     # print(f'Stacked image shape: {stacked_image.shape}')
     return stacked_image
 
-def get_stacked_image(path, size):
-    stacked_image = stack_rgb_ndwi_edges(path)
+def get_stacked_image(size, path):
+    stacked_image = stack_input_channels(size, path)
     return stacked_image
 
 def load_dataset(path, size = (256, 256), file_extension = "JPG", num_channels=5, percentage=0.7):

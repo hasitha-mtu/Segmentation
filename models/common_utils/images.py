@@ -5,6 +5,8 @@ import numpy as np
 from glob import glob
 import random
 from skimage.feature import local_binary_pattern
+from keras.utils import img_to_array
+import tensorflow as tf
 
 def read_image(path):
     image = mpimg.imread(path)
@@ -143,7 +145,7 @@ def compute_edges(rgb_image, edge_type='canny'):
         sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=5)  # Horizontal edges
         sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=5)  # Vertical edges
         edges = cv2.magnitude(sobelx, sobely)  # Compute gradient magnitude
-    return edges / 255.0
+    return edges
 
 def stack_rgb_ndwi_edges(image_path):
     rgb_image = cv2.imread(image_path)
@@ -156,25 +158,25 @@ def stack_rgb_ndwi_edges(image_path):
 def compute_lbp(rgb_image):
     gray = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2GRAY)
     lbp = local_binary_pattern(gray, P=8, R=1, method="uniform")
-    return lbp / 255.0
+    return lbp
 
 def compute_hsv(rgb_image):
     hsv = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     saturation = hsv[:, :, 1]
     value = hsv[:, :, 2]
-    return saturation  / 255.0, value / 255.0
+    return saturation, value
 
 def compute_shadow_mask(rgb_image, threshold = 0.05):
     gray = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2GRAY)
     shadow_mask = (gray < threshold).astype(np.uint8)
-    return shadow_mask / 255.0
+    return shadow_mask
 
 def compute_morphological_edge(rgb_image):
     gray = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2GRAY)
     sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
     sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=3)
     gradient_mag = np.sqrt(sobelx ** 2 + sobely ** 2)
-    return gradient_mag / 255.0
+    return gradient_mag
 
 # Channel	Description
 # 1-3	RGB
@@ -184,7 +186,7 @@ def compute_morphological_edge(rgb_image):
 # 7	HSV Saturation
 # 8	Gradient magnitude (Sobel)
 
-def stack_input_channels(image_path):
+def stack_input_channels(size, image_path):
     rgb_image = cv2.imread(image_path)
     rgb_image = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2RGB)
     ndwi = compute_ndwi(rgb_image)
@@ -193,8 +195,22 @@ def stack_input_channels(image_path):
     hsv_saturation, hsv_value = compute_hsv(rgb_image)
     gradient_mag = compute_morphological_edge(rgb_image)
     shadow_mask = compute_shadow_mask(rgb_image)
-    stacked = np.dstack((rgb_image, ndwi, canny, lbp, hsv_saturation, hsv_value, gradient_mag, shadow_mask))
+    stacked = np.dstack((format_image(size, rgb_image),
+                         format_image(size, ndwi),
+                         format_image(size, canny),
+                         format_image(size, lbp),
+                         format_image(size, hsv_saturation),
+                         format_image(size, hsv_value),
+                         format_image(size, gradient_mag),
+                         format_image(size, shadow_mask)
+                         ))
     return stacked.astype(np.float32)
+
+def format_image(size, img):
+    img_array = img_to_array(img)
+    normalized_img_array = img_array/255.
+    resized_img = tf.image.resize(normalized_img_array, size, method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+    return resized_img
 
 def plot_colors(image_path):
     # Load image in RGB format
@@ -282,17 +298,17 @@ def plot_details(image_path):
 
     plt.show()
 
-if __name__ == "__main__":
-    path = "../../input/samples/crookstown/images"
-    image_paths = sorted(glob(path + "/*.jpg"))
-    random.Random(1337).shuffle(image_paths)
-    for i in range(10):
-        plot_details(image_paths[i])
-
 # if __name__ == "__main__":
-#     sample1_image = "../../input/samples/sample1.JPG"
-#     # calculate_ndwi(sample3_image)
-#     calculate_ndwi_with_edge_detection(sample1_image)
+#     path = "../../input/samples/crookstown/images"
+#     image_paths = sorted(glob(path + "/*.jpg"))
+#     random.Random(1337).shuffle(image_paths)
+#     for i in range(10):
+#         plot_details(image_paths[i])
+
+if __name__ == "__main__":
+    sample1_image = "../../input/samples/sample1.jpg"
+    stacked = stack_input_channels((512, 512), sample1_image)
+    print(f"Shape stacked image : {stacked.shape}")
 
 # if __name__ == "__main__":
 #     sample1_image = "../../input/samples/sample1.JPG"
