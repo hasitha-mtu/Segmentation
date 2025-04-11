@@ -162,8 +162,8 @@ if __name__ == "__main__":
     print(tf.__version__)
     print(tf.executing_eagerly())
     image_size = (512, 512) # actual size is (5280, 3956)
-    epochs = 2
-    batch_size = 1
+    epochs = 50
+    batch_size = 4
     channels = 10
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
