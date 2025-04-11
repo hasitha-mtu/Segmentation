@@ -101,6 +101,8 @@ def load_with_trained_model(X_val, y_val):
             id = randint(len(X_val))
             image = X_val[id]
             pred_mask, attention_weights = model.predict(np.expand_dims(image, 0))
+            print(f"load_with_trained_model|attention_weights: {attention_weights}")
+            print(f"load_with_trained_model|attention_weights shape: {attention_weights.shape}")
             plt.figure(figsize=(10, 8))
             plt.subplot(1, 3, 1)
             rgb_image = image[:, :, :3]
@@ -110,8 +112,8 @@ def load_with_trained_model(X_val, y_val):
             show_image(OUTPUT_DIR, blended_mask, index=i, title="Predicted_Mask", save=True)
 
             plt.subplot(1, 3, 3)
-            plt.bar(range(1, 9), attention_weights.flatten())
-            plt.xticks(range(1, 9), ['RGB1', 'RGB2', 'RGB3', 'NDWI', 'Canny', 'LBP', 'Sat', 'GradMag'])
+            plt.bar(range(1, 11), attention_weights.flatten())
+            plt.xticks(range(1, 11), ['RED', 'GREEn', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag', 'Shadow Mask'])
             plt.ylabel("Channel Attention Weight")
             plt.title("Learned Attention per Channel")
 

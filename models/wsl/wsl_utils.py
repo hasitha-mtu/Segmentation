@@ -178,7 +178,7 @@ def overlay_mask(image, predicted_mask, alpha=0.2):
     """
 
     # Handle 3D predicted mask
-    if predicted_mask.ndim == 3:
+    if predicted_mask.ndim > 2:
         predicted_mask = predicted_mask.squeeze()
 
     # Normalize and convert mask to uint8
