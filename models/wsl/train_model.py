@@ -52,8 +52,9 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
                     callbacks=cbs
                 )
 
-    accuracy = history.history["accuracy"]
-    val_accuracy = history.history["val_accuracy"]
+    print(history.history)
+    accuracy = history.history["conv2d_26_accuracy"]
+    val_accuracy = history.history["val_conv2d_26_accuracy"]
     loss = history.history["loss"]
     val_loss = history.history["val_loss"]
     epochs = range(1, len(accuracy) + 1)
@@ -99,14 +100,21 @@ def load_with_trained_model(X_val, y_val):
         for i in range(len(X_val)):
             id = randint(len(X_val))
             image = X_val[id]
-            pred_mask = model.predict(np.expand_dims(image, 0))[0]
+            pred_mask, attention_weights = model.predict(np.expand_dims(image, 0))
             plt.figure(figsize=(10, 8))
-            plt.subplot(1, 2, 1)
+            plt.subplot(1, 3, 1)
             rgb_image = image[:, :, :3]
             show_image(OUTPUT_DIR, rgb_image, index=i, title="Original_Image", save=True)
-            plt.subplot(1, 2, 2)
+            plt.subplot(1, 3, 2)
             blended_mask = overlay_mask(rgb_image, pred_mask, alpha=0.3)
             show_image(OUTPUT_DIR, blended_mask, index=i, title="Predicted_Mask", save=True)
+
+            plt.subplot(1, 3, 3)
+            plt.bar(range(1, 9), attention_weights.flatten())
+            plt.xticks(range(1, 9), ['RGB1', 'RGB2', 'RGB3', 'NDWI', 'Canny', 'LBP', 'Sat', 'GradMag'])
+            plt.ylabel("Channel Attention Weight")
+            plt.title("Learned Attention per Channel")
+
             plt.tight_layout()
             plt.show()
     else:
@@ -152,7 +160,7 @@ if __name__ == "__main__":
     print(tf.__version__)
     print(tf.executing_eagerly())
     image_size = (512, 512) # actual size is (5280, 3956)
-    epochs = 30
+    epochs = 5
     batch_size = 1
     channels = 10
     if len(physical_devices) > 0:
