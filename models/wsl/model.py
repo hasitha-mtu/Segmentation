@@ -36,7 +36,7 @@ def decoding_block(inputs, conv, filters, batch_normalization=True, kernel_size=
 
 def unet_model(image_width, image_height, image_channels):
     inputs = tf.keras.Input(shape=(image_height, image_width, image_channels))  # 8-channel input
-    x, attention_weights = channel_attention_block(inputs)  # Apply attention
+    x, attention_weights = channel_attention_block(inputs, reduction_ratio = image_channels)  # Apply attention
     # Encoding
     c1, p1 = encoding_block(x, 16, 0.3)
     c2, p2 = encoding_block(p1, 32, 0.3)
@@ -53,7 +53,7 @@ def unet_model(image_width, image_height, image_channels):
     u5 = decoding_block(u4, c2, 32)
     u6 = decoding_block(u5, c1, 16)
 
-    outputs = tf.keras.layers.Conv2D(3, kernel_size=3, activation='sigmoid', padding='same')(u6)
+    outputs = tf.keras.layers.Conv2D(3, kernel_size=3, activation='sigmoid', padding='same', name="segmentation_output")(u6)
 
     model = tf.keras.Model(inputs=inputs,
                            outputs=[outputs, attention_weights],

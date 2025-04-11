@@ -53,8 +53,8 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
                 )
 
     print(history.history)
-    accuracy = history.history["conv2d_26_accuracy"]
-    val_accuracy = history.history["val_conv2d_26_accuracy"]
+    accuracy = history.history["segmentation_output_accuracy"]
+    val_accuracy = history.history["val_segmentation_output_accuracy"]
     loss = history.history["loss"]
     val_loss = history.history["val_loss"]
     epochs = range(1, len(accuracy) + 1)
@@ -160,7 +160,7 @@ if __name__ == "__main__":
     print(tf.__version__)
     print(tf.executing_eagerly())
     image_size = (512, 512) # actual size is (5280, 3956)
-    epochs = 5
+    epochs = 2
     batch_size = 1
     channels = 10
     if len(physical_devices) > 0:
