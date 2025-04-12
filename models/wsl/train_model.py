@@ -86,7 +86,7 @@ def make_or_restore_model(restore, num_channels, size):
         print("Creating fresh model")
         return unet_model(width, height, num_channels)
 
-def load_with_trained_model(X_val, y_val):
+def load_with_trained_model(X_val):
     checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
     print(f"Checkpoints: {checkpoints}")
     if checkpoints:
@@ -113,7 +113,7 @@ def load_with_trained_model(X_val, y_val):
 
             plt.subplot(1, 3, 3)
             plt.bar(range(1, 11), attention_weights.flatten())
-            plt.xticks(range(1, 11), ['RED', 'GREEn', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag', 'Shadow Mask'])
+            plt.xticks(range(1, 11), ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag', 'Shadow Mask'])
             plt.ylabel("Channel Attention Weight")
             plt.title("Learned Attention per Channel")
 
@@ -174,5 +174,5 @@ if __name__ == "__main__":
         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channels,
                     size = image_size,
                     restore=False)
-        load_with_trained_model(X_val, y_val)
+        load_with_trained_model(X_val)
 
