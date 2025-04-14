@@ -86,7 +86,7 @@ def make_or_restore_model(restore, num_channels, size):
         print("Creating fresh model")
         return unet_model(width, height, num_channels)
 
-def load_with_trained_model(X_val):
+def load_with_trained_model(X_val, channels):
     checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
     print(f"Checkpoints: {checkpoints}")
     if checkpoints:
@@ -112,8 +112,8 @@ def load_with_trained_model(X_val):
             show_image(OUTPUT_DIR, blended_mask, index=i, title="Predicted_Mask", save=True)
 
             plt.subplot(1, 3, 3)
-            plt.bar(range(1, 11), attention_weights.flatten())
-            plt.xticks(range(1, 11), ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag', 'Shadow Mask'])
+            plt.bar(range(1, len(channels)+1), attention_weights.flatten())
+            plt.xticks(range(1, len(channels)+1), channels)
             plt.ylabel("Channel Attention Weight")
             plt.title("Learned Attention per Channel")
 
@@ -164,15 +164,16 @@ if __name__ == "__main__":
     image_size = (512, 512) # actual size is (5280, 3956)
     epochs = 50
     batch_size = 4
-    channels = 10
+    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag', 'Shadow Mask']
+    channel_count = len(channels)
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
                                                           size = image_size,
                                                           file_extension="jpg",
-                                                          num_channels=channels,
+                                                          num_channels=channel_count,
                                                           percentage=0.7)
-        train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channels,
+        train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
                     size = image_size,
                     restore=False)
-        load_with_trained_model(X_val)
+        load_with_trained_model(X_val, channels)
 
