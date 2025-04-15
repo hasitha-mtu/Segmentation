@@ -4,38 +4,7 @@ import open3d as o3d
 import numpy as np
 import laspy
 
-
-if __name__ == "__main__":
-    laz_file = "../../input/samples/G_Sw_Anny.laz"
-    output_file = "../../input/samples/filtered_ground_water.las"
-    # output_file = "filtered_ground_water.las"
-
-    # las = laspy.read(laz_file)
-    # print(set(las.classification))  # See all unique classification values
-
-    # PDAL pipeline for ground classification and vegetation removal
-
-    # pipeline_json = {
-    #     "pipeline": [
-    #         laz_file,
-    #         {
-    #             "type": "filters.smrf"
-    #         },
-    #         {
-    #             "type": "filters.range",
-    #             "limits": "Classification[2:2]"
-    #         },
-    #         {
-    #             "type": "filters.range",
-    #             "limits": "Classification[9:9]"
-    #         },
-    #         {
-    #             "type": "writers.las",
-    #             "filename": output_file
-    #         }
-    #     ]
-    # }
-
+def filter_point_cloud(laz_file, output_file):
     pipeline_json = {
         "pipeline": [
             {
@@ -85,4 +54,18 @@ if __name__ == "__main__":
 
     # Show it
     o3d.visualization.draw_geometries([pcd])
+
+def read_laz_file(file_path):
+    las = laspy.read(file_path)
+    print(set(las.classification))
+
+# if __name__ == "__main__":
+#     input_file = "../../input/samples/Cloghmacow-Road-3-24-2025-georeferenced_model.laz"
+#     read_laz_file(input_file)
+
+if __name__ == "__main__":
+    # input_file = "../../input/samples/G_Sw_Anny.laz"
+    input_file = "../../input/samples/Cloghmacow-Road-3-24-2025-georeferenced_model.laz"
+    output_file = "../../input/samples/filtered_ground_water.las"
+    filter_point_cloud(input_file, output_file)
 
