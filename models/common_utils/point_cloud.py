@@ -6,23 +6,62 @@ import laspy
 
 
 if __name__ == "__main__":
-    las_file = "../../input/samples/Task-of-2025-04-02T085015246Z-georeferenced_model.las"
-    output_file = "../../input/samples/ground_only.las"
+    laz_file = "../../input/samples/G_Sw_Anny.laz"
+    output_file = "../../input/samples/filtered_ground_water.las"
+    # output_file = "filtered_ground_water.las"
+
+    # las = laspy.read(laz_file)
+    # print(set(las.classification))  # See all unique classification values
 
     # PDAL pipeline for ground classification and vegetation removal
+
+    # pipeline_json = {
+    #     "pipeline": [
+    #         laz_file,
+    #         {
+    #             "type": "filters.smrf"
+    #         },
+    #         {
+    #             "type": "filters.range",
+    #             "limits": "Classification[2:2]"
+    #         },
+    #         {
+    #             "type": "filters.range",
+    #             "limits": "Classification[9:9]"
+    #         },
+    #         {
+    #             "type": "writers.las",
+    #             "filename": output_file
+    #         }
+    #     ]
+    # }
+
     pipeline_json = {
         "pipeline": [
-            las_file,
             {
-                "type": "filters.smrf",  # Classify ground using Simple Morphological Filter
-                "scalar": 1.2,
-                "slope": 0.2,
-                "threshold": 0.45,
-                "window": 16.0
+                "type": "readers.las",
+                "filename": laz_file
             },
             {
-                "type": "filters.range",  # Keep only ground points (classification == 2)
-                "limits": "Classification[2:2]"
+                "type": "filters.smrf"
+            },
+            {
+                "type": "filters.range",
+                "limits": "Classification[2:2]",
+                "tag": "ground_only"
+            },
+            {
+                "type": "readers.las",
+                "filename": laz_file
+            },
+            {
+                "type": "filters.range",
+                "limits": "Classification[9:9]",
+                "tag": "water_only"
+            },
+            {
+                "type": "filters.merge",
+                "inputs": ["ground_only", "water_only"]
             },
             {
                 "type": "writers.las",
@@ -31,10 +70,11 @@ if __name__ == "__main__":
         ]
     }
 
+    print(json.dumps(pipeline_json, indent=2))
     # Run PDAL pipeline
     pipeline = pdal.Pipeline(json.dumps(pipeline_json))
     pipeline.execute()
-    print(f"Filtered LAS saved to: {output_file}")
+    print("✅ Filtered point cloud (ground + water) saved.")
     # Load the filtered LAS
     las = laspy.read(output_file)
     points = np.vstack((las.x, las.y, las.z)).transpose()
