@@ -189,6 +189,7 @@ def compute_morphological_edge(rgb_image):
 def stack_input_channels(size, image_path):
     rgb_image = cv2.imread(image_path)
     rgb_image = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2RGB)
+
     ndwi = compute_ndwi(rgb_image)
     canny = compute_edges(rgb_image)
     lbp = compute_lbp(rgb_image)
@@ -204,6 +205,37 @@ def stack_input_channels(size, image_path):
                          format_image(size, gradient_mag),
                          format_image(size, shadow_mask)
                          ))
+    return stacked.astype(np.float32)
+
+# channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag', 'Shadow Mask']
+def selected_channels(channels, size, image_path):
+    rgb_image = cv2.imread(image_path)
+    rgb_image = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2RGB)
+
+    channel_stack = [rgb_image]
+    if 'NDWI' in channels:
+        ndwi = compute_ndwi(rgb_image)
+        channel_stack.append(ndwi)
+    if 'Canny' in channels:
+        canny = compute_edges(rgb_image)
+        channel_stack.append(canny)
+    if 'LBP' in channels:
+        lbp = compute_lbp(rgb_image)
+        channel_stack.append(lbp)
+    if 'HSV Saturation' in channels:
+        hsv_saturation, _hsv_value = compute_hsv(rgb_image)
+        channel_stack.append(hsv_saturation)
+    if 'HSV Value' in channels:
+        _hsv_saturation, hsv_value = compute_hsv(rgb_image)
+        channel_stack.append(hsv_value)
+    if 'GradMag' in channels:
+        gradient_mag = compute_morphological_edge(rgb_image)
+        channel_stack.append(gradient_mag)
+    if 'Shadow Mask' in channels:
+        shadow_mask = compute_shadow_mask(rgb_image)
+        channel_stack.append(shadow_mask)
+
+    stacked = np.dstack(tuple([format_image(size, channel) for channel in channel_stack]))
     return stacked.astype(np.float32)
 
 def format_image(size, img):
@@ -307,7 +339,8 @@ def plot_details(image_path):
 
 if __name__ == "__main__":
     sample1_image = "../../input/samples/sample1.jpg"
-    stacked = stack_input_channels((512, 512), sample1_image)
+    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'GradMag', 'Shadow Mask']
+    stacked = selected_channels(channels, (512, 512), sample1_image)
     print(f"Shape stacked image : {stacked.shape}")
 
 # if __name__ == "__main__":

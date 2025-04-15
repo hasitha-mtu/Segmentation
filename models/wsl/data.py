@@ -6,7 +6,7 @@ from tqdm import tqdm
 import random
 import os
 
-from models.common_utils.images import load_ndwi_edge_map, stack_input_channels, format_image
+from models.common_utils.images import load_ndwi_edge_map, selected_channels, format_image
 
 def load_drone_dataset(path, file_extension = "jpg", num_channels=5):
     total_images = len(os.listdir(path))
@@ -22,12 +22,12 @@ def load_drone_dataset(path, file_extension = "jpg", num_channels=5):
     x_test, y_test = load_drone_images(test_paths, channels=num_channels)
     return (x_train, y_train),(x_test, y_test)
 
-def load_drone_images(size, paths, channels=3):
+def load_drone_images(size, paths, channels):
     (width, height) = size
-    images = np.zeros(shape=(len(paths), width, height, channels))
+    images = np.zeros(shape=(len(paths), width, height, len(channels)))
     masks = np.zeros(shape=(len(paths), width, height, 3))
     for i, path in tqdm(enumerate(paths), total=len(paths), desc="Loading"):
-        image = get_stacked_image(size, path)
+        image = get_stacked_image(channels, size, path)
         images[i] = image
         mask_path = path.replace("images", "annotations")
         mask_path = mask_path.replace(".jpg", ".png")
@@ -54,11 +54,13 @@ def get_image(size, path):
     # print(f'Stacked image shape: {stacked_image.shape}')
     return stacked_image
 
-def get_stacked_image(size, path):
-    stacked_image = stack_input_channels(size, path)
+def get_stacked_image(channels, size, path):
+    stacked_image = selected_channels(channels, size, path)
     return stacked_image
 
-def load_dataset(path, size = (256, 256), file_extension = "JPG", num_channels=5, percentage=0.7):
+def load_dataset(path, size = (256, 256), file_extension = "JPG",
+                 channels=['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag', 'Shadow Mask'],
+                 percentage=0.7):
     total_images = len(os.listdir(path))
     print(f'total number of images in path is {total_images}')
     all_image_paths = sorted(glob(path + "/*."+file_extension))
@@ -67,10 +69,10 @@ def load_dataset(path, size = (256, 256), file_extension = "JPG", num_channels=5
     train_size = int(len(all_image_paths) * percentage)
     train_paths = all_image_paths[:train_size]
     print(f"train image count : {len(train_paths)}")
-    x_train, y_train = load_drone_images(size, train_paths, channels=num_channels)
+    x_train, y_train = load_drone_images(size, train_paths, channels=channels)
     test_paths = all_image_paths[train_size:]
     print(f"test image count : {len(test_paths)}")
-    x_test, y_test = load_drone_images(size, test_paths, channels=num_channels)
+    x_test, y_test = load_drone_images(size, test_paths, channels=channels)
     return (x_train, y_train),(x_test, y_test)
 
 if __name__ == "__main__":
