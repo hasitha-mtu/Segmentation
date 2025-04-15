@@ -89,6 +89,7 @@ def make_or_restore_model(restore, num_channels, size):
 def load_with_trained_model(X_val, channels):
     checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
     print(f"Checkpoints: {checkpoints}")
+    weight_lists = []
     if checkpoints:
         latest_checkpoint = max(checkpoints, key=os.path.getctime)
         print(f"Restoring from {latest_checkpoint}")
@@ -101,58 +102,34 @@ def load_with_trained_model(X_val, channels):
             id = randint(len(X_val))
             image = X_val[id]
             pred_mask, attention_weights = model.predict(np.expand_dims(image, 0))
-            print(f"load_with_trained_model|attention_weights: {attention_weights}")
-            print(f"load_with_trained_model|attention_weights shape: {attention_weights.shape}")
             plt.figure(figsize=(10, 8))
-            plt.subplot(1, 3, 1)
+            plt.subplot(1, 2, 1)
             rgb_image = image[:, :, :3]
             show_image(OUTPUT_DIR, rgb_image, index=i, title="Original_Image", save=True)
-            plt.subplot(1, 3, 2)
+            plt.subplot(1, 2, 2)
             blended_mask = overlay_mask(rgb_image, pred_mask, alpha=0.3)
             show_image(OUTPUT_DIR, blended_mask, index=i, title="Predicted_Mask", save=True)
 
-            plt.subplot(1, 3, 3)
-            plt.bar(range(1, len(channels)+1), attention_weights.flatten())
-            plt.xticks(range(1, len(channels)+1), channels)
-            plt.ylabel("Channel Attention Weight")
-            plt.title("Learned Attention per Channel")
-
+            print(f'Attention weights: {attention_weights.flatten()}')
+            weight_lists.append(attention_weights.flatten().tolist())
             plt.tight_layout()
             plt.show()
     else:
         print("No preloaded model")
-    return None
+    print(f"weight_lists: {weight_lists}")
+    plot_attention_weights(channels, weight_lists)
 
-def load_with_trained_model1(X_val, y_val):
-    checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
-    print(f"Checkpoints: {checkpoints}")
-    if checkpoints:
-        latest_checkpoint = max(checkpoints, key=os.path.getctime)
-        print(f"Restoring from {latest_checkpoint}")
-        model = keras.models.load_model(latest_checkpoint,
-                                        custom_objects={'recall_m':recall_m,
-                                                        'precision_m':precision_m,
-                                                        'f1_score':f1_score,
-                                                        'masked_dice_loss':masked_dice_loss})
-        for i in range(len(X_val)):
-            id = randint(len(X_val))
-            image = X_val[id]
-            mask = y_val[id]
-            pred_mask = model.predict(np.expand_dims(image, 0))[0]
-            plt.figure(figsize=(10, 8))
-            plt.subplot(1, 3, 1)
-            rgb_image = image[:, :, :3]
-            show_image(OUTPUT_DIR, rgb_image, index=i, title="Original Image")
-            plt.subplot(1, 3, 2)
-            show_image(OUTPUT_DIR, mask, index=i, title="Original Mask")
-            plt.subplot(1, 3, 3)
-            blended_mask = overlay_mask(rgb_image, pred_mask, alpha=0.2)
-            show_image(OUTPUT_DIR, blended_mask, index=i, title="Predicted Mask", save=True)
-            plt.tight_layout()
-            plt.show()
-    else:
-        print("No preloaded model")
-    return None
+def plot_attention_weights(channels, weight_lists):
+    result = [sum(values) for values in zip(*weight_lists)]
+    print(f"plot_attention_weights|result: {result}")
+    percentages = [(value/sum(result))*100 for value in result]
+    print(f"plot_attention_weights|percentages: {percentages}")
+    plt.bar(range(1, len(channels) + 1), percentages)
+    plt.xticks(range(1, len(channels) + 1), channels)
+    plt.ylabel("Channel Attention Weight")
+    plt.title("Learned Attention per Channel")
+    plt.tight_layout()
+    plt.show()
 
 
 if __name__ == "__main__":
