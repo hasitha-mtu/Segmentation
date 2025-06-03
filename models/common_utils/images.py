@@ -166,6 +166,10 @@ def compute_hsv(rgb_image):
     value = hsv[:, :, 2]
     return saturation, value
 
+def compute_lab(rgb_image):
+    lab = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2LAB)
+    return lab
+
 def compute_shadow_mask(rgb_image, threshold = 0.05):
     gray = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2GRAY)
     shadow_mask = (gray < threshold).astype(np.uint8)
@@ -234,6 +238,9 @@ def selected_channels(channels, size, image_path):
     if 'Shadow Mask' in channels:
         shadow_mask = compute_shadow_mask(rgb_image)
         channel_stack.append(shadow_mask)
+    if 'LAB' in channels:
+        lab = compute_lab(rgb_image)
+        channel_stack.append(lab)
 
     stacked = np.dstack(tuple([format_image(size, channel) for channel in channel_stack]))
     return stacked.astype(np.float32)
@@ -339,7 +346,7 @@ def plot_details(image_path):
 
 if __name__ == "__main__":
     sample1_image = "../../input/samples/sample1.jpg"
-    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'GradMag', 'Shadow Mask']
+    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'GradMag', 'Shadow Mask', 'LAB']
     stacked = selected_channels(channels, (512, 512), sample1_image)
     print(f"Shape stacked image : {stacked.shape}")
 
