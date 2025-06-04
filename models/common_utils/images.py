@@ -170,6 +170,10 @@ def compute_lab(rgb_image):
     lab = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2LAB)
     return lab
 
+def compute_xyz(rgb_image):
+    xyz = cv2.cvtColor((rgb_image * 255).astype(np.uint8), cv2.COLOR_RGB2XYZ)
+    return xyz
+
 def compute_shadow_mask(rgb_image, threshold = 0.05):
     gray = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2GRAY)
     shadow_mask = (gray < threshold).astype(np.uint8)
@@ -241,6 +245,9 @@ def selected_channels(channels, size, image_path):
     if 'LAB' in channels:
         lab = compute_lab(rgb_image)
         channel_stack.append(lab)
+    if 'XYZ' in channels:
+        xyz = compute_xyz(rgb_image)
+        channel_stack.append(xyz)
 
     stacked = np.dstack(tuple([format_image(size, channel) for channel in channel_stack]))
     return stacked.astype(np.float32)
@@ -346,7 +353,7 @@ def plot_details(image_path):
 
 if __name__ == "__main__":
     sample1_image = "../../input/samples/sample1.jpg"
-    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'GradMag', 'Shadow Mask', 'LAB']
+    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'GradMag', 'Shadow Mask', 'LAB', 'XYZ']
     stacked = selected_channels(channels, (512, 512), sample1_image)
     print(f"Shape stacked image : {stacked.shape}")
 
