@@ -141,8 +141,8 @@ if __name__ == "__main__":
     image_size = (512, 512) # actual size is (5280, 3956)
     epochs = 50
     batch_size = 4
-    # channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag', 'Shadow Mask']
-    channels = ['RED', 'GREEN', 'BLUE', 'NDWI']
+    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
+                'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
     channel_count = len(channels)
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",

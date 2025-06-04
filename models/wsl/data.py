@@ -59,7 +59,8 @@ def get_stacked_image(channels, size, path):
     return stacked_image
 
 def load_dataset(path, size = (256, 256), file_extension = "JPG",
-                 channels=['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag', 'Shadow Mask'],
+                 channels=['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP',
+                           'HSV Saturation', 'HSV Value', 'GradMag', 'Shadow Mask'],
                  percentage=0.7):
     total_images = len(os.listdir(path))
     print(f'total number of images in path is {total_images}')

@@ -242,12 +242,33 @@ def selected_channels(channels, size, image_path):
     if 'Shadow Mask' in channels:
         shadow_mask = compute_shadow_mask(rgb_image)
         channel_stack.append(shadow_mask)
-    if 'LAB' in channels:
+    # LAB Color Space
+    if 'Lightness' in channels:
         lab = compute_lab(rgb_image)
-        channel_stack.append(lab)
-    if 'XYZ' in channels:
+        lightness = lab[:, :, 0]
+        channel_stack.append(lightness)
+    if 'GreenRed' in channels:
+        lab = compute_lab(rgb_image)
+        green_red = lab[:, :, 1]
+        channel_stack.append(green_red)
+    if 'BlueYellow' in channels:
+        lab = compute_lab(rgb_image)
+        blue_yellow = lab[:, :, 2]
+        channel_stack.append(blue_yellow)
+    # XYZ Color Space
+    if 'X' in channels:
         xyz = compute_xyz(rgb_image)
-        channel_stack.append(xyz)
+        x = xyz[:, :, 0]
+        channel_stack.append(x)
+    if 'Y' in channels:
+        xyz = compute_xyz(rgb_image)
+        y = xyz[:, :, 1]
+        channel_stack.append(y)
+    if 'Z' in channels:
+        xyz = compute_xyz(rgb_image)
+        z = xyz[:, :, 2]
+        channel_stack.append(z)
+
 
     stacked = np.dstack(tuple([format_image(size, channel) for channel in channel_stack]))
     return stacked.astype(np.float32)
@@ -353,7 +374,7 @@ def plot_details(image_path):
 
 if __name__ == "__main__":
     sample1_image = "../../input/samples/sample1.jpg"
-    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'GradMag', 'Shadow Mask', 'LAB', 'XYZ']
+    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'GradMag', 'Shadow Mask', 'Lightness', 'GreenRed', 'XYZ']
     stacked = selected_channels(channels, (512, 512), sample1_image)
     print(f"Shape stacked image : {stacked.shape}")
 
