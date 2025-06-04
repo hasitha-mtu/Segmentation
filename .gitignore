@@ -15,3 +15,6 @@ models/wsl/ckpt/
 models/wsl/logs/
 models/wsl/output/
 
+models/segnet/ckpt/
+models/segnet/logs/
+models/segnet/output/
