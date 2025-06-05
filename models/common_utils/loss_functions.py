@@ -43,7 +43,7 @@ def masked_dice_loss(y_true, y_pred):
     y_pred: Model prediction
     mask: Binary mask (1 = labeled pixel, 0 = unlabeled)
     """
-    smooth = 1e-6
+    smooth = 1e-7
     y_true = tf.cast(y_true, tf.float32)
     y_pred = tf.cast(y_pred, tf.float32)
 
