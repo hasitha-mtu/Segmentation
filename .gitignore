@@ -18,3 +18,8 @@ models/wsl/output/
 models/segnet/ckpt/
 models/segnet/logs/
 models/segnet/output/
+
+models/unet_MobileNetV2/ckpt/
+models/unet_MobileNetV2/logs/
+models/unet_MobileNetV2/output/
+
