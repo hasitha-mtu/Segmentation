@@ -34,39 +34,42 @@ class MaxUnpooling2D(layers.Layer):
         input_shape = tf.shape(inputs)
 
         if output_shape is None:
-            output_shape = (
+            output_shape = tf.stack([
                 input_shape[0],
                 input_shape[1] * self.pool_size[0],
                 input_shape[2] * self.pool_size[1],
                 input_shape[3]
-            )
+            ])
+        else:
+            if isinstance(output_shape, tf.TensorShape):
+                output_shape = output_shape.as_list()
+
+            for i, dim in enumerate(output_shape):
+                if dim is None:
+                    output_shape[i] = tf.shape(inputs)[i]
+
+            output_shape = tf.stack(output_shape)
+            output_shape = tf.cast(output_shape, tf.int64)
 
         flat_input = tf.reshape(inputs, [-1])
         flat_argmax = tf.reshape(argmax, [-1])
-
-        # ---- Batch Offset Calculation ----
-        batch_size = input_shape[0]
+        batch_size = output_shape[0]
         height = output_shape[1]
         width = output_shape[2]
         channels = output_shape[3]
 
-        # Number of elements per batch in the output tensor
-        output_elements_per_batch = tf.cast(height * width * channels, tf.int64)
+        output_elements_per_batch = height * width * channels
 
-        # Batch offset: e.g., [0, N, 2N, ..., (B-1)*N] where N = H*W*C
         batch_range = tf.range(batch_size, dtype=tf.int64)
         batch_offset = batch_range * output_elements_per_batch
-        batch_offset = tf.reshape(batch_offset, [-1, 1])  # shape: (B, 1)
+        batch_offset = tf.reshape(batch_offset, [-1, 1])
 
-        # Repeat to match argmax size
-        num_pool_elements = tf.shape(flat_argmax)[0] // batch_size
+        num_pool_elements = tf.cast(tf.shape(flat_argmax)[0], tf.int64) // batch_size
         batch_offset = tf.tile(batch_offset, [1, num_pool_elements])
         batch_offset = tf.reshape(batch_offset, [-1])
 
-        # Add offset to argmax
         flat_argmax = flat_argmax + batch_offset
 
-        # ---- Scatter input values into unpooled output ----
         output_shape_flat = tf.reduce_prod(output_shape)
         output = tf.scatter_nd(
             indices=tf.expand_dims(flat_argmax, 1),
