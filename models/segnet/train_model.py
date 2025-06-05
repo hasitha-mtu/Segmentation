@@ -5,7 +5,6 @@ import keras.callbacks_v1
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from keras.callbacks import (Callback,
-                             ModelCheckpoint,
                              CSVLogger)
 import numpy as np
 from numpy.random import randint
@@ -14,6 +13,7 @@ from models.wsl.data import load_dataset
 from model import segnet_model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
 from models.wsl.wsl_utils import show_image, overlay_mask
+from model import MaxUnpooling2D, MaxPoolingWithArgmax2D
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\segnet\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\segnet\ckpt"
@@ -32,7 +32,7 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
     os.makedirs(CKPT_DIR, exist_ok=True)
 
     checkpoint_cb = tf.keras.callbacks.ModelCheckpoint(
-        f"{CKPT_DIR}/unet_MobileNetV2_best_model.h5",  # or "best_model.keras"
+        f"{CKPT_DIR}/SegNet_best_model.h5",  # or "best_model.keras"
         monitor='val_loss',
         save_best_only=True,
         save_weights_only=False,  # set to True if you want only weights
@@ -105,7 +105,9 @@ def load_with_trained_model(X_val):
                                         custom_objects={'recall_m':recall_m,
                                                         'precision_m':precision_m,
                                                         'f1_score':f1_score,
-                                                        'masked_dice_loss':masked_dice_loss})
+                                                        'masked_dice_loss':masked_dice_loss,
+                                                        'MaxPoolingWithArgmax2D': MaxPoolingWithArgmax2D,
+                                                        'MaxUnpooling2D': MaxUnpooling2D})
         for i in range(len(X_val)):
             id = randint(len(X_val))
             image = X_val[id]
@@ -128,49 +130,49 @@ def load_with_trained_model(X_val):
         print("No preloaded model")
 
 
-if __name__ == "__main__":
-    print(tf.config.list_physical_devices('GPU'))
-    physical_devices = tf.config.experimental.list_physical_devices('GPU')
-    print(f"physical_devices : {physical_devices}")
-    print(tf.__version__)
-    print(tf.executing_eagerly())
-    image_size = (512, 512) # actual size is (5280, 3956)
-    epochs = 25
-    batch_size = 4
-    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
-                'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
-    channel_count = len(channels)
-    if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
-                                                          size = image_size,
-                                                          file_extension="jpg",
-                                                          channels=channels,
-                                                          percentage=0.7)
-        train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
-                    size = image_size,
-                    restore=False)
-        load_with_trained_model(X_val)
-
 # if __name__ == "__main__":
 #     print(tf.config.list_physical_devices('GPU'))
 #     physical_devices = tf.config.experimental.list_physical_devices('GPU')
 #     print(f"physical_devices : {physical_devices}")
 #     print(tf.__version__)
 #     print(tf.executing_eagerly())
-#     image_size = (512, 512) # actual size is (5280, 3956)
-#     epochs = 5
-#     batch_size = 2
+#     image_size = (256, 256) # actual size is (5280, 3956)
+#     epochs = 25
+#     batch_size = 4
 #     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
 #                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
 #     channel_count = len(channels)
 #     if len(physical_devices) > 0:
-#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/crookstown/images",
+#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
 #                                                           size = image_size,
 #                                                           file_extension="jpg",
 #                                                           channels=channels,
 #                                                           percentage=0.7)
 #         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
-#                     size=image_size,
+#                     size = image_size,
 #                     restore=False)
 #         load_with_trained_model(X_val)
+
+if __name__ == "__main__":
+    print(tf.config.list_physical_devices('GPU'))
+    physical_devices = tf.config.experimental.list_physical_devices('GPU')
+    print(f"physical_devices : {physical_devices}")
+    print(tf.__version__)
+    print(tf.executing_eagerly())
+    image_size = (256, 256) # actual size is (5280, 3956)
+    epochs = 2
+    batch_size = 2
+    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
+                'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
+    channel_count = len(channels)
+    if len(physical_devices) > 0:
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/crookstown/images",
+                                                          size = image_size,
+                                                          file_extension="jpg",
+                                                          channels=channels,
+                                                          percentage=0.7)
+        train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
+                    size=image_size,
+                    restore=False)
+        load_with_trained_model(X_val)
 

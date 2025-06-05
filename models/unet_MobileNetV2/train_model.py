@@ -136,25 +136,25 @@ if __name__ == "__main__":
                     restore=False)
         load_with_trained_model(X_val)
 
-if __name__ == "__main__":
-    print(tf.config.list_physical_devices('GPU'))
-    physical_devices = tf.config.experimental.list_physical_devices('GPU')
-    print(f"physical_devices : {physical_devices}")
-    print(tf.__version__)
-    print(tf.executing_eagerly())
-    image_size = (512, 512) # actual size is (5280, 3956)
-    epochs = 5
-    batch_size = 2
-    channels = ['RED', 'GREEN', 'BLUE']
-    channel_count = len(channels)
-    if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/crookstown/images",
-                                                          size = image_size,
-                                                          file_extension="jpg",
-                                                          channels=channels,
-                                                          percentage=0.7)
-        train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
-                    size=image_size,
-                    restore=False)
-        load_with_trained_model(X_val)
+# if __name__ == "__main__":
+#     print(tf.config.list_physical_devices('GPU'))
+#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
+#     print(f"physical_devices : {physical_devices}")
+#     print(tf.__version__)
+#     print(tf.executing_eagerly())
+#     image_size = (512, 512) # actual size is (5280, 3956)
+#     epochs = 5
+#     batch_size = 2
+#     channels = ['RED', 'GREEN', 'BLUE']
+#     channel_count = len(channels)
+#     if len(physical_devices) > 0:
+#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/crookstown/images",
+#                                                           size = image_size,
+#                                                           file_extension="jpg",
+#                                                           channels=channels,
+#                                                           percentage=0.7)
+#         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
+#                     size=image_size,
+#                     restore=False)
+#         load_with_trained_model(X_val)
 

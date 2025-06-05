@@ -8,6 +8,34 @@ from tensorflow.keras import layers
 # Activation function is ReLU
 # Max-pooling with a 2 × 2 window and stride 2
 
+# --------- MaxPooling with Indices ---------
+class MaxPoolingWithArgmax2D(tf.keras.layers.Layer):
+    def __init__(self, pool_size=(2, 2), strides=(2, 2), padding='SAME', **kwargs):
+        super(MaxPoolingWithArgmax2D, self).__init__(**kwargs)
+        self.pool_size = pool_size
+        self.strides = strides
+        self.padding = padding
+
+    def call(self, inputs):
+        tf.debugging.assert_positive(tf.reduce_prod(tf.shape(inputs)), message="Input tensor is empty")
+        pooled, argmax = tf.nn.max_pool_with_argmax(
+            inputs,
+            ksize=[1, *self.pool_size, 1],
+            strides=[1, *self.strides, 1],
+            padding=self.padding,
+            output_dtype=tf.int64
+        )
+        return pooled, argmax
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({
+            "pool_size": self.pool_size,
+            "strides": self.strides,
+            "padding": self.padding,
+        })
+        return config
+
 # --------- Custom MaxUnpooling2D layer ---------
 class MaxUnpooling2D(layers.Layer):
     def __init__(self, pool_size=(2, 2), **kwargs):
@@ -54,10 +82,17 @@ class MaxUnpooling2D(layers.Layer):
         output = tf.reshape(output_flat, output_shape)
         return output
 
-# --------- MaxPooling with Indices ---------
-def max_pool_with_argmax(x):
-    pool, argmax = tf.nn.max_pool_with_argmax(x, ksize=2, strides=2, padding='SAME', output_dtype=tf.int64)
-    return pool, argmax
+    def get_config(self):
+        config = super().get_config()
+        config.update({
+            "pool_size": self.pool_size,
+        })
+        return config
+
+
+# def max_pool_with_argmax(x):
+#     pool, argmax = tf.nn.max_pool_with_argmax(x, ksize=2, strides=2, padding='SAME', output_dtype=tf.int64)
+#     return pool, argmax
 
 # --------- Build SegNet ---------
 def build_segnet(input_shape=(224, 224, 3), num_classes=21):
@@ -68,14 +103,14 @@ def build_segnet(input_shape=(224, 224, 3), num_classes=21):
     x = layers.BatchNormalization()(x)
     x = layers.Conv2D(64, 3, padding='same', activation='relu')(x)
     x = layers.BatchNormalization()(x)
-    x, ind1 = max_pool_with_argmax(x)
+    x, ind1 = MaxPoolingWithArgmax2D()(x)
 
     # Encoder Block 2
     x = layers.Conv2D(128, 3, padding='same', activation='relu')(x)
     x = layers.BatchNormalization()(x)
     x = layers.Conv2D(128, 3, padding='same', activation='relu')(x)
     x = layers.BatchNormalization()(x)
-    x, ind2 = max_pool_with_argmax(x)
+    x, ind2 = MaxPoolingWithArgmax2D()(x)
 
     # Encoder Block 3
     x = layers.Conv2D(256, 3, padding='same', activation='relu')(x)
@@ -84,7 +119,7 @@ def build_segnet(input_shape=(224, 224, 3), num_classes=21):
     x = layers.BatchNormalization()(x)
     x = layers.Conv2D(256, 3, padding='same', activation='relu')(x)
     x = layers.BatchNormalization()(x)
-    x, ind3 = max_pool_with_argmax(x)
+    x, ind3 = MaxPoolingWithArgmax2D()(x)
 
     # Encoder Block 4
     x = layers.Conv2D(512, 3, padding='same', activation='relu')(x)
@@ -93,7 +128,7 @@ def build_segnet(input_shape=(224, 224, 3), num_classes=21):
     x = layers.BatchNormalization()(x)
     x = layers.Conv2D(512, 3, padding='same', activation='relu')(x)
     x = layers.BatchNormalization()(x)
-    x, ind4 = max_pool_with_argmax(x)
+    x, ind4 = MaxPoolingWithArgmax2D()(x)
 
     # Encoder Block 5
     x = layers.Conv2D(512, 3, padding='same', activation='relu')(x)
@@ -102,7 +137,7 @@ def build_segnet(input_shape=(224, 224, 3), num_classes=21):
     x = layers.BatchNormalization()(x)
     x = layers.Conv2D(512, 3, padding='same', activation='relu')(x)
     x = layers.BatchNormalization()(x)
-    x, ind5 = max_pool_with_argmax(x)
+    x, ind5 = MaxPoolingWithArgmax2D()(x)
 
     # Decoder Block 5
     x = MaxUnpooling2D()(x, ind5)
