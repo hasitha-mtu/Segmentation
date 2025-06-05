@@ -53,8 +53,8 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
                 )
 
     print(history.history)
-    accuracy = history.history["segmentation_output_accuracy"]
-    val_accuracy = history.history["val_segmentation_output_accuracy"]
+    accuracy = history.history["accuracy"]
+    val_accuracy = history.history["val_accuracy"]
     loss = history.history["loss"]
     val_loss = history.history["val_loss"]
     epochs = range(1, len(accuracy) + 1)
@@ -86,10 +86,9 @@ def make_or_restore_model(restore, num_channels, size):
         print("Creating fresh model")
         return segnet_model(width, height, num_channels)
 
-def load_with_trained_model(X_val, channels):
+def load_with_trained_model(X_val):
     checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
     print(f"Checkpoints: {checkpoints}")
-    weight_lists = []
     if checkpoints:
         latest_checkpoint = max(checkpoints, key=os.path.getctime)
         print(f"Restoring from {latest_checkpoint}")
@@ -101,35 +100,23 @@ def load_with_trained_model(X_val, channels):
         for i in range(len(X_val)):
             id = randint(len(X_val))
             image = X_val[id]
-            pred_mask, attention_weights = model.predict(np.expand_dims(image, 0))
+            new_image = np.expand_dims(image, axis=0)
+            pred_mask = model.predict(new_image)
+            pred_mask = pred_mask[0]
+            pred_class_map = np.argmax(pred_mask, axis=-1)
             plt.figure(figsize=(10, 8))
-            plt.subplot(1, 2, 1)
+            plt.subplot(1, 3, 1)
             rgb_image = image[:, :, :3]
             show_image(OUTPUT_DIR, rgb_image, index=i, title="Original_Image", save=True)
-            plt.subplot(1, 2, 2)
-            blended_mask = overlay_mask(rgb_image, pred_mask, alpha=0.3)
-            show_image(OUTPUT_DIR, blended_mask, index=i, title="Predicted_Mask", save=True)
-
-            print(f'Attention weights: {attention_weights.flatten()}')
-            weight_lists.append(attention_weights.flatten().tolist())
+            plt.subplot(1, 3, 2)
+            show_image(OUTPUT_DIR, pred_class_map, index=i, title="Predicted_Mask", save=False)
+            plt.subplot(1, 3, 3)
+            blended_mask = overlay_mask(rgb_image, pred_class_map, alpha=0.3)
+            show_image(OUTPUT_DIR, blended_mask, index=i, title="Blended_Mask", save=True)
             plt.tight_layout()
             plt.show()
     else:
         print("No preloaded model")
-    print(f"weight_lists: {weight_lists}")
-    plot_attention_weights(channels, weight_lists)
-
-def plot_attention_weights(channels, weight_lists):
-    result = [sum(values) for values in zip(*weight_lists)]
-    print(f"plot_attention_weights|result: {result}")
-    percentages = [(value/sum(result))*100 for value in result]
-    print(f"plot_attention_weights|percentages: {percentages}")
-    plt.bar(range(1, len(channels) + 1), percentages)
-    plt.xticks(range(1, len(channels) + 1), channels)
-    plt.ylabel("Channel Attention Weight")
-    plt.title("Learned Attention per Channel")
-    plt.tight_layout()
-    plt.show()
 
 
 if __name__ == "__main__":
@@ -139,13 +126,13 @@ if __name__ == "__main__":
     print(tf.__version__)
     print(tf.executing_eagerly())
     image_size = (512, 512) # actual size is (5280, 3956)
-    epochs = 50
+    epochs = 25
     batch_size = 4
     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/crookstown/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,
@@ -153,5 +140,28 @@ if __name__ == "__main__":
         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
                     size = image_size,
                     restore=False)
-        load_with_trained_model(X_val, channels)
+        load_with_trained_model(X_val)
+
+# if __name__ == "__main__":
+#     print(tf.config.list_physical_devices('GPU'))
+#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
+#     print(f"physical_devices : {physical_devices}")
+#     print(tf.__version__)
+#     print(tf.executing_eagerly())
+#     image_size = (512, 512) # actual size is (5280, 3956)
+#     epochs = 5
+#     batch_size = 2
+#     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
+#                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
+#     channel_count = len(channels)
+#     if len(physical_devices) > 0:
+#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/crookstown/images",
+#                                                           size = image_size,
+#                                                           file_extension="jpg",
+#                                                           channels=channels,
+#                                                           percentage=0.7)
+#         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
+#                     size=image_size,
+#                     restore=False)
+#         load_with_trained_model(X_val)
 
