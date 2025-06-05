@@ -53,7 +53,7 @@ def unet_model(width, height, num_channels):
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
     print(f"Model : {model.summary()}")
-    keras.utils.plot_model(model, "Unet-MobileNetV2.png", show_shapes=True)
+    keras.utils.plot_model(model, "Unet-MobileNetV2.png", show_shapes=True, expand_nested=True, dpi=64)
     return model
 
 if __name__ == '__main__':

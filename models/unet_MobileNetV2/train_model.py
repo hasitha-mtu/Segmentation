@@ -82,74 +82,59 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
 def make_or_restore_model(restore, num_channels, size):
     (width, height) = size
     if restore:
-        checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
-        print(f"Checkpoints: {checkpoints}")
-        if checkpoints:
-            latest_checkpoint = max(checkpoints, key=os.path.getctime)
-            print(f"Restoring from {latest_checkpoint}")
-            return keras.models.load_model(latest_checkpoint)
-        else:
-            print("Creating fresh model")
-            return unet_model(width, height, num_channels)
+        return keras.models.load_model(f"{CKPT_DIR}/unet_MobileNetV2_best_model.h5")
     else:
         print("Creating fresh model")
         return unet_model(width, height, num_channels)
 
 def load_with_trained_model(X_val):
-    checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
-    print(f"Checkpoints: {checkpoints}")
-    if checkpoints:
-        latest_checkpoint = max(checkpoints, key=os.path.getctime)
-        print(f"Restoring from {latest_checkpoint}")
-        model = keras.models.load_model(latest_checkpoint,
-                                        custom_objects={'recall_m':recall_m,
-                                                        'precision_m':precision_m,
-                                                        'f1_score':f1_score,
-                                                        'masked_dice_loss':masked_dice_loss})
-        for i in range(len(X_val)):
-            id = randint(len(X_val))
-            image = X_val[id]
-            new_image = np.expand_dims(image, axis=0)
-            pred_mask = model.predict(new_image)
-            pred_mask = pred_mask[0]
-            pred_class_map = np.argmax(pred_mask, axis=-1)
-            plt.figure(figsize=(10, 8))
-            plt.subplot(1, 3, 1)
-            rgb_image = image[:, :, :3]
-            show_image(OUTPUT_DIR, rgb_image, index=i, title="Original_Image", save=True)
-            plt.subplot(1, 3, 2)
-            show_image(OUTPUT_DIR, pred_class_map, index=i, title="Predicted_Mask", save=False)
-            plt.subplot(1, 3, 3)
-            blended_mask = overlay_mask(rgb_image, pred_class_map, alpha=0.3)
-            show_image(OUTPUT_DIR, blended_mask, index=i, title="Blended_Mask", save=True)
-            plt.tight_layout()
-            plt.show()
-    else:
-        print("No preloaded model")
+    print(f"Restoring from {CKPT_DIR}/unet_MobileNetV2_best_model.h5")
+    model = keras.models.load_model(f"{CKPT_DIR}/unet_MobileNetV2_best_model.h5",
+                                    custom_objects={'recall_m': recall_m,
+                                                    'precision_m': precision_m,
+                                                    'f1_score': f1_score,
+                                                    'masked_dice_loss': masked_dice_loss})
+    for i in range(len(X_val)):
+        id = randint(len(X_val))
+        image = X_val[id]
+        new_image = np.expand_dims(image, axis=0)
+        pred_mask = model.predict(new_image)
+        pred_mask = pred_mask[0]
+        pred_class_map = np.argmax(pred_mask, axis=-1)
+        plt.figure(figsize=(10, 8))
+        plt.subplot(1, 3, 1)
+        rgb_image = image[:, :, :3]
+        show_image(OUTPUT_DIR, rgb_image, index=i, title="Original_Image", save=True)
+        plt.subplot(1, 3, 2)
+        show_image(OUTPUT_DIR, pred_class_map, index=i, title="Predicted_Mask", save=False)
+        plt.subplot(1, 3, 3)
+        blended_mask = overlay_mask(rgb_image, pred_class_map, alpha=0.3)
+        show_image(OUTPUT_DIR, blended_mask, index=i, title="Blended_Mask", save=True)
+        plt.tight_layout()
+        plt.show()
 
 
-# if __name__ == "__main__":
-#     print(tf.config.list_physical_devices('GPU'))
-#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
-#     print(f"physical_devices : {physical_devices}")
-#     print(tf.__version__)
-#     print(tf.executing_eagerly())
-#     image_size = (512, 512) # actual size is (5280, 3956)
-#     epochs = 25
-#     batch_size = 4
-#     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
-#                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
-#     channel_count = len(channels)
-#     if len(physical_devices) > 0:
-#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
-#                                                           size = image_size,
-#                                                           file_extension="jpg",
-#                                                           channels=channels,
-#                                                           percentage=0.7)
-#         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
-#                     size = image_size,
-#                     restore=False)
-#         load_with_trained_model(X_val)
+if __name__ == "__main__":
+    print(tf.config.list_physical_devices('GPU'))
+    physical_devices = tf.config.experimental.list_physical_devices('GPU')
+    print(f"physical_devices : {physical_devices}")
+    print(tf.__version__)
+    print(tf.executing_eagerly())
+    image_size = (512, 512) # actual size is (5280, 3956)
+    epochs = 25
+    batch_size = 4
+    channels = ['RED', 'GREEN', 'BLUE']
+    channel_count = len(channels)
+    if len(physical_devices) > 0:
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
+                                                          size = image_size,
+                                                          file_extension="jpg",
+                                                          channels=channels,
+                                                          percentage=0.7)
+        train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
+                    size = image_size,
+                    restore=False)
+        load_with_trained_model(X_val)
 
 if __name__ == "__main__":
     print(tf.config.list_physical_devices('GPU'))
