@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import datetime
 
 import keras.callbacks_v1
@@ -9,10 +10,10 @@ from keras.callbacks import (Callback,
 import numpy as np
 from numpy.random import randint
 
-from models.wsl.data import load_dataset
+from models.segnet.data import load_dataset
 from model import segnet_model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
-from models.wsl.wsl_utils import show_image, overlay_mask
+from models.wsl.wsl_utils import show_image
 from model import MaxUnpooling2D, MaxPoolingWithArgmax2D
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\segnet\logs"
@@ -82,76 +83,46 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
 def make_or_restore_model(restore, num_channels, size):
     (width, height) = size
     if restore:
-        checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
-        print(f"Checkpoints: {checkpoints}")
-        if checkpoints:
-            latest_checkpoint = max(checkpoints, key=os.path.getctime)
-            print(f"Restoring from {latest_checkpoint}")
-            return keras.models.load_model(latest_checkpoint)
-        else:
-            print("Creating fresh model")
-            return segnet_model(width, height, num_channels)
+        saved_model_path = f"{CKPT_DIR}/SegNet_best_model.h5"
+        print(f"Restoring from {saved_model_path}")
+        return keras.models.load_model(saved_model_path,
+                                    custom_objects={'recall_m': recall_m,
+                                                    'precision_m': precision_m,
+                                                    'f1_score': f1_score,
+                                                    'masked_dice_loss': masked_dice_loss})
     else:
         print("Creating fresh model")
         return segnet_model(width, height, num_channels)
 
-def load_with_trained_model(X_val):
-    checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
-    print(f"Checkpoints: {checkpoints}")
-    if checkpoints:
-        latest_checkpoint = max(checkpoints, key=os.path.getctime)
-        print(f"Restoring from {latest_checkpoint}")
-        model = keras.models.load_model(latest_checkpoint,
-                                        custom_objects={'recall_m':recall_m,
-                                                        'precision_m':precision_m,
-                                                        'f1_score':f1_score,
-                                                        'masked_dice_loss':masked_dice_loss,
-                                                        'MaxPoolingWithArgmax2D': MaxPoolingWithArgmax2D,
-                                                        'MaxUnpooling2D': MaxUnpooling2D})
-        for i in range(len(X_val)):
-            id = randint(len(X_val))
-            image = X_val[id]
-            new_image = np.expand_dims(image, axis=0)
-            pred_mask = model.predict(new_image)
-            pred_mask = pred_mask[0]
-            pred_class_map = np.argmax(pred_mask, axis=-1)
-            plt.figure(figsize=(10, 8))
-            plt.subplot(1, 3, 1)
-            rgb_image = image[:, :, :3]
-            show_image(OUTPUT_DIR, rgb_image, index=i, title="Original_Image", save=True)
-            plt.subplot(1, 3, 2)
-            show_image(OUTPUT_DIR, pred_class_map, index=i, title="Predicted_Mask", save=False)
-            plt.subplot(1, 3, 3)
-            blended_mask = overlay_mask(rgb_image, pred_class_map, alpha=0.3)
-            show_image(OUTPUT_DIR, blended_mask, index=i, title="Blended_Mask", save=True)
-            plt.tight_layout()
-            plt.show()
-    else:
-        print("No preloaded model")
+def load_with_trained_model(X_val, y_val):
+    saved_model_path = f"{CKPT_DIR}/SegNet_best_model.h5"
+    print(f"Restoring from {saved_model_path}")
+    model = keras.models.load_model(saved_model_path,
+                                    custom_objects={'recall_m': recall_m,
+                                                    'precision_m': precision_m,
+                                                    'f1_score': f1_score,
+                                                    'masked_dice_loss': masked_dice_loss,
+                                                    'MaxPoolingWithArgmax2D': MaxPoolingWithArgmax2D,
+                                                    'MaxUnpooling2D': MaxUnpooling2D})
+    for i in range(len(X_val)):
+        id = randint(len(X_val))
+        image = X_val[id]
+        new_image = np.expand_dims(image, axis=0)
+        pred_mask = model.predict(new_image)
+        pred_mask = pred_mask[0]
+        pred_class_map = np.argmax(pred_mask, axis=-1)
+        plt.figure(figsize=(10, 8))
+        plt.subplot(1, 3, 1)
+        rgb_image = image[:, :, :3]
+        actual_mask = y_val[id]
+        show_image(OUTPUT_DIR, rgb_image, index=i, title="Original_Image", save=False)
+        plt.subplot(1, 3, 2)
+        show_image(OUTPUT_DIR, actual_mask, index=i, title="Actual_Mask", save=False)
+        plt.subplot(1, 3, 3)
+        show_image(OUTPUT_DIR, pred_class_map, index=i, title="Predicted_Mask", save=False)
+        plt.tight_layout()
+        plt.show()
 
-
-# if __name__ == "__main__":
-#     print(tf.config.list_physical_devices('GPU'))
-#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
-#     print(f"physical_devices : {physical_devices}")
-#     print(tf.__version__)
-#     print(tf.executing_eagerly())
-#     image_size = (256, 256) # actual size is (5280, 3956)
-#     epochs = 25
-#     batch_size = 4
-#     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
-#                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
-#     channel_count = len(channels)
-#     if len(physical_devices) > 0:
-#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
-#                                                           size = image_size,
-#                                                           file_extension="jpg",
-#                                                           channels=channels,
-#                                                           percentage=0.7)
-#         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
-#                     size = image_size,
-#                     restore=False)
-#         load_with_trained_model(X_val)
 
 if __name__ == "__main__":
     print(tf.config.list_physical_devices('GPU'))
@@ -160,19 +131,67 @@ if __name__ == "__main__":
     print(tf.__version__)
     print(tf.executing_eagerly())
     image_size = (256, 256) # actual size is (5280, 3956)
-    epochs = 2
-    batch_size = 2
+    epochs = 25
+    batch_size = 4
     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/crookstown/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,
                                                           percentage=0.7)
         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
-                    size=image_size,
+                    size = image_size,
                     restore=False)
-        load_with_trained_model(X_val)
+        load_with_trained_model(X_val, y_val)
+
+# if __name__ == "__main__":
+#     print(tf.config.list_physical_devices('GPU'))
+#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
+#     print(f"physical_devices : {physical_devices}")
+#     print(tf.__version__)
+#     print(tf.executing_eagerly())
+#     image_size = (256, 256) # actual size is (5280, 3956)
+#     epochs = 2
+#     batch_size = 2
+#     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
+#                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
+#     channel_count = len(channels)
+#     if len(physical_devices) > 0:
+#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/crookstown/images",
+#                                                           size = image_size,
+#                                                           file_extension="jpg",
+#                                                           channels=channels,
+#                                                           percentage=0.7)
+#         print(f'X_train shape : {X_train.shape}')
+#         print(f'y_train shape : {y_train.shape}')
+#         print(f'X_val shape : {X_val.shape}')
+#         print(f'y_val shape : {y_val.shape}')
+
+# if __name__ == "__main__":
+#     print(tf.config.list_physical_devices('GPU'))
+#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
+#     print(f"physical_devices : {physical_devices}")
+#     print(tf.__version__)
+#     print(tf.executing_eagerly())
+#     image_size = (256, 256) # actual size is (5280, 3956)
+#     epochs = 2
+#     batch_size = 2
+#     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
+#                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
+#     channel_count = len(channels)
+#     np.set_printoptions(threshold=sys.maxsize)
+#     if len(physical_devices) > 0:
+#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/crookstown/images",
+#                                                           size = image_size,
+#                                                           file_extension="jpg",
+#                                                           channels=channels,
+#                                                           percentage=0.7)
+#         print(y_train[0])
+#         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
+#                     size=image_size,
+#                     restore=False)
+#         load_with_trained_model(X_val, y_val)
 

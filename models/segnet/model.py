@@ -2,6 +2,7 @@ from tensorflow.keras.layers import Input
 import keras
 import tensorflow as tf
 from tensorflow.keras import layers
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
 
 # Encoder 13 Conv layers
 # Decoder 13 Conv layers
@@ -191,6 +192,12 @@ def build_segnet(input_shape=(224, 224, 3), num_classes=21):
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
 
+    model.compile(
+        optimizer='adam',
+        loss=[masked_dice_loss, None],  # Use `None` to skip the second loss
+        metrics=[['accuracy', f1_score, precision_m, recall_m], []]  # Metrics only for the segmentation output
+    )
+
     print(f"Model : {model.summary()}")
 
     keras.utils.plot_model(model, "segnet_model.png", show_shapes=True)
@@ -199,7 +206,7 @@ def build_segnet(input_shape=(224, 224, 3), num_classes=21):
 
 def segnet_model(width, height, num_channels):
     input_shape = (width, height, num_channels)
-    return build_segnet(input_shape=input_shape, num_classes=3)
+    return build_segnet(input_shape=input_shape, num_classes=1)
 
 
 if __name__ == '__main__':

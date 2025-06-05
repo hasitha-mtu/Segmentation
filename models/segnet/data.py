@@ -25,18 +25,19 @@ def load_drone_dataset(path, file_extension = "jpg", num_channels=5):
 def load_drone_images(size, paths, channels):
     (width, height) = size
     images = np.zeros(shape=(len(paths), width, height, len(channels)))
-    masks = np.zeros(shape=(len(paths), width, height, 3))
+    masks = np.zeros(shape=(len(paths), width, height, 1))
     for i, path in tqdm(enumerate(paths), total=len(paths), desc="Loading"):
         image = get_stacked_image(channels, size, path)
         images[i] = image
         mask_path = path.replace("images", "annotations")
         mask_path = mask_path.replace(".jpg", ".png")
-        mask = load_image(size, mask_path)
+        mask = load_image(size, mask_path, grayscale=True)
         masks[i] = mask
     return images, masks
 
 def load_image(size, path: str, grayscale = False):
     img = load_img(path, grayscale=grayscale)
+
     img_array = img_to_array(img)
     normalized_img_array = img_array/255.
     resized_img = tf.image.resize(normalized_img_array, size, method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
