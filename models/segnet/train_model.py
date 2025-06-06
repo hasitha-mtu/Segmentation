@@ -125,29 +125,6 @@ def load_with_trained_model(X_val, y_val):
         plt.tight_layout()
         plt.show()
 
-# if __name__ == "__main__":
-#     print(tf.config.list_physical_devices('GPU'))
-#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
-#     print(f"physical_devices : {physical_devices}")
-#     print(tf.__version__)
-#     print(tf.executing_eagerly())
-#     image_size = (256, 256) # actual size is (5280, 3956)
-#     epochs = 25
-#     batch_size = 4
-#     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
-#                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
-#     channel_count = len(channels)
-#     if len(physical_devices) > 0:
-#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet/images",
-#                                                           size = image_size,
-#                                                           file_extension="jpg",
-#                                                           channels=channels,
-#                                                           percentage=0.7)
-#         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
-#                     size = image_size,
-#                     restore=False)
-#         load_with_trained_model(X_val, y_val)
-
 if __name__ == "__main__":
     print(tf.config.list_physical_devices('GPU'))
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
@@ -155,21 +132,20 @@ if __name__ == "__main__":
     print(tf.__version__)
     print(tf.executing_eagerly())
     image_size = (256, 256) # actual size is (5280, 3956)
-    epochs = 2
-    batch_size = 2
+    epochs = 50
+    batch_size = 4
     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/segnet/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,
                                                           percentage=0.7)
-        print(f'X_train shape : {X_train.shape}')
-        print(f'y_train shape : {y_train.shape}')
-        print(f'X_val shape : {X_val.shape}')
-        print(f'y_val shape : {y_val.shape}')
+        train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
+                    size = image_size,
+                    restore=False)
         load_with_trained_model(X_val, y_val)
 
 # if __name__ == "__main__":
@@ -184,7 +160,30 @@ if __name__ == "__main__":
 #     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
 #                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
 #     channel_count = len(channels)
-#     np.set_printoptions(threshold=sys.maxsize)
+#     if len(physical_devices) > 0:
+#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/segnet/images",
+#                                                           size = image_size,
+#                                                           file_extension="jpg",
+#                                                           channels=channels,
+#                                                           percentage=0.7)
+#         print(f'X_train shape : {X_train.shape}')
+#         print(f'y_train shape : {y_train.shape}')
+#         print(f'X_val shape : {X_val.shape}')
+#         print(f'y_val shape : {y_val.shape}')
+#         load_with_trained_model(X_val, y_val)
+
+# if __name__ == "__main__":
+#     print(tf.config.list_physical_devices('GPU'))
+#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
+#     print(f"physical_devices : {physical_devices}")
+#     print(tf.__version__)
+#     print(tf.executing_eagerly())
+#     image_size = (256, 256) # actual size is (5280, 3956)
+#     epochs = 2
+#     batch_size = 2
+#     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
+#                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
+#     channel_count = len(channels)
 #     if len(physical_devices) > 0:
 #         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/crookstown/images",
 #                                                           size = image_size,

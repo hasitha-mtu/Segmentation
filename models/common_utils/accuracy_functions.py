@@ -80,8 +80,6 @@ def calculate_accuracy(y_true, y_pred, threshold=0.5, ignore_value=0.0):
     iou = jaccard_score(y_true_masked.flatten(), y_pred_masked.flatten(), average='macro')
     dice = f1_score(y_true_masked.flatten(), y_pred_masked.flatten(), average='macro')
     accuracy = np.mean((y_pred_masked == y_true_masked))
-    print("==============================================================")
     print("IoU:", iou)
     print("Dice Score:", dice)
     print("Pixel Accuracy:", accuracy)
-    print("==============================================================")
