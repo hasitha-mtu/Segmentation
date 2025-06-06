@@ -47,7 +47,8 @@ def masked_dice_loss(y_true, y_pred):
     y_true = tf.cast(y_true, tf.float32)
     y_pred = tf.cast(y_pred, tf.float32)
 
-    mask = tf.where(tf.math.is_nan(y_true), 0.0, 1.0)
+    # mask = tf.where(tf.math.is_nan(y_true), 0.0, 1.0)
+    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
 
     intersection = tf.reduce_sum(y_true * y_pred * mask)
     union = tf.reduce_sum(y_true * mask) + tf.reduce_sum(y_pred * mask)
