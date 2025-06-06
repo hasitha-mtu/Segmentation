@@ -12,7 +12,7 @@ from numpy.random import randint
 
 from models.segnet.data import load_dataset
 from model import segnet_model
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_masked_dice_focal_loss
 from models.common_utils.accuracy_functions import calculate_accuracy, evaluate_prediction
 from models.wsl.wsl_utils import show_image
 from model import MaxUnpooling2D, MaxPoolingWithArgmax2D
@@ -90,7 +90,7 @@ def make_or_restore_model(restore, num_channels, size):
                                     custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
-                                                    'masked_dice_loss': masked_dice_loss})
+                                                    'combined_masked_dice_focal_loss': combined_masked_dice_focal_loss})
     else:
         print("Creating fresh model")
         return segnet_model(width, height, num_channels)
@@ -102,7 +102,7 @@ def load_with_trained_model(X_val, y_val):
                                     custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
-                                                    'masked_dice_loss': masked_dice_loss,
+                                                    'combined_masked_dice_focal_loss': combined_masked_dice_focal_loss,
                                                     'MaxPoolingWithArgmax2D': MaxPoolingWithArgmax2D,
                                                     'MaxUnpooling2D': MaxUnpooling2D})
     for i in range(len(X_val)):
@@ -110,7 +110,7 @@ def load_with_trained_model(X_val, y_val):
         image = X_val[i]
         new_image = np.expand_dims(image, axis=0)
         y_pred = model.predict(new_image)
-        pred_mask = reconstruct_mask(y_pred, i)
+        pred_mask = reconstruct_mask(y_pred)
         calculate_accuracy(actual_mask, y_pred)
         # pred_class_map = np.argmax(pred_mask, axis=-1)
         plt.figure(figsize=(10, 8))
@@ -124,15 +124,13 @@ def load_with_trained_model(X_val, y_val):
         plt.tight_layout()
         plt.show()
 
-def reconstruct_mask(y_pred, i):
-    print(f'reconstruct_mask|y_pred shape : {y_pred.shape}')
+def reconstruct_mask(y_pred):
     pred_mask = np.argmax(y_pred[0], axis=-1)  # shape: (H, W)
     # Convert class mask to color
     colormap = np.array([
         [0, 0, 0],  # class 0: background
         [0, 0, 255],  # class 1: water
     ], dtype=np.uint8)
-    np.savetxt(f"pred_mask_{i}.txt", pred_mask, fmt="%.4f")
     return colormap[pred_mask]
 
 if __name__ == "__main__":
@@ -142,7 +140,7 @@ if __name__ == "__main__":
     print(tf.__version__)
     print(tf.executing_eagerly())
     image_size = (512, 512) # actual size is (5280, 3956)
-    epochs = 25
+    epochs = 50
     batch_size = 4
     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
@@ -156,8 +154,8 @@ if __name__ == "__main__":
         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
                     size = image_size,
                     restore=False)
-        load_with_trained_model(X_val, y_val)
-
+#         load_with_trained_model(X_val, y_val)
+#
 # if __name__ == "__main__":
 #     print(tf.config.list_physical_devices('GPU'))
 #     physical_devices = tf.config.experimental.list_physical_devices('GPU')
