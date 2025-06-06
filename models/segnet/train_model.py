@@ -109,11 +109,10 @@ def load_with_trained_model(X_val, y_val):
         actual_mask = y_val[i]
         image = X_val[i]
         new_image = np.expand_dims(image, axis=0)
-        pred_mask = model.predict(new_image)
-        evaluate_prediction(actual_mask, pred_mask)
-        calculate_accuracy(actual_mask, pred_mask)
-        pred_mask = pred_mask[0]
-        pred_class_map = np.argmax(pred_mask, axis=-1)
+        y_pred = model.predict(new_image)
+        pred_mask = reconstruct_mask(y_pred, i)
+        calculate_accuracy(actual_mask, y_pred)
+        # pred_class_map = np.argmax(pred_mask, axis=-1)
         plt.figure(figsize=(10, 8))
         plt.subplot(1, 3, 1)
         rgb_image = image[:, :, :3]
@@ -121,9 +120,20 @@ def load_with_trained_model(X_val, y_val):
         plt.subplot(1, 3, 2)
         show_image(OUTPUT_DIR, actual_mask, index=i, title="Actual_Mask", save=False)
         plt.subplot(1, 3, 3)
-        show_image(OUTPUT_DIR, pred_class_map, index=i, title="Predicted_Mask", save=False)
+        show_image(OUTPUT_DIR, pred_mask, index=i, title="Predicted_Mask", save=False)
         plt.tight_layout()
         plt.show()
+
+def reconstruct_mask(y_pred, i):
+    print(f'reconstruct_mask|y_pred shape : {y_pred.shape}')
+    pred_mask = np.argmax(y_pred[0], axis=-1)  # shape: (H, W)
+    # Convert class mask to color
+    colormap = np.array([
+        [0, 0, 0],  # class 0: background
+        [0, 0, 255],  # class 1: water
+    ], dtype=np.uint8)
+    np.savetxt(f"pred_mask_{i}.txt", pred_mask, fmt="%.4f")
+    return colormap[pred_mask]
 
 if __name__ == "__main__":
     print(tf.config.list_physical_devices('GPU'))
@@ -131,14 +141,14 @@ if __name__ == "__main__":
     print(f"physical_devices : {physical_devices}")
     print(tf.__version__)
     print(tf.executing_eagerly())
-    image_size = (256, 256) # actual size is (5280, 3956)
-    epochs = 50
+    image_size = (512, 512) # actual size is (5280, 3956)
+    epochs = 25
     batch_size = 4
     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,
@@ -154,14 +164,12 @@ if __name__ == "__main__":
 #     print(f"physical_devices : {physical_devices}")
 #     print(tf.__version__)
 #     print(tf.executing_eagerly())
-#     image_size = (256, 256) # actual size is (5280, 3956)
-#     epochs = 2
-#     batch_size = 2
+#     image_size = (512, 512) # actual size is (5280, 3956)
 #     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
 #                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
 #     channel_count = len(channels)
 #     if len(physical_devices) > 0:
-#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/segnet/images",
+#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/crookstown/images",
 #                                                           size = image_size,
 #                                                           file_extension="jpg",
 #                                                           channels=channels,
@@ -178,7 +186,7 @@ if __name__ == "__main__":
 #     print(f"physical_devices : {physical_devices}")
 #     print(tf.__version__)
 #     print(tf.executing_eagerly())
-#     image_size = (256, 256) # actual size is (5280, 3956)
+#     image_size = (512, 512) # actual size is (5280, 3956)
 #     epochs = 2
 #     batch_size = 2
 #     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
