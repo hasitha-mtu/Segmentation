@@ -35,7 +35,7 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
 
     checkpoint_cb = tf.keras.callbacks.ModelCheckpoint(
         f"{CKPT_DIR}/SegNet_best_model.h5",  # or "best_model.keras"
-        monitor='val_loss',
+        monitor='val_accuracy',
         save_best_only=True,
         save_weights_only=False,  # set to True if you want only weights
         mode='min',
