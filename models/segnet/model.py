@@ -74,12 +74,13 @@ class MaxUnpooling2D(layers.Layer):
         batch_offset = batch_range * tf.cast(output_elements_per_batch, tf.int64)
         batch_offset = tf.reshape(batch_offset, [-1, 1])
         num_pool_elements = tf.cast(tf.shape(flat_argmax)[0], tf.int32) // batch_size
-        # num_pool_elements = tf.cast(tf.shape(flat_argmax)[0], tf.int64) // batch_size
         batch_offset = tf.tile(batch_offset, [1, num_pool_elements])
         batch_offset = tf.reshape(batch_offset, [-1])
 
         flat_argmax = flat_argmax + batch_offset
-        output_flat = tf.scatter_nd(indices=tf.expand_dims(flat_argmax, 1), updates=flat_input, shape=[tf.reduce_prod(output_shape)])
+        output_flat = tf.scatter_nd(indices=tf.expand_dims(flat_argmax, 1),
+                                    updates=flat_input,
+                                    shape=[tf.reduce_prod(output_shape)])
         output = tf.reshape(output_flat, output_shape)
         return output
 
@@ -188,9 +189,6 @@ def build_segnet(input_shape=(224, 224, 3), num_classes=21):
     outputs = layers.Conv2D(num_classes, (1, 1), padding='same', activation=activation)(x)
 
     model = tf.keras.Model(inputs=inputs, outputs=outputs, name='SegNet')
-    model.compile(optimizer='adam',
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
 
     model.compile(
         optimizer='adam',

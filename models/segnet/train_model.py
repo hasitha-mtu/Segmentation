@@ -13,6 +13,7 @@ from numpy.random import randint
 from models.segnet.data import load_dataset
 from model import segnet_model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
+from models.common_utils.accuracy_functions import calculate_accuracy, evaluate_prediction
 from models.wsl.wsl_utils import show_image
 from model import MaxUnpooling2D, MaxPoolingWithArgmax2D
 
@@ -105,16 +106,17 @@ def load_with_trained_model(X_val, y_val):
                                                     'MaxPoolingWithArgmax2D': MaxPoolingWithArgmax2D,
                                                     'MaxUnpooling2D': MaxUnpooling2D})
     for i in range(len(X_val)):
-        id = randint(len(X_val))
-        image = X_val[id]
+        actual_mask = y_val[i]
+        image = X_val[i]
         new_image = np.expand_dims(image, axis=0)
         pred_mask = model.predict(new_image)
+        evaluate_prediction(actual_mask, pred_mask)
+        calculate_accuracy(actual_mask, pred_mask)
         pred_mask = pred_mask[0]
         pred_class_map = np.argmax(pred_mask, axis=-1)
         plt.figure(figsize=(10, 8))
         plt.subplot(1, 3, 1)
         rgb_image = image[:, :, :3]
-        actual_mask = y_val[id]
         show_image(OUTPUT_DIR, rgb_image, index=i, title="Original_Image", save=False)
         plt.subplot(1, 3, 2)
         show_image(OUTPUT_DIR, actual_mask, index=i, title="Actual_Mask", save=False)
@@ -123,6 +125,28 @@ def load_with_trained_model(X_val, y_val):
         plt.tight_layout()
         plt.show()
 
+# if __name__ == "__main__":
+#     print(tf.config.list_physical_devices('GPU'))
+#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
+#     print(f"physical_devices : {physical_devices}")
+#     print(tf.__version__)
+#     print(tf.executing_eagerly())
+#     image_size = (256, 256) # actual size is (5280, 3956)
+#     epochs = 25
+#     batch_size = 4
+#     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
+#                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
+#     channel_count = len(channels)
+#     if len(physical_devices) > 0:
+#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet/images",
+#                                                           size = image_size,
+#                                                           file_extension="jpg",
+#                                                           channels=channels,
+#                                                           percentage=0.7)
+#         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
+#                     size = image_size,
+#                     restore=False)
+#         load_with_trained_model(X_val, y_val)
 
 if __name__ == "__main__":
     print(tf.config.list_physical_devices('GPU'))
@@ -131,44 +155,22 @@ if __name__ == "__main__":
     print(tf.__version__)
     print(tf.executing_eagerly())
     image_size = (256, 256) # actual size is (5280, 3956)
-    epochs = 25
-    batch_size = 4
+    epochs = 2
+    batch_size = 2
     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/segnet/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,
                                                           percentage=0.7)
-        train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
-                    size = image_size,
-                    restore=False)
+        print(f'X_train shape : {X_train.shape}')
+        print(f'y_train shape : {y_train.shape}')
+        print(f'X_val shape : {X_val.shape}')
+        print(f'y_val shape : {y_val.shape}')
         load_with_trained_model(X_val, y_val)
-
-# if __name__ == "__main__":
-#     print(tf.config.list_physical_devices('GPU'))
-#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
-#     print(f"physical_devices : {physical_devices}")
-#     print(tf.__version__)
-#     print(tf.executing_eagerly())
-#     image_size = (256, 256) # actual size is (5280, 3956)
-#     epochs = 2
-#     batch_size = 2
-#     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
-#                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
-#     channel_count = len(channels)
-#     if len(physical_devices) > 0:
-#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/crookstown/images",
-#                                                           size = image_size,
-#                                                           file_extension="jpg",
-#                                                           channels=channels,
-#                                                           percentage=0.7)
-#         print(f'X_train shape : {X_train.shape}')
-#         print(f'y_train shape : {y_train.shape}')
-#         print(f'X_val shape : {X_val.shape}')
-#         print(f'y_val shape : {y_val.shape}')
 
 # if __name__ == "__main__":
 #     print(tf.config.list_physical_devices('GPU'))
@@ -189,7 +191,6 @@ if __name__ == "__main__":
 #                                                           file_extension="jpg",
 #                                                           channels=channels,
 #                                                           percentage=0.7)
-#         print(y_train[0])
 #         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
 #                     size=image_size,
 #                     restore=False)

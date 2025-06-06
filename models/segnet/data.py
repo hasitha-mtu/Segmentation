@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 from glob import glob
 from keras.utils import load_img, img_to_array
@@ -31,12 +33,12 @@ def load_drone_images(size, paths, channels):
         images[i] = image
         mask_path = path.replace("images", "annotations")
         mask_path = mask_path.replace(".jpg", ".png")
-        mask = load_image(size, mask_path, grayscale=True)
+        mask = load_image(size, mask_path, color_mode = "grayscale")
         masks[i] = mask
     return images, masks
 
-def load_image(size, path: str, grayscale = False):
-    img = load_img(path, grayscale=grayscale)
+def load_image(size, path: str, color_mode = "rgb"):
+    img = load_img(path, color_mode=color_mode)
 
     img_array = img_to_array(img)
     normalized_img_array = img_array/255.
@@ -87,6 +89,8 @@ if __name__ == "__main__":
     sample_mask = "../../input/samples1/crookstown/annotations/DJI_20250324094536_0001_V.png"
     size = (256, 256)
     # get_image(size, sample_image)
-    mask = load_image(size, sample_mask, grayscale=True)
+    mask = load_image(size, sample_mask, color_mode = "grayscale")
     print(f'Mask shape: {mask.shape}')
+    np.set_printoptions(threshold=sys.maxsize)
+    print(f'Mask : {mask}')
 
