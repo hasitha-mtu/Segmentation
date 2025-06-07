@@ -23,3 +23,7 @@ models/unet_MobileNetV2/ckpt/
 models/unet_MobileNetV2/logs/
 models/unet_MobileNetV2/output/
 
+models/segnet_VGG16/ckpt/
+models/segnet_VGG16/logs/
+models/segnet_VGG16/output/
+
