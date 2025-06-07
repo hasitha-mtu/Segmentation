@@ -261,13 +261,13 @@ if __name__ == "__main__":
     print(tf.executing_eagerly())
     if len(physical_devices) > 0:
         (RGB_X_train, RGB_y_train), (RGB_X_val, RGB_y_val) = load_dataset("../../input/samples/crookstown/images",
-                                                          size = (512, 512),
+                                                          size = (256, 256),
                                                           file_extension="jpg",
                                                           channels=['RED', 'GREEN', 'BLUE'],
                                                           percentage=0.7)
-        train_rgb_model(25, 4, RGB_X_train, RGB_y_train, RGB_X_val, RGB_y_val)
+        train_rgb_model(25, 4, RGB_X_train, RGB_y_train, RGB_X_val, RGB_y_val, input_shape = (256, 256, 3))
         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
-                                                          size=(512, 512),
+                                                          size=(256, 256),
                                                           file_extension="jpg",
                                                           channels=['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP',
                                                                     'HSV Saturation', 'HSV Value', 'GradMag',
@@ -275,7 +275,7 @@ if __name__ == "__main__":
                                                                     'BlueYellow', 'X', 'Y', 'Z'],
                                                           percentage=0.7)
         rgb_model_path = f"{CKPT_DIR}/SegNet_VGG16_RGB_best_model.h5"
-        train_extend_to_16_channel_model(25, 4, rgb_model_path)
+        train_extend_to_16_channel_model(25, 4, rgb_model_path, input_shape = (256, 256, 16))
         load_with_trained_model(X_val, y_val)
 
 # if __name__ == "__main__":
