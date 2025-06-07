@@ -92,7 +92,7 @@ def masked_focal_loss(y_true, y_pred, mask=None, alpha=0.25, gamma=2.0):
     masked_focal = focal * mask
     return tf.reduce_sum(masked_focal) / (tf.reduce_sum(mask) + epsilon)
 
-def combined_masked_dice_focal_loss(y_true, y_pred, dice_weight=0.5, focal_weight=0.5):
+def combined_masked_dice_focal_loss(y_true, y_pred, dice_weight=0.75, focal_weight=0.25):
     mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
 
     dice = masked_dice_loss(y_true, y_pred, mask)

@@ -139,8 +139,8 @@ if __name__ == "__main__":
     print(f"physical_devices : {physical_devices}")
     print(tf.__version__)
     print(tf.executing_eagerly())
-    image_size = (512, 512) # actual size is (5280, 3956)
-    epochs = 50
+    image_size = (256, 256) # actual size is (5280, 3956)
+    epochs = 25
     batch_size = 4
     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
@@ -154,7 +154,7 @@ if __name__ == "__main__":
         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
                     size = image_size,
                     restore=False)
-#         load_with_trained_model(X_val, y_val)
+        load_with_trained_model(X_val, y_val)
 #
 # if __name__ == "__main__":
 #     print(tf.config.list_physical_devices('GPU'))
