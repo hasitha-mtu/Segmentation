@@ -1,3 +1,5 @@
 conda install -c conda-forge cudatoolkit=11.2 cudnn=8.1.0
 
 tensorboard --logdir logs/
+
+tensorboard --logdir=models/segnet/logs/debug
