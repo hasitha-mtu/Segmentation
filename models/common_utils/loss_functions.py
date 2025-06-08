@@ -132,13 +132,13 @@ def edge_penalty_loss(y_true, y_pred, mask=None, weight=0.1):
     edge_masked = edge_diff * mask
     return weight * tf.reduce_mean(edge_masked)
 
-# def combined_masked_dice_focal_loss(y_true, y_pred, dice_weight=0.25, focal_weight=0.75):
-#     mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
-#
-#     dice = masked_dice_loss(y_true, y_pred, mask)
-#     focal = masked_focal_loss(y_true, y_pred, mask)
-#
-#     return dice_weight * dice + focal_weight * focal
+def combined_masked_dice_focal_loss(y_true, y_pred, dice_weight=0.25, focal_weight=0.75):
+    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
+
+    dice = masked_dice_loss(y_true, y_pred, mask)
+    focal = masked_focal_loss(y_true, y_pred, mask)
+
+    return dice_weight * dice + focal_weight * focal
 
 def combined_loss_with_edge(y_true, y_pred, dice_weight=0.3, focal_weight=0.6, edge_weight=0.1):
     mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)

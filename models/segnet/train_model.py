@@ -176,10 +176,6 @@ def log_debug_images(writer, step, inputs, y_true, y_pred, mask=None, max_images
     y_true = tf.cast(y_true * 255, tf.uint8)
     y_pred = tf.cast(y_pred * 255, tf.uint8)
 
-    print("log_debug_images|inputs:", inputs.shape)
-    print("log_debug_images|y_true:", y_true.shape)
-    print("log_debug_images|y_pred:", y_pred.shape)
-
     if mask is not None:
         mask = tf.cast(mask * 255, tf.uint8)
 
@@ -223,8 +219,9 @@ if __name__ == "__main__":
     image_size = (256, 256) # actual size is (5280, 3956)
     epochs = 50
     batch_size = 4
-    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
-                'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
+    # channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
+    #             'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
+    channels = ['RED', 'GREEN', 'BLUE']
     channel_count = len(channels)
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet/images",
