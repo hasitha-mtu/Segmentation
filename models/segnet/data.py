@@ -80,13 +80,13 @@ def load_dataset(path, size = (256, 256), file_extension = "JPG",
     return (x_train, y_train),(x_test, y_test)
 
 if __name__ == "__main__":
-    sample_image = "../../input/samples1/crookstown/images/DJI_20250324092908_0001_V.jpg"
+    sample_image = "../../input/samples1/crookstown/images/DJI_20250324094536_0001_V.jpg"
     size = (256, 256)
     # get_image(size, sample_image)
     img = load_image(size, sample_image)
     print(f'Image shape: {img.shape}')
 
-    sample_mask = "../../input/samples1/crookstown/annotations/DJI_20250324092908_0001_V.png"
+    sample_mask = "../../input/samples1/crookstown/annotations/DJI_20250324094536_0001_V.png"
     size = (256, 256)
     # get_image(size, sample_image)
     mask = load_image(size, sample_mask, color_mode = "grayscale")
@@ -101,4 +101,24 @@ if __name__ == "__main__":
     y_pred_bin = (generated_mask >= 0.5).astype(np.uint8)
     np.savetxt("bin_mask.txt", y_pred_bin, fmt="%.4f")
 
-
+# if __name__ == "__main__":
+#     sample_image = "../../input/samples1/test/images/0001TP_006690.png"
+#     size = (256, 256)
+#     # get_image(size, sample_image)
+#     img = load_image(size, sample_image)
+#     print(f'Image shape: {img.shape}')
+#
+#     sample_mask = "../../input/samples1/test/annotations/0001TP_006690.png"
+#     size = (256, 256)
+#     # get_image(size, sample_image)
+#     mask = load_image(size, sample_mask, color_mode = "grayscale")
+#     print(f'Mask shape: {mask.shape}')
+#     np.set_printoptions(threshold=sys.maxsize)
+#     print(f'Mask : {mask}')
+#     array_2d = np.squeeze(mask)
+#     # Save to text file
+#     np.savetxt("y_true.txt", array_2d, fmt="%.4f")
+#     generated_mask = (array_2d != 0.0)
+#     np.savetxt("mask.txt", generated_mask, fmt="%.4f")
+#     y_pred_bin = (generated_mask >= 0.5).astype(np.uint8)
+#     np.savetxt("bin_mask.txt", y_pred_bin, fmt="%.4f")

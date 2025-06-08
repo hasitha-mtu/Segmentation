@@ -1,5 +1,5 @@
 import os
-import sys
+import io
 from datetime import datetime
 
 import keras.callbacks_v1
@@ -12,7 +12,7 @@ from numpy.random import randint
 
 from models.segnet.data import load_dataset
 from model import segnet_model
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_masked_dice_focal_loss
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_loss_with_edge
 from models.common_utils.accuracy_functions import calculate_accuracy, evaluate_prediction
 from models.wsl.wsl_utils import show_image
 from model import MaxUnpooling2D, MaxPoolingWithArgmax2D
@@ -33,6 +33,9 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
 
     os.makedirs(CKPT_DIR, exist_ok=True)
 
+    val_data = tf.data.Dataset.from_tensor_slices((X_val, y_val)).batch(4)
+    debug_callback = DebugImageLogger(writer, val_data)
+
     checkpoint_cb = tf.keras.callbacks.ModelCheckpoint(
         f"{CKPT_DIR}/SegNet_best_model.h5",  # or "best_model.keras"
         monitor='val_accuracy',
@@ -45,6 +48,7 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
     cbs = [
         CSVLogger(LOG_DIR+'/segnet_logs.csv', separator=',', append=False),
         checkpoint_cb,
+        debug_callback,
         tensorboard
     ]
     # Create a MirroredStrategy.
@@ -90,7 +94,9 @@ def make_or_restore_model(restore, num_channels, size):
                                     custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
-                                                    'combined_masked_dice_focal_loss': combined_masked_dice_focal_loss})
+                                                    'combined_loss_with_edge': combined_loss_with_edge,
+                                                    'MaxPoolingWithArgmax2D': MaxPoolingWithArgmax2D,
+                                                    'MaxUnpooling2D': MaxUnpooling2D})
     else:
         print("Creating fresh model")
         return segnet_model(width, height, num_channels)
@@ -102,7 +108,7 @@ def load_with_trained_model(X_val, y_val):
                                     custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
-                                                    'combined_masked_dice_focal_loss': combined_masked_dice_focal_loss,
+                                                    'combined_loss_with_edge': combined_loss_with_edge,
                                                     'MaxPoolingWithArgmax2D': MaxPoolingWithArgmax2D,
                                                     'MaxUnpooling2D': MaxUnpooling2D})
     for i in range(len(X_val)):
@@ -110,9 +116,8 @@ def load_with_trained_model(X_val, y_val):
         image = X_val[i]
         new_image = np.expand_dims(image, axis=0)
         y_pred = model.predict(new_image)
-        pred_mask = reconstruct_mask(y_pred)
+        pred_mask = reconstruct_mask(y_pred, i)
         calculate_accuracy(actual_mask, y_pred)
-        # pred_class_map = np.argmax(pred_mask, axis=-1)
         plt.figure(figsize=(10, 8))
         plt.subplot(1, 3, 1)
         rgb_image = image[:, :, :3]
@@ -120,11 +125,11 @@ def load_with_trained_model(X_val, y_val):
         plt.subplot(1, 3, 2)
         show_image(OUTPUT_DIR, actual_mask, index=i, title="Actual_Mask", save=False)
         plt.subplot(1, 3, 3)
-        show_image(OUTPUT_DIR, pred_mask, index=i, title="Predicted_Mask", save=False)
+        show_image(OUTPUT_DIR, pred_mask, index=i, title="Predicted_Mask", save=True)
         plt.tight_layout()
         plt.show()
 
-def reconstruct_mask(y_pred):
+def reconstruct_mask(y_pred, i):
     pred_mask = np.argmax(y_pred[0], axis=-1)  # shape: (H, W)
     # Convert class mask to color
     colormap = np.array([
@@ -133,6 +138,82 @@ def reconstruct_mask(y_pred):
     ], dtype=np.uint8)
     return colormap[pred_mask]
 
+
+class DebugImageLogger(tf.keras.callbacks.Callback):
+    def __init__(self, writer, val_data, freq=1):
+        super().__init__()
+        self.writer = writer
+        self.val_data = val_data
+        self.freq = freq
+
+    def on_epoch_end(self, epoch, logs=None):
+        if epoch % self.freq != 0:
+            return
+
+        x_val, y_val = next(iter(self.val_data))
+        y_pred = self.model.predict(x_val)
+
+        # Recompute mask if needed
+        mask = tf.cast(tf.not_equal(y_val, 255.0), tf.float32)
+
+        log_debug_images(self.writer, step=epoch, inputs=x_val,
+                         y_true=y_val, y_pred=y_pred, mask=mask)
+
+def log_debug_images(writer, step, inputs, y_true, y_pred, mask=None, max_images=3):
+    """
+    Log input, prediction, and ground truth side-by-side to TensorBoard.
+
+    Args:
+        writer: tf.summary.create_file_writer
+        step: global training step
+        inputs: model inputs (e.g., RGB or composite feature tensor) [B, H, W, C]
+        y_true: ground truth labels [B, H, W, 1]
+        y_pred: predictions [B, H, W, 1]
+        mask: optional mask [B, H, W, 1]
+        max_images: number of images to log
+    """
+    inputs = tf.image.convert_image_dtype(inputs, tf.uint8)
+    y_true = tf.cast(y_true * 255, tf.uint8)
+    y_pred = tf.cast(y_pred * 255, tf.uint8)
+
+    print("log_debug_images|inputs:", inputs.shape)
+    print("log_debug_images|y_true:", y_true.shape)
+    print("log_debug_images|y_pred:", y_pred.shape)
+
+    if mask is not None:
+        mask = tf.cast(mask * 255, tf.uint8)
+
+    for i in range(min(max_images, inputs.shape[0])):
+        fig, axes = plt.subplots(1, 4 if mask is not None else 3, figsize=(16, 4))
+
+        axes[0].imshow(inputs[..., :3][i])
+        axes[0].set_title("Input")
+        axes[0].axis('off')
+
+        axes[1].imshow(tf.squeeze(y_true[i]), cmap='gray')
+        axes[1].set_title("Ground Truth")
+        axes[1].axis('off')
+
+        axes[2].imshow(tf.squeeze(y_pred[i]), cmap='gray')
+        axes[2].set_title("Prediction")
+        axes[2].axis('off')
+
+        if mask is not None:
+            axes[3].imshow(tf.squeeze(mask[i]), cmap='gray')
+            axes[3].set_title("Mask")
+            axes[3].axis('off')
+
+        # Convert to image tensor
+        buf = io.BytesIO()
+        plt.tight_layout()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        image = tf.image.decode_png(buf.getvalue(), channels=4)
+        image = tf.expand_dims(image, 0)  # [1, H, W, 4]
+        with writer.as_default():
+            tf.summary.image(f"Debug/Image_{i}", image, step=step)
+        plt.close(fig)
+
 if __name__ == "__main__":
     print(tf.config.list_physical_devices('GPU'))
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
@@ -140,17 +221,19 @@ if __name__ == "__main__":
     print(tf.__version__)
     print(tf.executing_eagerly())
     image_size = (256, 256) # actual size is (5280, 3956)
-    epochs = 25
+    epochs = 50
     batch_size = 4
     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,
                                                           percentage=0.7)
+        log_dir = "logs/debug"
+        writer = tf.summary.create_file_writer(log_dir)
         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
                     size = image_size,
                     restore=False)
@@ -196,6 +279,8 @@ if __name__ == "__main__":
 #                                                           file_extension="jpg",
 #                                                           channels=channels,
 #                                                           percentage=0.7)
+#         log_dir = "logs/debug"
+#         writer = tf.summary.create_file_writer(log_dir)
 #         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
 #                     size=image_size,
 #                     restore=False)

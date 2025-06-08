@@ -2,8 +2,8 @@ from tensorflow.keras.layers import Input
 import keras
 import tensorflow as tf
 from tensorflow.keras import layers
-from models.common_utils.loss_functions import recall_m, precision_m, f1_score, masked_dice_loss, \
-    combined_masked_dice_focal_loss
+from models.common_utils.loss_functions import recall_m, precision_m, f1_score, \
+    combined_loss_with_edge
 
 
 # Encoder 13 Conv layers
@@ -194,7 +194,7 @@ def build_segnet(input_shape=(224, 224, 3), num_classes=21):
 
     model.compile(
         optimizer='adam',
-        loss=combined_masked_dice_focal_loss,  # Use `None` to skip the second loss
+        loss=combined_loss_with_edge,  # Use `None` to skip the second loss
         metrics=[['accuracy', f1_score, precision_m, recall_m], []]  # Metrics only for the segmentation output
     )
 
