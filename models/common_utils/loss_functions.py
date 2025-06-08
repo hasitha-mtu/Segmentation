@@ -66,6 +66,18 @@ def partial_crossentropy(y_true, y_pred):
     loss = tf.where(mask, loss, tf.zeros_like(loss))
     return tf.reduce_mean(loss)
 
+# def masked_dice_loss(y_true, y_pred, mask=None, smooth=1e-6):
+#     if mask is None:
+#         mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
+#
+#     y_true = y_true * mask
+#     y_pred = y_pred * mask
+#
+#     intersection = tf.reduce_sum(y_true * y_pred)
+#     union = tf.reduce_sum(y_true) + tf.reduce_sum(y_pred)
+#     dice = (2. * intersection + smooth) / (union + smooth)
+#     return 1 - dice
+
 def masked_dice_loss(y_true, y_pred, mask=None, smooth=1e-6):
     if mask is None:
         mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
@@ -73,18 +85,36 @@ def masked_dice_loss(y_true, y_pred, mask=None, smooth=1e-6):
     y_true = y_true * mask
     y_pred = y_pred * mask
 
-    intersection = tf.reduce_sum(y_true * y_pred)
-    union = tf.reduce_sum(y_true) + tf.reduce_sum(y_pred)
+    intersection = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3])
+    union = tf.reduce_sum(y_true + y_pred, axis=[1, 2, 3])
     dice = (2. * intersection + smooth) / (union + smooth)
-    return 1 - dice
+    return tf.reduce_mean(1 - dice)
 
-def masked_focal_loss(y_true, y_pred, mask=None, alpha=0.25, gamma=2.0):
+# def masked_focal_loss(y_true, y_pred, mask=None, alpha=0.25, gamma=2.0):
+#     if mask is None:
+#         mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
+#
+#     # Clip predictions to prevent log(0)
+#     epsilon = K.epsilon()
+#     y_pred = tf.clip_by_value(y_pred, epsilon, 1. - epsilon)
+#
+#     cross_entropy = - (y_true * tf.math.log(y_pred) + (1 - y_true) * tf.math.log(1 - y_pred))
+#     pt = tf.where(tf.equal(y_true, 1), y_pred, 1 - y_pred)
+#     focal = alpha * tf.pow(1. - pt, gamma) * cross_entropy
+#     masked_focal = focal * mask
+#     return tf.reduce_sum(masked_focal) / (tf.reduce_sum(mask) + epsilon)
+
+def masked_focal_loss(y_true, y_pred, mask=None, alpha=None, gamma=2.0):
     if mask is None:
         mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
 
-    # Clip predictions to prevent log(0)
     epsilon = K.epsilon()
     y_pred = tf.clip_by_value(y_pred, epsilon, 1. - epsilon)
+
+    if alpha is None:
+        pos = tf.reduce_sum(y_true * mask)
+        neg = tf.reduce_sum((1 - y_true) * mask)
+        alpha = pos / (pos + neg + epsilon)
 
     cross_entropy = - (y_true * tf.math.log(y_pred) + (1 - y_true) * tf.math.log(1 - y_pred))
     pt = tf.where(tf.equal(y_true, 1), y_pred, 1 - y_pred)
@@ -92,12 +122,27 @@ def masked_focal_loss(y_true, y_pred, mask=None, alpha=0.25, gamma=2.0):
     masked_focal = focal * mask
     return tf.reduce_sum(masked_focal) / (tf.reduce_sum(mask) + epsilon)
 
-def combined_masked_dice_focal_loss(y_true, y_pred, dice_weight=0.75, focal_weight=0.25):
-    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
+def edge_penalty_loss(y_true, y_pred, mask=None, weight=0.1):
+    if mask is None:
+        mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
+    edge_true = tf.image.sobel_edges(y_true)  # Shape: [B, H, W, 1, 2]
+    edge_pred = tf.image.sobel_edges(y_pred)
+    edge_diff = tf.reduce_mean(tf.abs(edge_true - edge_pred), axis=-1)
 
+    edge_masked = edge_diff * mask
+    return weight * tf.reduce_mean(edge_masked)
+
+# def combined_masked_dice_focal_loss(y_true, y_pred, dice_weight=0.25, focal_weight=0.75):
+#     mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
+#
+#     dice = masked_dice_loss(y_true, y_pred, mask)
+#     focal = masked_focal_loss(y_true, y_pred, mask)
+#
+#     return dice_weight * dice + focal_weight * focal
+
+def combined_loss_with_edge(y_true, y_pred, dice_weight=0.3, focal_weight=0.6, edge_weight=0.1):
+    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
     dice = masked_dice_loss(y_true, y_pred, mask)
     focal = masked_focal_loss(y_true, y_pred, mask)
-
-    return dice_weight * dice + focal_weight * focal
-
-
+    edge = edge_penalty_loss(y_true, y_pred, mask)
+    return dice_weight * dice + focal_weight * focal + edge_weight * edge
