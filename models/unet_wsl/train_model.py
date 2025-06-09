@@ -1,6 +1,5 @@
 import os
 from datetime import datetime
-
 import keras.callbacks_v1
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -11,8 +10,9 @@ from numpy.random import randint
 
 from data import load_dataset
 from model import unet_model
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_loss_with_edge
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, wsl_masked_dice_loss
 from models.unet_wsl.wsl_utils import show_image, overlay_mask
+from tensorflow.keras.callbacks import ModelCheckpoint
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_wsl\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_wsl\ckpt"
@@ -32,8 +32,8 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
 
     os.makedirs(CKPT_DIR, exist_ok=True)
 
-    checkpoint_cb = tf.keras.callbacks.ModelCheckpoint(
-        f"{CKPT_DIR}/UNET_best_model.h5",  # or "best_model.keras"
+    checkpoint_cb = ModelCheckpoint(
+        f"{CKPT_DIR}/unet_wsl_best_model.h5",  # or "best_model.keras"
         monitor='val_accuracy',
         save_best_only=True,
         save_weights_only=False,  # set to True if you want only weights
@@ -42,7 +42,7 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
     )
 
     cbs = [
-        CSVLogger(LOG_DIR+'/wsl_unet_logs.csv', separator=',', append=False),
+        CSVLogger(LOG_DIR+'/unet_wsl_logs.csv', separator=',', append=False),
         checkpoint_cb,
         tensorboard
     ]
@@ -80,44 +80,30 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
     plt.show()
     return None
 
-# def make_or_restore_model(restore, num_channels, size):
-#     (width, height) = size
-#     if restore:
-#         checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
-#         print(f"Checkpoints: {checkpoints}")
-#         if checkpoints:
-#             latest_checkpoint = max(checkpoints, key=os.path.getctime)
-#             print(f"Restoring from {latest_checkpoint}")
-#             return keras.models.load_model(latest_checkpoint)
-#         else:
-#             print("Creating fresh model")
-#             return unet_model(width, height, num_channels)
-#     else:
-#         print("Creating fresh model")
-#         return unet_model(width, height, num_channels)
-
 def make_or_restore_model(restore, num_channels, size):
     (width, height) = size
     if restore:
-        saved_model_path = f"{CKPT_DIR}/UNET_best_model.h5"
+        saved_model_path = os.path.join(CKPT_DIR, "unet_wsl_best_model.h5")
         print(f"Restoring from {saved_model_path}")
         return keras.models.load_model(saved_model_path,
-                                    custom_objects={'recall_m': recall_m,
+                                       custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
-                                                    'combined_loss_with_edge': combined_loss_with_edge})
+                                                    'wsl_masked_dice_loss': wsl_masked_dice_loss},
+                                       compile=True)
     else:
         print("Creating fresh model")
         return unet_model(width, height, num_channels)
 
 def load_with_trained_model(X_val, channels):
-    saved_model_path = f"{CKPT_DIR}/UNET_best_model.h5"
+    saved_model_path = os.path.join(CKPT_DIR, "unet_wsl_best_model.h5")
     print(f"Restoring from {saved_model_path}")
     model = keras.models.load_model(saved_model_path,
                                     custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
-                                                    'combined_loss_with_edge': combined_loss_with_edge})
+                                                    'wsl_masked_dice_loss': wsl_masked_dice_loss},
+                                    compile=True)
     weight_lists = []
     for i in range(len(X_val)):
         id = randint(len(X_val))
@@ -137,38 +123,6 @@ def load_with_trained_model(X_val, channels):
         plt.show()
     plot_attention_weights(channels, weight_lists)
 
-# def load_with_trained_model(X_val, channels):
-#     checkpoints = [os.path.join(CKPT_DIR, name) for name in os.listdir("ckpt")]
-#     print(f"Checkpoints: {checkpoints}")
-#     weight_lists = []
-#     if checkpoints:
-#         latest_checkpoint = max(checkpoints, key=os.path.getctime)
-#         print(f"Restoring from {latest_checkpoint}")
-#         model = keras.models.load_model(latest_checkpoint,
-#                                         custom_objects={'recall_m':recall_m,
-#                                                         'precision_m':precision_m,
-#                                                         'f1_score':f1_score,
-#                                                         'combined_loss_with_edge':combined_loss_with_edge})
-#         for i in range(len(X_val)):
-#             id = randint(len(X_val))
-#             image = X_val[id]
-#             pred_mask, attention_weights = model.predict(np.expand_dims(image, 0))
-#             plt.figure(figsize=(10, 8))
-#             plt.subplot(1, 2, 1)
-#             rgb_image = image[:, :, :3]
-#             show_image(OUTPUT_DIR, rgb_image, index=i, title="Original_Image", save=True)
-#             plt.subplot(1, 2, 2)
-#             blended_mask = overlay_mask(rgb_image, pred_mask, alpha=0.3)
-#             show_image(OUTPUT_DIR, blended_mask, index=i, title="Predicted_Mask", save=True)
-#
-#             print(f'Attention weights: {attention_weights.flatten()}')
-#             weight_lists.append(attention_weights.flatten().tolist())
-#             plt.tight_layout()
-#             plt.show()
-#     else:
-#         print("No preloaded model")
-#     print(f"weight_lists: {weight_lists}")
-#     plot_attention_weights(channels, weight_lists)
 
 def plot_attention_weights(channels, weight_lists):
     result = [sum(values) for values in zip(*weight_lists)]
@@ -183,20 +137,44 @@ def plot_attention_weights(channels, weight_lists):
     plt.show()
 
 
+# if __name__ == "__main__":
+#     print(tf.config.list_physical_devices('GPU'))
+#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
+#     print(f"physical_devices : {physical_devices}")
+#     print(tf.__version__)
+#     print(tf.executing_eagerly())
+#     image_size = (256, 256) # actual size is (5280, 3956)
+#     epochs = 50
+#     batch_size = 4
+#     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
+#                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
+#     channel_count = len(channels)
+#     if len(physical_devices) > 0:
+#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet/images",
+#                                                           size = image_size,
+#                                                           file_extension="jpg",
+#                                                           channels=channels,
+#                                                           percentage=0.7)
+#         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
+#                     size = image_size,
+#                     restore=False)
+#         load_with_trained_model(X_val, channels)
+
+
 if __name__ == "__main__":
     print(tf.config.list_physical_devices('GPU'))
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     print(f"physical_devices : {physical_devices}")
     print(tf.__version__)
     print(tf.executing_eagerly())
-    image_size = (512, 512) # actual size is (5280, 3956)
-    epochs = 50
-    batch_size = 4
+    image_size = (256, 256) # actual size is (5280, 3956)
+    epochs = 5
+    batch_size = 2
     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/crookstown/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,
@@ -205,4 +183,3 @@ if __name__ == "__main__":
                     size = image_size,
                     restore=False)
         load_with_trained_model(X_val, channels)
-

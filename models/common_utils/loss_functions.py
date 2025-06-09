@@ -66,21 +66,25 @@ def partial_crossentropy(y_true, y_pred):
     loss = tf.where(mask, loss, tf.zeros_like(loss))
     return tf.reduce_mean(loss)
 
-# def masked_dice_loss(y_true, y_pred, mask=None, smooth=1e-6):
-#     if mask is None:
-#         mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
-#
-#     y_true = y_true * mask
-#     y_pred = y_pred * mask
-#
-#     intersection = tf.reduce_sum(y_true * y_pred)
-#     union = tf.reduce_sum(y_true) + tf.reduce_sum(y_pred)
-#     dice = (2. * intersection + smooth) / (union + smooth)
-#     return 1 - dice
+def wsl_masked_dice_loss(y_true, y_pred, mask=None, smooth=1e-6):
+    if mask is None:
+        mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
+
+    y_true = y_true * mask
+    y_pred = y_pred * mask
+
+    intersection = tf.reduce_sum(y_true * y_pred)
+    union = tf.reduce_sum(y_true) + tf.reduce_sum(y_pred)
+    dice = (2. * intersection + smooth) / (union + smooth)
+    return 1 - dice
 
 def masked_dice_loss(y_true, y_pred, mask=None, smooth=1e-6):
     if mask is None:
         mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
+
+    print(f"masked_dice_loss|y_true:{y_true.shape}")
+    print(f"masked_dice_loss|y_pred:{y_pred.shape}")
+    print(f"masked_dice_loss|mask:{mask.shape}")
 
     y_true = y_true * mask
     y_pred = y_pred * mask
@@ -89,20 +93,6 @@ def masked_dice_loss(y_true, y_pred, mask=None, smooth=1e-6):
     union = tf.reduce_sum(y_true + y_pred, axis=[1, 2, 3])
     dice = (2. * intersection + smooth) / (union + smooth)
     return tf.reduce_mean(1 - dice)
-
-# def masked_focal_loss(y_true, y_pred, mask=None, alpha=0.25, gamma=2.0):
-#     if mask is None:
-#         mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
-#
-#     # Clip predictions to prevent log(0)
-#     epsilon = K.epsilon()
-#     y_pred = tf.clip_by_value(y_pred, epsilon, 1. - epsilon)
-#
-#     cross_entropy = - (y_true * tf.math.log(y_pred) + (1 - y_true) * tf.math.log(1 - y_pred))
-#     pt = tf.where(tf.equal(y_true, 1), y_pred, 1 - y_pred)
-#     focal = alpha * tf.pow(1. - pt, gamma) * cross_entropy
-#     masked_focal = focal * mask
-#     return tf.reduce_sum(masked_focal) / (tf.reduce_sum(mask) + epsilon)
 
 def masked_focal_loss(y_true, y_pred, mask=None, alpha=None, gamma=2.0):
     if mask is None:

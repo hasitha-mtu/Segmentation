@@ -1,6 +1,6 @@
 import keras
 import tensorflow as tf
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, wsl_masked_dice_loss
 
 
 def encoding_block(inputs, filters, dropout, batch_normalization=True, pooling=True, kernel_size=(3,3), activation="relu",
@@ -53,21 +53,25 @@ def unet_model(image_width, image_height, image_channels):
     u5 = decoding_block(u4, c2, 32)
     u6 = decoding_block(u5, c1, 16)
 
-    outputs = tf.keras.layers.Conv2D(3, kernel_size=3, activation='sigmoid', padding='same', name="segmentation_output")(u6)
+    outputs = tf.keras.layers.Conv2D(3,
+                                     kernel_size=3,
+                                     activation='sigmoid',
+                                     padding='same',
+                                     name="segmentation_output")(u6)
 
     model = tf.keras.Model(inputs=inputs,
                            outputs=[outputs, attention_weights],
-                           name="unet_with_attention")
+                           name="UNET_with_attention")
 
     model.compile(
         optimizer='adam',
-        loss=[masked_dice_loss, None], # Use `None` to skip the second loss
+        loss=[wsl_masked_dice_loss, None], # Use `None` to skip the second loss
         metrics=[['accuracy', f1_score, precision_m, recall_m], []] # Metrics only for the segmentation output
     )
 
     print(f"Model : {model.summary()}")
 
-    keras.utils.plot_model(model, "unet_model.png", show_shapes=True)
+    keras.utils.plot_model(model, "UNET_model.png", show_shapes=True)
 
     return model
 
