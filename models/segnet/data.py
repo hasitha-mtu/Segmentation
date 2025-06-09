@@ -7,6 +7,7 @@ import tensorflow as tf
 from tqdm import tqdm
 import random
 import os
+import cv2
 
 from models.common_utils.images import load_ndwi_edge_map, selected_channels, format_image
 
@@ -79,27 +80,72 @@ def load_dataset(path, size = (256, 256), file_extension = "JPG",
     x_test, y_test = load_drone_images(size, test_paths, channels=channels)
     return (x_train, y_train),(x_test, y_test)
 
-if __name__ == "__main__":
-    sample_image = "../../input/samples1/crookstown/images/DJI_20250324094536_0001_V.jpg"
-    size = (256, 256)
-    # get_image(size, sample_image)
-    img = load_image(size, sample_image)
-    print(f'Image shape: {img.shape}')
 
-    sample_mask = "../../input/samples1/crookstown/annotations/DJI_20250324094536_0001_V.png"
-    size = (256, 256)
-    # get_image(size, sample_image)
-    mask = load_image(size, sample_mask, color_mode = "grayscale")
-    print(f'Mask shape: {mask.shape}')
-    np.set_printoptions(threshold=sys.maxsize)
-    print(f'Mask : {mask}')
-    array_2d = np.squeeze(mask)
-    # Save to text file
-    np.savetxt("y_true.txt", array_2d, fmt="%.4f")
-    generated_mask = (array_2d != 0.0)
-    np.savetxt("mask.txt", generated_mask, fmt="%.4f")
-    y_pred_bin = (generated_mask >= 0.5).astype(np.uint8)
-    np.savetxt("bin_mask.txt", y_pred_bin, fmt="%.4f")
+def create_confidence_mask(annotation, threshold=0.0):
+    """
+    Convert a weak annotation into a binary mask:
+    1.0 → confidently labeled pixel
+    0.0 → ignore in loss (e.g., occluded or unlabeled)
+
+    Parameters:
+        annotation: np.ndarray or tf.Tensor of shape (H, W) or (H, W, 1)
+        threshold: pixel values > threshold are considered labeled
+
+    Returns:
+        mask: same shape as input, with values 0.0 or 1.0
+    """
+    # Ensure annotation is a NumPy array
+    if isinstance(annotation, tf.Tensor):
+        annotation = annotation.numpy()
+
+    # Remove channel dim if exists
+    if annotation.ndim == 3 and annotation.shape[-1] == 1:
+        annotation = annotation[..., 0]
+
+    # Create mask
+    mask = np.where(annotation > threshold, 1.0, 0.0).astype(np.float32)
+
+    # Add channel dim back
+    return mask[..., np.newaxis]
+
+if __name__ == "__main__":
+    annotation_dir = "../../input/samples/segnet/annotations"
+    formatted_annotation_dir = "../../input/samples/segnet/annotations"
+    os.makedirs(formatted_annotation_dir, exist_ok=True)
+    for filename in os.listdir(annotation_dir):
+        path = os.path.join(annotation_dir, filename)
+        print(f"Original mask path: {path}")
+        ann = cv2.imread(path, cv2.IMREAD_GRAYSCALE)  # shape: (H, W)
+
+        mask = create_confidence_mask(ann)
+
+        # Save mask as 8-bit single-channel image
+        updated_mask_path = os.path.join(formatted_annotation_dir, filename)
+        print(f"Updated mask path: {updated_mask_path}")
+        cv2.imwrite(updated_mask_path, (mask * 255).astype(np.uint8))
+
+
+# if __name__ == "__main__":
+#     sample_image = "../../input/samples1/crookstown/images/DJI_20250324094536_0001_V.jpg"
+#     size = (256, 256)
+#     # get_image(size, sample_image)
+#     img = load_image(size, sample_image)
+#     print(f'Image shape: {img.shape}')
+#
+#     sample_mask = "../../input/samples1/crookstown/annotations/DJI_20250324094536_0001_V.png"
+#     size = (256, 256)
+#     # get_image(size, sample_image)
+#     mask = load_image(size, sample_mask, color_mode = "grayscale")
+#     print(f'Mask shape: {mask.shape}')
+#     np.set_printoptions(threshold=sys.maxsize)
+#     print(f'Mask : {mask}')
+#     array_2d = np.squeeze(mask)
+#     # Save to text file
+#     np.savetxt("y_true.txt", array_2d, fmt="%.4f")
+#     generated_mask = (array_2d != 0.0)
+#     np.savetxt("mask.txt", generated_mask, fmt="%.4f")
+#     y_pred_bin = (generated_mask >= 0.5).astype(np.uint8)
+#     np.savetxt("bin_mask.txt", y_pred_bin, fmt="%.4f")
 
 # if __name__ == "__main__":
 #     sample_image = "../../input/samples1/test/images/0001TP_006690.png"
