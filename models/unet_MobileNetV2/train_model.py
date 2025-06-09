@@ -10,10 +10,10 @@ from keras.callbacks import (Callback,
 import numpy as np
 from numpy.random import randint
 
-from models.wsl.data import load_dataset
+from models.unet_wsl.data import load_dataset
 from model import unet_model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
-from models.wsl.wsl_utils import show_image, overlay_mask
+from models.unet_wsl.wsl_utils import show_image, overlay_mask
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_MobileNetV2\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_MobileNetV2\ckpt"

@@ -11,9 +11,9 @@ models/unet/logs/
 models/unet2/logs/
 models/unet2/ckpt/
 data/
-models/wsl/ckpt/
-models/wsl/logs/
-models/wsl/output/
+models/unet_wsl/ckpt/
+models/unet_wsl/logs/
+models/unet_wsl/output/
 
 models/segnet/ckpt/
 models/segnet/logs/

@@ -12,7 +12,7 @@ from models.segnet.data import load_dataset
 from model import segnet_model, build_rgb_segnet, extend_to_16_channel_model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_masked_dice_focal_loss
 from models.common_utils.accuracy_functions import calculate_accuracy
-from models.wsl.wsl_utils import show_image
+from models.unet_wsl.wsl_utils import show_image
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\segnet_VGG16\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\segnet_VGG16\ckpt"
