@@ -1,6 +1,6 @@
 import keras
 import tensorflow as tf
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_masked_dice_focal_loss
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, wsl_masked_dice_loss
 
 
 def encoding_block(inputs, filters, dropout, batch_normalization=True, pooling=True, kernel_size=(3,3), activation="relu",
@@ -65,7 +65,7 @@ def unet_model(image_width, image_height, image_channels):
 
     model.compile(
         optimizer='adam',
-        loss=combined_masked_dice_focal_loss, # Use `None` to skip the second loss
+        loss=wsl_masked_dice_loss, # Use `None` to skip the second loss
         metrics=[['accuracy', f1_score, precision_m, recall_m], []] # Metrics only for the segmentation output
     )
 

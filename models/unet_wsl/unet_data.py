@@ -31,7 +31,7 @@ def load_drone_images(size, paths, channels):
         images[i] = image
         mask_path = path.replace("images", "annotations")
         mask_path = mask_path.replace(".jpg", ".png")
-        mask = load_image(size, mask_path, color_mode = "grayscale")
+        mask = load_image(size, mask_path)
         masks[i] = mask
     return images, masks
 
@@ -59,19 +59,28 @@ def get_stacked_image(channels, size, path):
     return stacked_image
 
 def load_dataset(path, size = (256, 256), file_extension = "JPG",
-                 channels=['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP',
-                           'HSV Saturation', 'HSV Value', 'GradMag', 'Shadow Mask'],
-                 percentage=0.7):
+                 channels=None,
+                 percentage=0.7,
+                 image_count=50):
+    if channels is None:
+        channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP',
+                    'HSV Saturation', 'HSV Value', 'GradMag', 'Shadow Mask']
     total_images = len(os.listdir(path))
     print(f'total number of images in path is {total_images}')
     all_image_paths = sorted(glob(path + "/*."+file_extension))
     random.Random(1337).shuffle(all_image_paths)
     print(all_image_paths)
-    train_size = int(len(all_image_paths) * percentage)
-    train_paths = all_image_paths[:train_size]
+
+    if len(all_image_paths) > image_count:
+        selected_paths = random.sample(all_image_paths, image_count)
+    else:
+        selected_paths = all_image_paths
+    print(f'Selected number of images in path is {selected_paths}')
+    train_size = int(len(selected_paths) * percentage)
+    train_paths = selected_paths[:train_size]
     print(f"train image count : {len(train_paths)}")
     x_train, y_train = load_drone_images(size, train_paths, channels=channels)
-    test_paths = all_image_paths[train_size:]
+    test_paths = selected_paths[train_size:]
     print(f"test image count : {len(test_paths)}")
     x_test, y_test = load_drone_images(size, test_paths, channels=channels)
     return (x_train, y_train),(x_test, y_test)

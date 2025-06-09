@@ -6,11 +6,10 @@ import tensorflow as tf
 from keras.callbacks import (Callback,
                              CSVLogger)
 import numpy as np
-from numpy.random import randint
 
 from unet_data import load_dataset
 from unet_model import unet_model
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_masked_dice_focal_loss
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, wsl_masked_dice_loss
 from models.unet_wsl.wsl_utils import show_image, overlay_mask
 from tensorflow.keras.callbacks import ModelCheckpoint
 
@@ -89,41 +88,37 @@ def make_or_restore_model(restore, num_channels, size):
                                        custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
-                                                    'combined_masked_dice_focal_loss': combined_masked_dice_focal_loss},
+                                                    'wsl_masked_dice_loss': wsl_masked_dice_loss},
                                        compile=True)
     else:
         print("Creating fresh model")
         return unet_model(width, height, num_channels)
 
-def load_with_trained_model(X_val, _channels):
+def load_with_trained_model(X_val, y_val):
     saved_model_path = os.path.join(CKPT_DIR, "unet_wsl_best_model.h5")
     print(f"Restoring from {saved_model_path}")
     model = keras.models.load_model(saved_model_path,
                                     custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
-                                                    'combined_masked_dice_focal_loss': combined_masked_dice_focal_loss},
+                                                    'wsl_masked_dice_loss': wsl_masked_dice_loss},
                                     compile=True)
-    # weight_lists = []
     for i in range(len(X_val)):
-        id = randint(len(X_val))
-        image = X_val[id]
-        pred_mask, attention_weights = model.predict(np.expand_dims(image, 0))
+        image = X_val[i]
+        actual_mask = y_val[i]
+        formated_image = np.expand_dims(image, 0)
+        pred_mask = model.predict(formated_image)
         plt.figure(figsize=(10, 8))
         plt.subplot(1, 3, 1)
         rgb_image = image[:, :, :3]
         show_image(OUTPUT_DIR, rgb_image, index=i, title="Original_Image", save=True)
         plt.subplot(1, 3, 2)
-        show_image(OUTPUT_DIR, pred_mask.squeeze(), index=i, title="Predicted_Mask", save=True)
+        show_image(OUTPUT_DIR, actual_mask.squeeze(), index=i, title="Actual_Mask", save=True)
         plt.subplot(1, 3, 3)
-        blended_mask = overlay_mask(rgb_image, pred_mask, alpha=0.3)
-        show_image(OUTPUT_DIR, blended_mask, index=i, title="Overlay_Mask", save=True)
+        show_image(OUTPUT_DIR, pred_mask.squeeze(), index=i, title="Predicted_Mask", save=True)
 
-        # print(f'Attention weights: {attention_weights.flatten()}')
-        # weight_lists.append(attention_weights.flatten().tolist())
         plt.tight_layout()
         plt.show()
-    # plot_attention_weights(channels, weight_lists)
 
 
 def plot_attention_weights(channels, weight_lists):
@@ -139,49 +134,50 @@ def plot_attention_weights(channels, weight_lists):
     plt.show()
 
 
-# if __name__ == "__main__":
-#     print(tf.config.list_physical_devices('GPU'))
-#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
-#     print(f"physical_devices : {physical_devices}")
-#     print(tf.__version__)
-#     print(tf.executing_eagerly())
-#     image_size = (512, 512) # actual size is (5280, 3956)
-#     epochs = 50
-#     batch_size = 4
-#     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
-#                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
-#     channel_count = len(channels)
-#     if len(physical_devices) > 0:
-#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
-#                                                           size = image_size,
-#                                                           file_extension="jpg",
-#                                                           channels=channels,
-#                                                           percentage=0.7)
-#         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
-#                     size = image_size,
-#                     restore=False)
-#         load_with_trained_model(X_val, channels)
-
-
 if __name__ == "__main__":
     print(tf.config.list_physical_devices('GPU'))
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     print(f"physical_devices : {physical_devices}")
     print(tf.__version__)
     print(tf.executing_eagerly())
-    image_size = (512, 512) # actual size is (5280, 3956)
-    epochs = 2
-    batch_size = 2
+    image_size = (256, 256) # actual size is (5280, 3956)
+    epochs = 25
+    batch_size = 4
     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/crookstown/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,
-                                                          percentage=0.5)
+                                                          percentage=0.7,
+                                                          image_count=200)
         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
                     size = image_size,
                     restore=False)
-        load_with_trained_model(X_val, channels)
+        load_with_trained_model(X_val, y_val)
+
+
+# if __name__ == "__main__":
+#     print(tf.config.list_physical_devices('GPU'))
+#     physical_devices = tf.config.experimental.list_physical_devices('GPU')
+#     print(f"physical_devices : {physical_devices}")
+#     print(tf.__version__)
+#     print(tf.executing_eagerly())
+#     image_size = (256, 256) # actual size is (5280, 3956)
+#     epochs = 2
+#     batch_size = 2
+#     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
+#                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
+#     channel_count = len(channels)
+#     if len(physical_devices) > 0:
+#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples1/crookstown/images",
+#                                                           size = image_size,
+#                                                           file_extension="jpg",
+#                                                           channels=channels,
+#                                                           percentage=0.5)
+#         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
+#                     size = image_size,
+#                     restore=False)
+#         load_with_trained_model(X_val, channels)

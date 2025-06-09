@@ -82,10 +82,6 @@ def masked_dice_loss(y_true, y_pred, mask=None, smooth=1e-6):
     if mask is None:
         mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
 
-    print(f"masked_dice_loss|y_true:{y_true.shape}")
-    print(f"masked_dice_loss|y_pred:{y_pred.shape}")
-    print(f"masked_dice_loss|mask:{mask.shape}")
-
     y_true = y_true * mask
     y_pred = y_pred * mask
 
@@ -130,7 +126,7 @@ def combined_masked_dice_focal_loss(y_true, y_pred, dice_weight=0.25, focal_weig
 
     return dice_weight * dice + focal_weight * focal
 
-def combined_loss_with_edge(y_true, y_pred, dice_weight=0.3, focal_weight=0.6, edge_weight=0.1):
+def combined_loss_with_edge(y_true, y_pred, dice_weight=0.3, focal_weight=0.4, edge_weight=0.3):
     mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
     dice = masked_dice_loss(y_true, y_pred, mask)
     focal = masked_focal_loss(y_true, y_pred, mask)
