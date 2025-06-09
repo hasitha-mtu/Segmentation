@@ -109,7 +109,7 @@ def create_confidence_mask(annotation, threshold=0.0):
     return mask[..., np.newaxis]
 
 if __name__ == "__main__":
-    annotation_dir = "../../input/samples/segnet/annotations"
+    annotation_dir = "../../input/samples/crookstown/annotations"
     formatted_annotation_dir = "../../input/samples/segnet/annotations"
     os.makedirs(formatted_annotation_dir, exist_ok=True)
     for filename in os.listdir(annotation_dir):

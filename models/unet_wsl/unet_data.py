@@ -31,12 +31,12 @@ def load_drone_images(size, paths, channels):
         images[i] = image
         mask_path = path.replace("images", "annotations")
         mask_path = mask_path.replace(".jpg", ".png")
-        mask = load_image(size, mask_path)
+        mask = load_image(size, mask_path, color_mode = "grayscale")
         masks[i] = mask
     return images, masks
 
-def load_image(size, path: str, grayscale = False):
-    img = load_img(path, grayscale=grayscale)
+def load_image(size, path: str, color_mode = "rgb"):
+    img = load_img(path, color_mode=color_mode)
     img_array = img_to_array(img)
     normalized_img_array = img_array/255.
     resized_img = tf.image.resize(normalized_img_array, size, method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
