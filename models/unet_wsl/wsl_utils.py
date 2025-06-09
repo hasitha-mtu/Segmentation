@@ -61,12 +61,6 @@ def overlay_mask_on_image(image, predicted_mask, alpha=0.5):
     if image.shape[2] == 3:
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-    print(f'overlay_mask_on_image|image shape is {image.shape}')
-    print(f'overlay_mask_on_image|mask_colored shape is {mask_colored.shape}')
-
-    print(f'overlay_mask_on_image|image data type is {image.dtype}')
-    print(f'overlay_mask_on_image|mask_colored data type is {mask_colored.dtype}')
-
     # Blend images
     blended = cv2.addWeighted(image, 1 - alpha, mask_colored, alpha, 0)
 

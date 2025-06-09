@@ -35,7 +35,7 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
         monitor='val_accuracy',
         save_best_only=True,
         save_weights_only=False,  # set to True if you want only weights
-        mode='min',
+        mode='max',
         verbose=1
     )
 
@@ -145,7 +145,7 @@ def train_rgb_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, inp
         monitor='val_accuracy',
         save_best_only=True,
         save_weights_only=False,  # set to True if you want only weights
-        mode='min',
+        mode='max',
         verbose=1
     )
 
@@ -211,7 +211,7 @@ def train_extend_to_16_channel_model(epoch_count, batch_size, rgb_model_path, in
         monitor='val_accuracy',
         save_best_only=True,
         save_weights_only=False,  # set to True if you want only weights
-        mode='min',
+        mode='max',
         verbose=1
     )
 
