@@ -2,8 +2,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import cv2
 import numpy as np
-from glob import glob
-import random
+import os
 from skimage.feature import local_binary_pattern
 from keras.utils import img_to_array
 import tensorflow as tf
@@ -365,6 +364,101 @@ def plot_details(image_path):
 
     plt.show()
 
+def create_confidence_mask(annotation, threshold=0.0):
+    """
+    Convert a weak annotation into a binary mask:
+    1.0 → confidently labeled pixel
+    0.0 → ignore in loss (e.g., occluded or unlabeled)
+
+    Parameters:
+        annotation: np.ndarray or tf.Tensor of shape (H, W) or (H, W, 1)
+        threshold: pixel values > threshold are considered labeled
+
+    Returns:
+        mask: same shape as input, with values 0.0 or 1.0
+    """
+    # Ensure annotation is a NumPy array
+    if isinstance(annotation, tf.Tensor):
+        annotation = annotation.numpy()
+
+    # Remove channel dim if exists
+    if annotation.ndim == 3 and annotation.shape[-1] == 1:
+        annotation = annotation[..., 0]
+
+    # Create mask
+    mask = np.where(annotation > threshold, 1.0, 0.0).astype(np.float32)
+
+    # Add channel dim back
+    return mask[..., np.newaxis]
+
+# if __name__ == "__main__":
+#     annotation_dir = "../../input/samples/crookstown/annotations"
+#     formatted_annotation_dir = "../../input/samples/segnet/annotations"
+#     os.makedirs(formatted_annotation_dir, exist_ok=True)
+#     for filename in os.listdir(annotation_dir):
+#         path = os.path.join(annotation_dir, filename)
+#         print(f"Original mask path: {path}")
+#         ann = cv2.imread(path, cv2.IMREAD_GRAYSCALE)  # shape: (H, W)
+#
+#         mask = create_confidence_mask(ann)
+#
+#         # Save mask as 8-bit single-channel image
+#         updated_mask_path = os.path.join(formatted_annotation_dir, filename)
+#         print(f"Updated mask path: {updated_mask_path}")
+#         cv2.imwrite(updated_mask_path, (mask * 255).astype(np.uint8))
+
+# if __name__ == "__main__":
+#     image_dir = "../../input/samples/crookstown/images"
+#     formatted_image_dir = "../../input/samples/segnet_512/images"
+#
+#     os.makedirs(formatted_image_dir, exist_ok=True)
+#
+#     for filename in os.listdir(image_dir):
+#         path = os.path.join(image_dir, filename)
+#         print(f"Original image path: {path}")
+#
+#         image = cv2.imread(path)
+#         resized_image = cv2.resize(image, (512, 512))
+#
+#         updated_image_path = os.path.join(formatted_image_dir, filename)
+#         cv2.imwrite(updated_image_path, resized_image)
+
+# if __name__ == "__main__":
+#     annotation_dir = "../../input/samples/crookstown/annotations"
+#     formatted_annotation_dir = "../../input/samples/segnet_512/annotations"
+#
+#     os.makedirs(formatted_annotation_dir, exist_ok=True)
+#
+#     for filename in os.listdir(annotation_dir):
+#         path = os.path.join(annotation_dir, filename)
+#         print(f"Original mask path: {path}")
+#         ann = cv2.imread(path, cv2.IMREAD_GRAYSCALE)  # shape: (H, W)
+#         ann = cv2.resize(ann, (512, 512))
+#
+#         mask = create_confidence_mask(ann)
+#
+#         # Save mask as 8-bit single-channel image
+#         updated_mask_path = os.path.join(formatted_annotation_dir, filename)
+#         print(f"Updated mask path: {updated_mask_path}")
+#         cv2.imwrite(updated_mask_path, (mask * 255).astype(np.uint8))
+
+if __name__ == "__main__":
+    annotation_dir = "../../input/samples/crookstown/annotations"
+    formatted_annotation_dir = "../../input/samples/segnet_512/annotations1"
+
+    os.makedirs(formatted_annotation_dir, exist_ok=True)
+
+    for filename in os.listdir(annotation_dir):
+        path = os.path.join(annotation_dir, filename)
+        print(f"Original mask path: {path}")
+        ann = cv2.imread(path)  # shape: (H, W)
+        resized_ann = cv2.resize(ann, (512, 512))
+
+        # Save mask as 8-bit single-channel image
+        updated_mask_path = os.path.join(formatted_annotation_dir, filename)
+        print(f"Updated mask path: {updated_mask_path}")
+        cv2.imwrite(updated_mask_path, resized_ann)
+
 # if __name__ == "__main__":
 #     path = "../../input/samples/crookstown/images"
 #     image_paths = sorted(glob(path + "/*.jpg"))
@@ -372,11 +466,11 @@ def plot_details(image_path):
 #     for i in range(10):
 #         plot_details(image_paths[i])
 
-if __name__ == "__main__":
-    sample1_image = "../../input/samples/sample1.jpg"
-    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'GradMag', 'Shadow Mask', 'Lightness', 'GreenRed', 'XYZ']
-    stacked = selected_channels(channels, (512, 512), sample1_image)
-    print(f"Shape stacked image : {stacked.shape}")
+# if __name__ == "__main__":
+#     sample1_image = "../../input/samples/sample1.jpg"
+#     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'GradMag', 'Shadow Mask', 'Lightness', 'GreenRed', 'XYZ']
+#     stacked = selected_channels(channels, (512, 512), sample1_image)
+#     print(f"Shape stacked image : {stacked.shape}")
 
 # if __name__ == "__main__":
 #     sample1_image = "../../input/samples/sample1.JPG"
