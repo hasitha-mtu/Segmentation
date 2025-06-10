@@ -2,10 +2,9 @@ import tensorflow as tf
 from tensorflow.keras import layers, models
 from tensorflow.keras.applications import ResNet50
 import keras
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
-from tensorflow.keras.losses import SparseCategoricalCrossentropy
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, unet_resnet50_loss_function
 
-def unet_with_resnet50(input_shape=(512, 512, 16), num_classes=3):
+def unet_with_resnet50(input_shape=(512, 512, 16), num_classes=1):
     # Step 1: Define 16-channel input
     inputs = tf.keras.Input(shape=input_shape)
 
@@ -59,7 +58,7 @@ def unet_with_resnet50(input_shape=(512, 512, 16), num_classes=3):
 
     model.compile(
         optimizer='adam',
-        loss=masked_dice_loss,  # Use `None` to skip the second loss
+        loss=unet_resnet50_loss_function,
         metrics=['accuracy', f1_score, precision_m, recall_m]  # Metrics only for the segmentation output
     )
 

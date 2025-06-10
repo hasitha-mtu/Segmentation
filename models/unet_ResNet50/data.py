@@ -5,33 +5,21 @@ import tensorflow as tf
 from tqdm import tqdm
 import random
 import os
-
+import matplotlib.pyplot as plt
+import sys
 from models.common_utils.images import load_ndwi_edge_map, selected_channels, format_image
 
-def load_drone_dataset(path, file_extension = "jpg", num_channels=5):
-    total_images = len(os.listdir(path))
-    print(f'total number of images in path is {total_images}')
-    all_image_paths = sorted(glob(path + "/*."+file_extension))
-    random.Random(1337).shuffle(all_image_paths)
-    print(all_image_paths)
-    train_paths = all_image_paths[:300]
-    print(f"train image count : {len(train_paths)}")
-    x_train, y_train = load_drone_images(train_paths, channels=num_channels)
-    test_paths = all_image_paths[300:]
-    print(f"test image count : {len(test_paths)}")
-    x_test, y_test = load_drone_images(test_paths, channels=num_channels)
-    return (x_train, y_train),(x_test, y_test)
 
 def load_drone_images(size, paths, channels):
     (width, height) = size
     images = np.zeros(shape=(len(paths), width, height, len(channels)))
-    masks = np.zeros(shape=(len(paths), width, height, 3))
+    masks = np.zeros(shape=(len(paths), width, height, 1))
     for i, path in tqdm(enumerate(paths), total=len(paths), desc="Loading"):
         image = get_stacked_image(channels, size, path)
         images[i] = image
         mask_path = path.replace("images", "annotations")
         mask_path = mask_path.replace(".jpg", ".png")
-        mask = load_image(size, mask_path)
+        mask = load_image(size, mask_path, color_mode='grayscale')
         masks[i] = mask
     return images, masks
 
@@ -62,6 +50,7 @@ def load_dataset(path, size = (256, 256), file_extension = "JPG",
                  channels=None,
                  percentage=0.7,
                  image_count=50):
+    print("Loading data for UNET-ResNet50 Model")
     if channels is None:
         channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP',
                     'HSV Saturation', 'HSV Value', 'GradMag', 'Shadow Mask']
@@ -80,13 +69,16 @@ def load_dataset(path, size = (256, 256), file_extension = "JPG",
     train_paths = selected_paths[:train_size]
     print(f"train image count : {len(train_paths)}")
     x_train, y_train = load_drone_images(size, train_paths, channels=channels)
+    print(f"load_dataset|y_train shape : {y_train.shape}")
     test_paths = selected_paths[train_size:]
     print(f"test image count : {len(test_paths)}")
     x_test, y_test = load_drone_images(size, test_paths, channels=channels)
+    print(f"load_dataset|y_test shape : {y_test.shape}")
     return (x_train, y_train),(x_test, y_test)
 
 if __name__ == "__main__":
-    sample_image = "../../input/samples/segnet_512/images/DJI_20250324094536_0001_V.jpg"
+    np.set_printoptions(threshold=sys.maxsize)
+    sample_image = "../../input/samples/segnet_512/images/DJI_20250324092908_0001_V.jpg"
     size = (512, 512)
     # get_image(size, sample_image)
     img = load_image(size, sample_image)
@@ -97,4 +89,16 @@ if __name__ == "__main__":
     # get_image(size, sample_image)
     mask = load_image(size, sample_mask, color_mode='grayscale')
     print(f'Mask shape: {mask.shape}')
+    print(f'Mask: {mask}')
+    np.set_printoptions(threshold=1000)
+
+    plt.subplot(1, 2, 1)
+    plt.imshow(img[:, :, :3])  # RGB channels
+    plt.title('Input Image')
+
+    plt.subplot(1, 2, 2)
+    plt.imshow(mask[:, :, 0], cmap='gray')
+    plt.title('Ground Truth Mask')
+
+    plt.show()
 

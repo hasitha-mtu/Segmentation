@@ -8,11 +8,11 @@ from keras.callbacks import (Callback,
                              CSVLogger)
 import numpy as np
 
-from models.unet_wsl.unet_data import load_dataset
+from models.unet_ResNet50.data import load_dataset
 from model import unet_model
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, unet_resnet50_loss_function
 from models.unet_wsl.wsl_utils import show_image
-from tensorflow.keras.losses import SparseCategoricalCrossentropy
+import sys
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ResNet50\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ResNet50\ckpt"
@@ -92,7 +92,7 @@ def load_with_trained_model(X_val, y_val):
                                     custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
-                                                    'masked_dice_loss': masked_dice_loss})
+                                                    'unet_resnet50_loss_function': unet_resnet50_loss_function})
     for i in range(len(X_val)):
         image = X_val[i]
         actual_mask = y_val[i]
@@ -152,6 +152,13 @@ if __name__ == "__main__":
                                                           channels=channels,
                                                           percentage=0.7,
                                                           image_count=200)
+        y_train = (y_train > 0.0).astype(np.float32)
+        y_val = (y_val > 0.0).astype(np.float32)
+        print(f"y_train unique values : {np.unique(y_train)}")
+        print(f"y_val unique values : {np.unique(y_val)}")
+        water_pixels = np.sum(y_val == 1.0)
+        non_water_pixels = np.sum(y_val == 0.0)
+        print(f"Water: {water_pixels}, Non-water: {non_water_pixels}")
         train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
                     size=image_size,
                     restore=False)

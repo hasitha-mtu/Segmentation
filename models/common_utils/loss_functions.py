@@ -138,3 +138,18 @@ def combined_loss_with_edge(y_true, y_pred, dice_weight=0.3, focal_weight=0.4, e
     focal = masked_focal_loss(y_true, y_pred, mask)
     edge = edge_penalty_loss(y_true, y_pred, mask)
     return dice_weight * dice + focal_weight * focal + edge_weight * edge
+
+
+def unet_resnet50_loss_function(y_true, y_pred):
+    return bce_dice_loss(y_true, y_pred)
+
+def dice_loss(y_true, y_pred, smooth=1e-6):
+    y_true_f = tf.keras.backend.flatten(y_true)
+    y_pred_f = tf.keras.backend.flatten(y_pred)
+    intersection = tf.reduce_sum(y_true_f * y_pred_f)
+    return 1 - (2. * intersection + smooth) / (tf.reduce_sum(y_true_f) + tf.reduce_sum(y_pred_f) + smooth)
+
+def bce_dice_loss(y_true, y_pred):
+    bce = tf.keras.losses.binary_crossentropy(y_true, y_pred)
+    d_loss = dice_loss(y_true, y_pred)
+    return bce + d_loss
