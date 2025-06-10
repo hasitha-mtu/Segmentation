@@ -3,7 +3,7 @@ from tensorflow.keras import layers, Model
 import keras
 from tensorflow.keras.layers import Input, Conv2D, Dropout, MaxPooling2D, UpSampling2D, BatchNormalization, Activation
 from models.common_utils.loss_functions import (recall_m, precision_m, f1_score,
-                                                combined_masked_dice_focal_loss)
+                                                masked_dice_loss)
 
 from tensorflow.keras.applications import VGG16
 
@@ -65,8 +65,8 @@ def extend_to_16_channel_model(pretrained_model, input_shape=(512, 512, 16)):
 
     model.compile(
         optimizer='adam',
-        loss=combined_masked_dice_focal_loss,  # Use `None` to skip the second loss
-        metrics=[['accuracy', f1_score, precision_m, recall_m], []]  # Metrics only for the segmentation output
+        loss=masked_dice_loss,  # Use `None` to skip the second loss
+        metrics=['accuracy', f1_score, precision_m, recall_m]  # Metrics only for the segmentation output
     )
 
     print(f"SegNet-16Ch-VGG16 Model : {model.summary()}")
@@ -133,8 +133,8 @@ def build_segnet(input_shape=(512, 512, 16), num_classes=1):
 
     model.compile(
         optimizer='adam',
-        loss=combined_masked_dice_focal_loss,  # Use `None` to skip the second loss
-        metrics=[['accuracy', f1_score, precision_m, recall_m], []]  # Metrics only for the segmentation output
+        loss=masked_dice_loss,  # Use `None` to skip the second loss
+        metrics=['accuracy', f1_score, precision_m, recall_m]  # Metrics only for the segmentation output
     )
 
     print(f"Model : {model.summary()}")

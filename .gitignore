@@ -19,9 +19,9 @@ models/segnet/ckpt/
 models/segnet/logs/
 models/segnet/output/
 
-models/unet_MobileNetV2/ckpt/
-models/unet_MobileNetV2/logs/
-models/unet_MobileNetV2/output/
+models/unet_ResNet50/ckpt/
+models/unet_ResNet50/logs/
+models/unet_ResNet50/output/
 
 models/segnet_VGG16/ckpt/
 models/segnet_VGG16/logs/

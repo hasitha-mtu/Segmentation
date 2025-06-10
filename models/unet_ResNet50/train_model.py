@@ -5,19 +5,18 @@ import keras.callbacks_v1
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from keras.callbacks import (Callback,
-                             ModelCheckpoint,
                              CSVLogger)
 import numpy as np
-from numpy.random import randint
 
 from models.unet_wsl.unet_data import load_dataset
 from model import unet_model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
-from models.unet_wsl.wsl_utils import show_image, overlay_mask
+from models.unet_wsl.wsl_utils import show_image
+from tensorflow.keras.losses import SparseCategoricalCrossentropy
 
-LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_MobileNetV2\logs"
-CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_MobileNetV2\ckpt"
-OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_MobileNetV2\output"
+LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ResNet50\logs"
+CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ResNet50\ckpt"
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ResNet50\output"
 
 def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_channels, size = (256, 256), restore=True):
     print(f'X_train shape : {X_train.shape}')
@@ -32,11 +31,11 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
     os.makedirs(CKPT_DIR, exist_ok=True)
 
     checkpoint_cb = tf.keras.callbacks.ModelCheckpoint(
-        f"{CKPT_DIR}/unet_MobileNetV2_best_model.h5",  # or "best_model.keras"
-        monitor='val_loss',
+        f"{CKPT_DIR}/unet_ResNet50_best_model.h5",  # or "best_model.keras"
+        monitor='val_accuracy',
         save_best_only=True,
         save_weights_only=False,  # set to True if you want only weights
-        mode='min',
+        mode='max',
         verbose=1
     )
 
@@ -82,14 +81,14 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
 def make_or_restore_model(restore, num_channels, size):
     (width, height) = size
     if restore:
-        return keras.models.load_model(f"{CKPT_DIR}/unet_MobileNetV2_best_model.h5")
+        return keras.models.load_model(f"{CKPT_DIR}/unet_ResNet50_best_model.h5")
     else:
         print("Creating fresh model")
         return unet_model(width, height, num_channels)
 
 def load_with_trained_model(X_val, y_val):
-    print(f"Restoring from {CKPT_DIR}/unet_MobileNetV2_best_model.h5")
-    model = keras.models.load_model(f"{CKPT_DIR}/unet_MobileNetV2_best_model.h5",
+    print(f"Restoring from {CKPT_DIR}/unet_ResNet50_best_model.h5")
+    model = keras.models.load_model(f"{CKPT_DIR}/unet_ResNet50_best_model.h5",
                                     custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
@@ -142,7 +141,9 @@ if __name__ == "__main__":
     image_size = (512, 512) # actual size is (5280, 3956)
     epochs = 25
     batch_size = 4
-    channels = ['RED', 'GREEN', 'BLUE']
+    # channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
+    #             'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
+    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny']
     channel_count = len(channels)
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",

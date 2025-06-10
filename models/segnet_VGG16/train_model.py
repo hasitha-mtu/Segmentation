@@ -10,7 +10,7 @@ import numpy as np
 
 from models.segnet.data import load_dataset
 from model import segnet_model, build_rgb_segnet, extend_to_16_channel_model
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_masked_dice_focal_loss
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
 from models.common_utils.accuracy_functions import calculate_accuracy
 from models.unet_wsl.wsl_utils import show_image
 
@@ -87,7 +87,7 @@ def make_or_restore_model(restore, num_channels, size):
                                     custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
-                                                    'combined_masked_dice_focal_loss': combined_masked_dice_focal_loss})
+                                                    'masked_dice_loss': masked_dice_loss})
     else:
         print("Creating fresh model")
         return segnet_model(width, height, num_channels)
@@ -99,7 +99,7 @@ def load_with_trained_model(X_val, y_val):
                                     custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
-                                                    'combined_masked_dice_focal_loss': combined_masked_dice_focal_loss})
+                                                    'masked_dice_loss': masked_dice_loss})
     for i in range(len(X_val)):
         actual_mask = y_val[i]
         image = X_val[i]
@@ -189,7 +189,7 @@ def make_or_restore_16_model(restore, input_shape, pretrained_model):
                                     custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
-                                                    'combined_masked_dice_focal_loss': combined_masked_dice_focal_loss})
+                                                    'masked_dice_loss': masked_dice_loss})
     else:
         print("Creating fresh model")
         channel_16_model = extend_to_16_channel_model(pretrained_model, input_shape=input_shape)
@@ -260,14 +260,14 @@ if __name__ == "__main__":
     print(tf.__version__)
     print(tf.executing_eagerly())
     if len(physical_devices) > 0:
-        (RGB_X_train, RGB_y_train), (RGB_X_val, RGB_y_val) = load_dataset("../../input/samples/crookstown/images",
-                                                          size = (256, 256),
+        (RGB_X_train, RGB_y_train), (RGB_X_val, RGB_y_val) = load_dataset("../../input/samples/segnet_512/images",
+                                                          size = (512, 512),
                                                           file_extension="jpg",
                                                           channels=['RED', 'GREEN', 'BLUE'],
                                                           percentage=0.7)
-        train_rgb_model(25, 4, RGB_X_train, RGB_y_train, RGB_X_val, RGB_y_val, input_shape = (256, 256, 3))
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
-                                                          size=(256, 256),
+        train_rgb_model(25, 4, RGB_X_train, RGB_y_train, RGB_X_val, RGB_y_val, input_shape = (512, 512, 3))
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",
+                                                          size=(512, 512),
                                                           file_extension="jpg",
                                                           channels=['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP',
                                                                     'HSV Saturation', 'HSV Value', 'GradMag',
@@ -275,7 +275,7 @@ if __name__ == "__main__":
                                                                     'BlueYellow', 'X', 'Y', 'Z'],
                                                           percentage=0.7)
         rgb_model_path = f"{CKPT_DIR}/SegNet_VGG16_RGB_best_model.h5"
-        train_extend_to_16_channel_model(25, 4, rgb_model_path, input_shape = (256, 256, 16))
+        train_extend_to_16_channel_model(25, 4, rgb_model_path, input_shape = (512, 512, 16))
         load_with_trained_model(X_val, y_val)
 
 # if __name__ == "__main__":
@@ -284,14 +284,14 @@ if __name__ == "__main__":
 #     print(f"physical_devices : {physical_devices}")
 #     print(tf.__version__)
 #     print(tf.executing_eagerly())
-#     image_size = (256, 256) # actual size is (5280, 3956)
+#     image_size = (512, 512) # actual size is (5280, 3956)
 #     epochs = 25
 #     batch_size = 4
 #     channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
 #                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
 #     channel_count = len(channels)
 #     if len(physical_devices) > 0:
-#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
+#         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",
 #                                                           size = image_size,
 #                                                           file_extension="jpg",
 #                                                           channels=channels,
