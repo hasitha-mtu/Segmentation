@@ -35,34 +35,40 @@ def masked_loss(y_true, y_pred, mask):
     loss = loss_fn(y_true * mask, y_pred * mask)
     return loss
 
-# # Train with Partial Labels Using Masked Loss
-# def masked_dice_loss(y_true, y_pred):
-#     """
-#     Compute Dice Loss but only for labeled pixels (mask > 0).
-#     y_true: Ground truth segmentation (partial labels)
-#     y_pred: Model prediction
-#     mask: Binary mask (1 = labeled pixel, 0 = unlabeled)
-#     """
-#     smooth = 1e-7
-#     y_true = tf.cast(y_true, tf.float32)
-#     y_pred = tf.cast(y_pred, tf.float32)
-#
-#     # mask = tf.where(tf.math.is_nan(y_true), 0.0, 1.0)
-#     mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
-#
-#     intersection = tf.reduce_sum(y_true * y_pred * mask)
-#     union = tf.reduce_sum(y_true * mask) + tf.reduce_sum(y_pred * mask)
-#
-#     return 1 - (2.0 * intersection + smooth) / (union + smooth)
+# Train with Partial Labels Using Masked Loss
+def masked_dice_loss(y_true, y_pred):
+    """
+    Compute Dice Loss but only for labeled pixels (mask > 0).
+    y_true: Ground truth segmentation (partial labels)
+    y_pred: Model prediction
+    mask: Binary mask (1 = labeled pixel, 0 = unlabeled)
+    """
+    smooth = 1e-7
+    y_true = tf.cast(y_true, tf.float32)
+    y_pred = tf.cast(y_pred, tf.float32)
+
+    mask = tf.where(tf.math.is_nan(y_true), 0.0, 1.0)
+    # mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
+
+    intersection = tf.reduce_sum(y_true * y_pred * mask)
+    union = tf.reduce_sum(y_true * mask) + tf.reduce_sum(y_pred * mask)
+
+    return 1 - (2.0 * intersection + smooth) / (union + smooth)
 
 def partial_crossentropy(y_true, y_pred):
     """
     y_true: [batch, h, w, 1] - with labels: 1 (water), 0 (non-water), -1 (ignore)
     y_pred: [batch, h, w, 1] - predicted probability map
     """
-    mask = tf.not_equal(y_true, -1)
+    print(f"partial_crossentropy|y_true shape: {y_true.shape}")
+    print(f"partial_crossentropy|y_pred shape: {y_pred.shape}")
+    mask = tf.not_equal(y_true, 0.0)
+    print(f"partial_crossentropy|mask shape: {mask.shape}")
     y_true_clipped = tf.where(mask, y_true, tf.zeros_like(y_true))
+    print(f"partial_crossentropy|y_true_clipped shape: {y_true_clipped.shape}")
     loss = tf.keras.losses.binary_crossentropy(y_true_clipped, y_pred)
+    print(f"partial_crossentropy|loss shape: {loss.shape}")
+    loss = tf.stack([loss, loss, loss], axis=-1)
     loss = tf.where(mask, loss, tf.zeros_like(loss))
     return tf.reduce_mean(loss)
 
@@ -78,7 +84,7 @@ def wsl_masked_dice_loss(y_true, y_pred, mask=None, smooth=1e-6):
     dice = (2. * intersection + smooth) / (union + smooth)
     return 1 - dice
 
-def masked_dice_loss(y_true, y_pred, mask=None, smooth=1e-6):
+def masked_dice_loss1(y_true, y_pred, mask=None, smooth=1e-6):
     if mask is None:
         mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
 
@@ -121,14 +127,14 @@ def edge_penalty_loss(y_true, y_pred, mask=None, weight=0.1):
 def combined_masked_dice_focal_loss(y_true, y_pred, dice_weight=0.25, focal_weight=0.75):
     mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
 
-    dice = masked_dice_loss(y_true, y_pred, mask)
+    dice = masked_dice_loss1(y_true, y_pred, mask)
     focal = masked_focal_loss(y_true, y_pred, mask)
 
     return dice_weight * dice + focal_weight * focal
 
 def combined_loss_with_edge(y_true, y_pred, dice_weight=0.3, focal_weight=0.4, edge_weight=0.3):
     mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
-    dice = masked_dice_loss(y_true, y_pred, mask)
+    dice = masked_dice_loss1(y_true, y_pred, mask)
     focal = masked_focal_loss(y_true, y_pred, mask)
     edge = edge_penalty_loss(y_true, y_pred, mask)
     return dice_weight * dice + focal_weight * focal + edge_weight * edge

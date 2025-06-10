@@ -9,8 +9,8 @@ import numpy as np
 
 from unet_data import load_dataset
 from unet_model import unet_model
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, wsl_masked_dice_loss
-from models.unet_wsl.wsl_utils import show_image, overlay_mask
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
+from models.unet_wsl.wsl_utils import show_image
 from tensorflow.keras.callbacks import ModelCheckpoint
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_wsl\logs"
@@ -88,7 +88,7 @@ def make_or_restore_model(restore, num_channels, size):
                                        custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
-                                                    'wsl_masked_dice_loss': wsl_masked_dice_loss},
+                                                    'masked_dice_loss': masked_dice_loss},
                                        compile=True)
     else:
         print("Creating fresh model")
@@ -101,7 +101,7 @@ def load_with_trained_model(X_val, y_val):
                                     custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
-                                                    'wsl_masked_dice_loss': wsl_masked_dice_loss},
+                                                    'masked_dice_loss': masked_dice_loss},
                                     compile=True)
     for i in range(len(X_val)):
         image = X_val[i]
@@ -140,14 +140,15 @@ if __name__ == "__main__":
     print(f"physical_devices : {physical_devices}")
     print(tf.__version__)
     print(tf.executing_eagerly())
-    image_size = (256, 256) # actual size is (5280, 3956)
+    image_size = (512, 512) # actual size is (5280, 3956)
     epochs = 25
     batch_size = 4
-    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
-                'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
+    # channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
+    #             'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
+    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/crookstown/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,

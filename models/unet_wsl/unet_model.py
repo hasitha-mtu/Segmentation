@@ -1,6 +1,6 @@
 import keras
 import tensorflow as tf
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, wsl_masked_dice_loss
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
 
 
 def encoding_block(inputs, filters, dropout, batch_normalization=True, pooling=True, kernel_size=(3,3), activation="relu",
@@ -59,17 +59,16 @@ def unet_model(image_width, image_height, image_channels):
                                      padding='same',
                                      name="segmentation_output")(u6)
 
-    model = tf.keras.Model(inputs=inputs,
-                           outputs=outputs,
-                           name="UNET_with_attention")
+    model = tf.keras.Model(inputs=[inputs],
+                           outputs=[outputs],
+                           name="UNET")
 
     model.compile(
         optimizer='adam',
-        loss=wsl_masked_dice_loss, # Use `None` to skip the second loss
-        metrics=[['accuracy', f1_score, precision_m, recall_m], []] # Metrics only for the segmentation output
+        loss=masked_dice_loss, # Use `None` to skip the second loss
+        metrics=['accuracy', f1_score, precision_m, recall_m] # Metrics only for the segmentation output
     )
 
-    print(f"Model output shape : {model.output_shape}")
     print(f"Model summary : {model.summary()}")
 
     keras.utils.plot_model(model, "UNET_model.png", show_shapes=True)

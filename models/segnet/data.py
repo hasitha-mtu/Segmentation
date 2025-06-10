@@ -1,5 +1,3 @@
-import sys
-
 import numpy as np
 from glob import glob
 from keras.utils import load_img, img_to_array
@@ -9,7 +7,8 @@ import random
 import os
 import cv2
 
-from models.common_utils.images import load_ndwi_edge_map, selected_channels, format_image
+
+from models.common_utils.images import load_ndwi_edge_map, selected_channels, format_image, create_confidence_mask
 
 def load_drone_dataset(path, file_extension = "jpg", num_channels=5):
     total_images = len(os.listdir(path))
@@ -81,32 +80,7 @@ def load_dataset(path, size = (256, 256), file_extension = "JPG",
     return (x_train, y_train),(x_test, y_test)
 
 
-def create_confidence_mask(annotation, threshold=0.0):
-    """
-    Convert a weak annotation into a binary mask:
-    1.0 → confidently labeled pixel
-    0.0 → ignore in loss (e.g., occluded or unlabeled)
 
-    Parameters:
-        annotation: np.ndarray or tf.Tensor of shape (H, W) or (H, W, 1)
-        threshold: pixel values > threshold are considered labeled
-
-    Returns:
-        mask: same shape as input, with values 0.0 or 1.0
-    """
-    # Ensure annotation is a NumPy array
-    if isinstance(annotation, tf.Tensor):
-        annotation = annotation.numpy()
-
-    # Remove channel dim if exists
-    if annotation.ndim == 3 and annotation.shape[-1] == 1:
-        annotation = annotation[..., 0]
-
-    # Create mask
-    mask = np.where(annotation > threshold, 1.0, 0.0).astype(np.float32)
-
-    # Add channel dim back
-    return mask[..., np.newaxis]
 
 if __name__ == "__main__":
     annotation_dir = "../../input/samples/crookstown/annotations"
