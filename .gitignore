@@ -27,3 +27,7 @@ models/segnet_VGG16/ckpt/
 models/segnet_VGG16/logs/
 models/segnet_VGG16/output/
 
+models/unet_plus_plus/ckpt/
+models/unet_plus_plus/logs/
+models/unet_plus_plus/output/
+
