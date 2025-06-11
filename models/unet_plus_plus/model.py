@@ -57,6 +57,8 @@ def build_model(batch_size, input_shape=(512, 512, 3), num_classes=1):
                   loss=loss_fn,
                   metrics=['accuracy', f1_score, precision_m, recall_m])
 
+    print("Model output shape:", model.output_shape)
+
     print(f"Model summary : {model.summary()}")
 
     keras.utils.plot_model(model, "UNET++_model.png", show_shapes=True)

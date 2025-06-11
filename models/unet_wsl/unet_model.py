@@ -69,6 +69,8 @@ def unet_model(image_width, image_height, image_channels):
         metrics=['accuracy', f1_score, precision_m, recall_m] # Metrics only for the segmentation output
     )
 
+    print("Model output shape:", model.output_shape)
+
     print(f"Model summary : {model.summary()}")
 
     keras.utils.plot_model(model, "UNET_model.png", show_shapes=True)
