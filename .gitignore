@@ -31,3 +31,6 @@ models/unet_plus_plus/ckpt/
 models/unet_plus_plus/logs/
 models/unet_plus_plus/output/
 
+models/unet_lama/ckpt/
+models/unet_lama/logs/
+models/unet_lama/output/
