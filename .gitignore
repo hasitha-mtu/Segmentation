@@ -34,3 +34,11 @@ models/unet_plus_plus/output/
 models/unet_lama/ckpt/
 models/unet_lama/logs/
 models/unet_lama/output/
+
+models/unet_ffc/ckpt/
+models/unet_ffc/logs/
+models/unet_ffc/output/
+
+models/deeplabv3_plus/ckpt/
+models/deeplabv3_plus/logs/
+models/deeplabv3_plus/output/
