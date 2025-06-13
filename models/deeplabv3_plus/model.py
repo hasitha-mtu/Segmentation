@@ -1,164 +1,113 @@
-import tensorflow as tf
-from tensorflow.keras import layers
+
+from tensorflow.keras.layers import (Conv2D, BatchNormalization, Activation, UpSampling2D,
+                                     AveragePooling2D, Concatenate, Input)
+from tensorflow.keras.models import Model
+from tensorflow.keras.applications import ResNet50
 import keras
 
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 from loss_function import combined_masked_dice_bce_loss
 
-def conv_bn_relu(x, filters, kernel_size=3, strides=1, dilation=1, padding='same', name=None):
-    x = layers.Conv2D(filters, kernel_size, strides=strides, dilation_rate=dilation,
-                      padding=padding, use_bias=False,
-                      kernel_initializer='he_normal', name=None if not name else name+'_conv')(x)
-    x = layers.BatchNormalization(name=None if not name else name+'_bn')(x)
-    x = layers.Activation('relu', name=None if not name else name+'_relu')(x)
-    return x
+def ASPP(inputs):
+    shape = inputs.shape
+    y_pool = AveragePooling2D(pool_size=(shape[1], shape[2]))(inputs)
+    print(f'AveragePooling2D y_pool shape:{y_pool.shape}')
+    y_pool = Conv2D(filters=256, kernel_size=1, padding='same', use_bias=False)(y_pool)
+    print(f'Conv2D y_pool shape:{y_pool.shape}')
+    y_pool = BatchNormalization()(y_pool)
+    y_pool = Activation('relu')(y_pool)
+    y_pool = UpSampling2D((shape[1], shape[2]), interpolation='bilinear')(y_pool)
+    print(f'UpSampling2D y_pool shape:{y_pool.shape}')
 
-def bottleneck_block(x, filters, strides=1, dilation=1, use_projection=False, name=None):
-    shortcut = x
-    if use_projection:
-        shortcut = layers.Conv2D(filters * 4, 1, strides=strides, use_bias=False,
-                                 kernel_initializer='he_normal', name=None if not name else name+'_proj_conv')(x)
-        shortcut = layers.BatchNormalization(name=None if not name else name+'_proj_bn')(shortcut)
+    y_1 = Conv2D(filters=256, kernel_size=1, padding='same', use_bias=False)(inputs)
+    print(f'Conv2D y_1 shape:{y_1.shape}')
+    y_1 = BatchNormalization()(y_1)
+    y_1 = Activation('relu')(y_1)
 
-    x = layers.Conv2D(filters, 1, strides=1, use_bias=False,
-                      kernel_initializer='he_normal', name=None if not name else name+'_conv1')(x)
-    x = layers.BatchNormalization(name=None if not name else name+'_bn1')(x)
-    x = layers.Activation('relu', name=None if not name else name+'_relu1')(x)
+    y_6 = Conv2D(filters=256, kernel_size=1, dilation_rate=6, padding='same', use_bias=False)(inputs)
+    print(f'Conv2D y_6 shape:{y_6.shape}')
+    y_6 = BatchNormalization()(y_6)
+    y_6 = Activation('relu')(y_6)
 
-    x = layers.Conv2D(filters, 3, strides=strides, dilation_rate=dilation, padding='same', use_bias=False,
-                      kernel_initializer='he_normal', name=None if not name else name+'_conv2')(x)
-    x = layers.BatchNormalization(name=None if not name else name+'_bn2')(x)
-    x = layers.Activation('relu', name=None if not name else name+'_relu2')(x)
+    y_12 = Conv2D(filters=256, kernel_size=1, dilation_rate=12, padding='same', use_bias=False)(inputs)
+    print(f'Conv2D y_12 shape:{y_12.shape}')
+    y_12 = BatchNormalization()(y_12)
+    y_12 = Activation('relu')(y_12)
 
-    x = layers.Conv2D(filters * 4, 1, use_bias=False,
-                      kernel_initializer='he_normal', name=None if not name else name+'_conv3')(x)
-    x = layers.BatchNormalization(name=None if not name else name+'_bn3')(x)
+    y_18 = Conv2D(filters=256, kernel_size=1, dilation_rate=18, padding='same', use_bias=False)(inputs)
+    print(f'Conv2D y_18 shape:{y_18.shape}')
+    y_18 = BatchNormalization()(y_18)
+    y_18 = Activation('relu')(y_18)
 
-    x = layers.Add(name=None if not name else name+'_add')([shortcut, x])
-    x = layers.Activation('relu', name=None if not name else name+'_out')(x)
-    return x
+    y = Concatenate()([y_pool, y_1, y_6, y_12, y_18])
+    print(f'Concatenate y shape:{y.shape}')
 
-def resnet_layer(x, filters, blocks, strides=1, dilation=1, name=None):
-    # First block with projection if strides>1 or input/output channels mismatch
-    x = bottleneck_block(x, filters, strides=strides, dilation=dilation, use_projection=True,
-                         name=None if not name else name+'_block1')
-    for i in range(2, blocks + 1):
-        x = bottleneck_block(x, filters, strides=1, dilation=dilation, use_projection=False,
-                             name=None if not name else f'{name}_block{i}')
-    return x
+    y = Conv2D(filters=256, kernel_size=1, dilation_rate=1, padding='same', use_bias=False)(y)
+    print(f'Conv2D y shape:{y.shape}')
+    y = BatchNormalization()(y)
+    y = Activation('relu')(y)
 
-def ASPP(x, filters, rate_list=[6, 12, 18], name=None):
-    dims = x.shape
-    pool = layers.GlobalAveragePooling2D(name=None if not name else name+'_gap')(x)
-    pool = layers.Reshape((1,1,dims[-1]), name=None if not name else name+'_gap_reshape')(pool)
-    pool = layers.Conv2D(filters, 1, padding='same', use_bias=False,
-                         kernel_initializer='he_normal', name=None if not name else name+'_gap_conv')(pool)
-    pool = layers.BatchNormalization(name=None if not name else name+'_gap_bn')(pool)
-    pool = layers.Activation('relu', name=None if not name else name+'_gap_relu')(pool)
-    pool = layers.UpSampling2D(size=(dims[1], dims[2]), interpolation='bilinear',
-                               name=None if not name else name+'_gap_upsample')(pool)
+    return y
 
-    conv_1x1 = layers.Conv2D(filters, 1, padding='same', use_bias=False,
-                             kernel_initializer='he_normal', name=None if not name else name+'_conv_1x1')(x)
-    conv_1x1 = layers.BatchNormalization(name=None if not name else name+'_conv_1x1_bn')(conv_1x1)
-    conv_1x1 = layers.Activation('relu', name=None if not name else name+'_conv_1x1_relu')(conv_1x1)
+def DeepLabV3Plus(shape):
+    inputs = Input(shape=shape)
 
-    conv_3x3_1 = layers.Conv2D(filters, 3, padding='same', dilation_rate=rate_list[0], use_bias=False,
-                              kernel_initializer='he_normal', name=None if not name else f'{name}_conv_3x3_1')(x)
-    conv_3x3_1 = layers.BatchNormalization(name=None if not name else f'{name}_conv_3x3_1_bn')(conv_3x3_1)
-    conv_3x3_1 = layers.Activation('relu', name=None if not name else f'{name}_conv_3x3_1_relu')(conv_3x3_1)
+    #  Pre-trained ResNet50
+    base_model = ResNet50(weights='imagenet', include_top=False, input_tensor=inputs)
 
-    conv_3x3_2 = layers.Conv2D(filters, 3, padding='same', dilation_rate=rate_list[1], use_bias=False,
-                              kernel_initializer='he_normal', name=None if not name else f'{name}_conv_3x3_2')(x)
-    conv_3x3_2 = layers.BatchNormalization(name=None if not name else f'{name}_conv_3x3_2_bn')(conv_3x3_2)
-    conv_3x3_2 = layers.Activation('relu', name=None if not name else f'{name}_conv_3x3_2_relu')(conv_3x3_2)
+    # Pre-trained ResNet50 output
+    image_features = base_model.get_layer('conv4_block6_out').output
+    print(f'image_features shape:{image_features.shape}')
 
-    conv_3x3_3 = layers.Conv2D(filters, 3, padding='same', dilation_rate=rate_list[2], use_bias=False,
-                              kernel_initializer='he_normal', name=None if not name else f'{name}_conv_3x3_3')(x)
-    conv_3x3_3 = layers.BatchNormalization(name=None if not name else f'{name}_conv_3x3_3_bn')(conv_3x3_3)
-    conv_3x3_3 = layers.Activation('relu', name=None if not name else f'{name}_conv_3x3_3_relu')(conv_3x3_3)
+    x_a = ASPP(image_features)
+    print(f'x_a shape:{x_a.shape}')
+    x_a = UpSampling2D((4, 4), interpolation='bilinear')(x_a)
+    print(f'UpSampling2D x_a shape:{x_a.shape}')
 
-    x = layers.Concatenate(name=None if not name else name+'_concat')([pool, conv_1x1, conv_3x3_1, conv_3x3_2, conv_3x3_3])
-    x = layers.Conv2D(filters, 1, padding='same', use_bias=False,
-                      kernel_initializer='he_normal', name=None if not name else name+'_conv_out')(x)
-    x = layers.BatchNormalization(name=None if not name else name+'_conv_out_bn')(x)
-    x = layers.Activation('relu', name=None if not name else name+'_conv_out_relu')(x)
-    x = layers.Dropout(0.5, name=None if not name else name+'_dropout')(x)
-    return x
+    # Get low-level features
+    x_b = base_model.get_layer('conv2_block2_out').output
+    x_b = Conv2D(filters=48, kernel_size=1, padding='same', use_bias=False)(x_b)
+    print(f'Conv2D x_b shape:{x_b.shape}')
+    x_b = BatchNormalization()(x_b)
+    x_b = Activation('relu')(x_b)
 
-def DeepLabV3Plus(input_shape=(512, 512, 5), num_classes=1):
-    inputs = layers.Input(shape=input_shape)
+    x = Concatenate()([x_a, x_b])
+    print(f'Concatenate x shape:{x.shape}')
 
-    # Initial conv + BN + ReLU + MaxPool
-    x = layers.Conv2D(64, 7, strides=2, padding='same', use_bias=False, kernel_initializer='he_normal')(inputs)
-    x = layers.BatchNormalization()(x)
-    x = layers.Activation('relu')(x)
-    x = layers.MaxPooling2D(3, strides=2, padding='same')(x)
+    x = Conv2D(filters=256, kernel_size=3, padding='same', use_bias=False)(x)
+    print(f'Conv2D x shape:{x.shape}')
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
 
-    # Encoder (ResNet blocks)
-    # Conv2_x
-    x = resnet_layer(x, filters=64, blocks=3, strides=1, name='conv2')
-    # Conv3_x
-    x = resnet_layer(x, filters=128, blocks=4, strides=2, name='conv3')
-    # Save low-level features here for decoder skip connection
-    low_level_feat = x
+    x = Conv2D(filters=256, kernel_size=3, padding='same', use_bias=False)(x)
+    print(f'Conv2D x shape:{x.shape}')
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
 
-    # Conv4_x (with dilation)
-    x = resnet_layer(x, filters=256, blocks=6, strides=1, dilation=2, name='conv4')
-    # Conv5_x (with dilation)
-    x = resnet_layer(x, filters=512, blocks=3, strides=1, dilation=4, name='conv5')
+    x = UpSampling2D((4, 4), interpolation='bilinear')(x)
+    print(f'UpSampling2D x shape:{x.shape}')
 
-    # ASPP
-    x = ASPP(x, 256, name='ASPP')
+    # Output
+    x = Conv2D(1, (1, 1), name='output_layer')(x)
+    x = Activation('sigmoid')(x)
 
-    # Decoder
-    x = layers.UpSampling2D(size=(4,4), interpolation='bilinear')(x)  # Upsample ASPP output
+    # Model
+    model = Model(inputs=inputs, outputs=x)
+    print(f"Model summary : {model.summary()}")
+    keras.utils.plot_model(model, "DeepLabV3Plus_model.png", show_shapes=True)
 
-    # Low-level feature processing (reduce channels)
-    low_level_feat = layers.Conv2D(48, 1, padding='same', use_bias=False,
-                                  kernel_initializer='he_normal')(low_level_feat)
-    low_level_feat = layers.BatchNormalization()(low_level_feat)
-    low_level_feat = layers.Activation('relu')(low_level_feat)
+    return model
 
-    # Concatenate
-    x = layers.Concatenate()([x, low_level_feat])
-
-    # Decoder conv layers
-    x = layers.Conv2D(256, 3, padding='same', use_bias=False,
-                      kernel_initializer='he_normal')(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.Activation('relu')(x)
-
-    x = layers.Conv2D(256, 3, padding='same', use_bias=False,
-                      kernel_initializer='he_normal')(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.Activation('relu')(x)
-
-    # Final upsampling to input size
-    x = layers.UpSampling2D(size=(4,4), interpolation='bilinear')(x)
-
-    # Output segmentation mask
-    if num_classes == 1:
-        outputs = layers.Conv2D(num_classes, 1, padding='same', activation='sigmoid')(x)
-    else:
-        outputs = layers.Conv2D(num_classes, 1, padding='same', activation='softmax')(x)
-
-    model = tf.keras.Model(inputs=inputs, outputs=outputs, name='DeepLabV3Plus_Custom')
-
+def deeplab_v3_plus(width, height, input_channels):
+    input_shape = (width, height, input_channels)
+    model = DeepLabV3Plus(input_shape)
     model.compile(
         optimizer='adam',
         loss=combined_masked_dice_bce_loss,
         metrics=['accuracy', f1_score, precision_m, recall_m]
     )
-
-    print("Model output shape:", model.output_shape)
-
-    print(f"Model summary : {model.summary()}")
-
-    keras.utils.plot_model(model, "UNET++_model.png", show_shapes=True)
-
     return model
 
-if __name__ == "__main__":
-    model = DeepLabV3Plus(input_shape=(512, 512, 5), num_classes=1)
-    model.summary()
+if __name__ == '__main__':
+    input_shape = (256, 256, 3)
+    DeepLabV3Plus(input_shape)
