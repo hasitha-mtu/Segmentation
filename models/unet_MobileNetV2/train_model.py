@@ -137,8 +137,8 @@ if __name__ == "__main__":
     tf.random.set_seed(SEED)
     np.random.seed(SEED)
     random.seed(SEED)
-    # Optional: For full reproducibility (if supported by your TF version)
-    tf.config.experimental.enable_op_determinism()
+    # # Optional: For full reproducibility (if supported by your TF version)
+    # tf.config.experimental.enable_op_determinism()
 
     image_size = (512, 512) # actual size is (5280, 3956)
     epochs = 50
