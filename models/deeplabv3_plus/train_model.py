@@ -131,8 +131,8 @@ if __name__ == "__main__":
     print(f"physical_devices : {physical_devices}")
     print(tf.__version__)
     print(tf.executing_eagerly())
-    image_size = (256, 256) # actual size is (5280, 3956)
-    epochs = 25
+    image_size = (512, 512) # actual size is (5280, 3956)
+    epochs = 50
     batch_size = 4
     channels = ['RED', 'GREEN', 'BLUE']
     channel_count = len(channels)
@@ -153,6 +153,6 @@ if __name__ == "__main__":
         print(f"Water: {water_pixels}, Non-water: {non_water_pixels}")
 
         train_model(epochs, batch_size, X_train, y_train, X_val, y_val,
-                    256, 256, 3, restore=False)
+                    512, 512, 3, restore=False)
 
         load_with_trained_model(X_val, y_val)

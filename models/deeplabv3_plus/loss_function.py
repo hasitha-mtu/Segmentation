@@ -14,20 +14,13 @@ def masked_dice_loss(y_true, y_pred, mask = None):
     return 1 - (2.0 * intersection + smooth) / (union + smooth)
 
 def combined_masked_dice_bce_loss(y_true, y_pred, mask=None):
-    print(f"combined_masked_dice_bce_loss|y_true shape:{y_true.shape}")
-    print(f"combined_masked_dice_bce_loss|y_pred shape:{y_pred.shape}")
     if mask is None:
         mask = tf.where(tf.math.is_nan(y_true), 0.0, 1.0)
 
-    print(f"combined_masked_dice_bce_loss|mask shape:{mask.shape}")
     dice = masked_dice_loss(y_true, y_pred, mask)
-    print(f"combined_masked_dice_bce_loss|dice:{dice}")
-    print(f"combined_masked_dice_bce_loss|dice shape:{dice.shape}")
     bce = tf.keras.losses.binary_crossentropy(y_true, y_pred)
-    print(f"combined_masked_dice_bce_loss|bce shape:{bce.shape}")
     mask_squeezed = tf.squeeze(mask, axis=-1)
     sum1 = tf.reduce_sum(bce * mask_squeezed)
     sum2 = (tf.reduce_sum(mask_squeezed) + 1e-6)
     masked_bce = sum1 / sum2
-    # masked_bce = tf.reduce_sum(bce * mask) / (tf.reduce_sum(mask) + 1e-6)
     return 0.5 * dice + 0.5 * masked_bce
