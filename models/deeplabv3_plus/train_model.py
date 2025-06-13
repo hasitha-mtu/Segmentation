@@ -7,7 +7,7 @@ import keras
 from tensorflow.keras.callbacks import ModelCheckpoint
 from keras.callbacks import (Callback,
                              CSVLogger)
-
+import random
 from model import deeplab_v3_plus
 from loss_function import combined_masked_dice_bce_loss
 from data import load_dataset
@@ -131,6 +131,15 @@ if __name__ == "__main__":
     print(f"physical_devices : {physical_devices}")
     print(tf.__version__)
     print(tf.executing_eagerly())
+
+    SEED = 42
+    os.environ['PYTHONHASHSEED'] = str(SEED)
+    tf.random.set_seed(SEED)
+    np.random.seed(SEED)
+    random.seed(SEED)
+    # Optional: For full reproducibility (if supported by your TF version)
+    tf.config.experimental.enable_op_determinism()
+
     image_size = (512, 512) # actual size is (5280, 3956)
     epochs = 50
     batch_size = 4

@@ -42,3 +42,8 @@ models/unet_ffc/output/
 models/deeplabv3_plus/ckpt/
 models/deeplabv3_plus/logs/
 models/deeplabv3_plus/output/
+
+models/unet_MobileNetV2/ckpt/
+models/unet_MobileNetV2/logs/
+models/unet_MobileNetV2/output/
+
