@@ -50,3 +50,7 @@ models/unet_MobileNetV2/output/
 models/unet_VGG16/ckpt/
 models/unet_VGG16/logs/
 models/unet_VGG16/output/
+
+models/res_unet_plus_plus/ckpt/
+models/res_unet_plus_plus/logs/
+models/res_unet_plus_plus/output/
