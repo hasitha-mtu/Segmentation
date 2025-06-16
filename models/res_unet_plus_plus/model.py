@@ -1,9 +1,8 @@
 import keras
 from tensorflow.keras.layers import (GlobalAveragePooling2D, Reshape, Dense, Multiply,
                                      Conv2D, BatchNormalization, Add, Activation,
-                                     MaxPooling2D, UpSampling2D, Concatenate)
+                                     MaxPooling2D, UpSampling2D, Concatenate, Input)
 from tensorflow.keras.models import Model
-from tensorflow.python.keras import Input
 
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 from loss_function import combined_masked_dice_bce_loss
