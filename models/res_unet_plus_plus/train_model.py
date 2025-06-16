@@ -14,9 +14,9 @@ from data import load_dataset
 from models.unet_wsl.wsl_utils import show_image
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 
-LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_VGG16\logs"
-CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_VGG16\ckpt"
-OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_VGG16\output"
+LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\res_unet_plus_plus\logs"
+CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\res_unet_plus_plus\ckpt"
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\res_unet_plus_plus\output"
 
 def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, width, height,
                 input_channels, restore=True):
@@ -32,7 +32,7 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, width, 
     os.makedirs(CKPT_DIR, exist_ok=True)
 
     model_checkpoint_callback = ModelCheckpoint(
-        f"{CKPT_DIR}/unet_vgg16_model.h5",  # or "best_model.keras"
+        f"{CKPT_DIR}/res_unet_plus_plus_model.h5",  # or "best_model.keras"
         monitor='val_accuracy',
         save_best_only=True,
         save_weights_only=False,  # set to True if you want only weights
@@ -41,7 +41,7 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, width, 
     )
 
     cbs = [
-        CSVLogger(LOG_DIR+'/unet_vgg16_logs.csv', separator=',', append=False),
+        CSVLogger(LOG_DIR+'/res_unet_plus_plus_logs.csv', separator=',', append=False),
         model_checkpoint_callback,
         tensorboard
     ]
@@ -85,7 +85,7 @@ def make_or_restore_model(restore, width, height, input_channels):
                           'precision_m': precision_m,
                           'f1_score': f1_score,
                           'combined_masked_dice_bce_loss': combined_masked_dice_bce_loss}
-        saved_model_path = f"{CKPT_DIR}/unet_vgg16_model.h5"
+        saved_model_path = f"{CKPT_DIR}/res_unet_plus_plus_model.h5"
         print(f"Restoring from {saved_model_path}")
         return keras.models.load_model(saved_model_path,
                                        custom_objects = custom_objects,
@@ -95,7 +95,7 @@ def make_or_restore_model(restore, width, height, input_channels):
         return unet_vgg16(width, height, input_channels)
 
 def load_with_trained_model(X_val, y_val):
-    saved_model_path = f"{CKPT_DIR}/unet_vgg16_model.h5"
+    saved_model_path = f"{CKPT_DIR}/res_unet_plus_plus_model.h5"
     custom_objects = {'recall_m': recall_m,
                       'precision_m': precision_m,
                       'f1_score': f1_score,
@@ -140,13 +140,13 @@ if __name__ == "__main__":
     # # Optional: For full reproducibility (if supported by your TF version)
     # tf.config.experimental.enable_op_determinism()
 
-    image_size = (256, 256) # actual size is (5280, 3956)
+    image_size = (512, 512) # actual size is (5280, 3956)
     epochs = 25
     batch_size = 4
     channels = ['RED', 'GREEN', 'BLUE']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_256/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,
@@ -162,6 +162,6 @@ if __name__ == "__main__":
         print(f"Water: {water_pixels}, Non-water: {non_water_pixels}")
 
         train_model(epochs, batch_size, X_train, y_train, X_val, y_val,
-                    256, 256, 3, restore=False)
+                    512, 512, 3, restore=False)
 
         load_with_trained_model(X_val, y_val)

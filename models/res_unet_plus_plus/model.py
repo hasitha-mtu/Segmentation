@@ -1,5 +1,6 @@
 import keras
-from tensorflow.keras.layers import (GlobalAveragePooling2D, Reshape, Dense, Multiply)
+from tensorflow.keras.layers import (GlobalAveragePooling2D, Reshape, Dense, Multiply,
+                                     Conv2D, BatchNormalization, Add, Activation)
 from tensorflow.keras.models import Model
 
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
@@ -19,6 +20,41 @@ def SE(inputs, ratio=0.8):
     x = Multiply()([inputs, x])
     return x
 
+def stem_block(inputs, num_filters, strides=1):
+    ## Conv 1
+    x = Conv2D(num_filters, 3, padding='same')(inputs)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+
+    ## Shortcut
+    s = Conv2D(num_filters, 1, padding='same', strides=strides)(inputs)
+
+    ## Add
+    x = Add()([x, s])
+
+    return x
+
+def resnet_block(inputs, num_filters, strides=1):
+    ## SE
+    inputs = SE(inputs)
+
+    ## Conv 1
+    x = BatchNormalization()(inputs)
+    x = Activation('relu')(x)
+    x = Conv2D(num_filters, 3, padding='same', strides=strides)(inputs)
+
+    ## Conv 2
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = Conv2D(num_filters, 3, padding='same', strides=strides)(inputs)
+
+    ## Shortcut
+    s = Conv2D(num_filters, 1, padding='same', strides=strides)(inputs)
+
+    ## Add
+    x = Add()([x, s])
+
+    return x
 
 def res_unet_plus_plus(width, height, input_channels):
     input_shape = (width, height, input_channels)
