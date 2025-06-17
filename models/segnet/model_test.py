@@ -4,7 +4,7 @@ from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, B
 from tensorflow.keras.models import Model
 import keras
 
-def SegNet(input_shape=(256, 256, 3), n_classes=21):
+def SegNet(input_shape=(256, 256, 3), n_classes=1):
     inputs = Input(shape=input_shape)
 
     # Encoder
@@ -65,10 +65,10 @@ def SegNet(input_shape=(256, 256, 3), n_classes=21):
 
     # Final layer
     x = Conv2D(n_classes, (1, 1), padding='valid')(x)
-    outputs = Activation('softmax')(x)  # Use 'sigmoid' if binary segmentation
+    outputs = Activation('sigmoid')(x)  # Use 'sigmoid' if binary segmentation
 
     model = Model(inputs=inputs, outputs=outputs)
-
+    print("Model output shape:", model.output_shape)
     print(f"Model summary : {model.summary()}")
 
     keras.utils.plot_model(model, "SegNet_model.png", show_shapes=True)
