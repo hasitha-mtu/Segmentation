@@ -8,7 +8,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from keras.callbacks import (Callback,
                              CSVLogger)
 import random
-from model import unet_vgg16
+from model import res_unet_plus_plus
 from loss_function import combined_masked_dice_bce_loss
 from data import load_dataset
 from models.unet_wsl.wsl_utils import show_image
@@ -92,7 +92,7 @@ def make_or_restore_model(restore, width, height, input_channels):
                                        compile=True)
     else:
         print("Creating fresh model")
-        return unet_vgg16(width, height, input_channels)
+        return res_unet_plus_plus(width, height, input_channels)
 
 def load_with_trained_model(X_val, y_val):
     saved_model_path = f"{CKPT_DIR}/res_unet_plus_plus_model.h5"
@@ -140,13 +140,13 @@ if __name__ == "__main__":
     # # Optional: For full reproducibility (if supported by your TF version)
     # tf.config.experimental.enable_op_determinism()
 
-    image_size = (512, 512) # actual size is (5280, 3956)
+    image_size = (256, 256) # actual size is (5280, 3956)
     epochs = 25
     batch_size = 4
     channels = ['RED', 'GREEN', 'BLUE']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_256/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,
@@ -162,6 +162,6 @@ if __name__ == "__main__":
         print(f"Water: {water_pixels}, Non-water: {non_water_pixels}")
 
         train_model(epochs, batch_size, X_train, y_train, X_val, y_val,
-                    512, 512, 3, restore=False)
+                    256, 256, 3, restore=False)
 
         load_with_trained_model(X_val, y_val)
