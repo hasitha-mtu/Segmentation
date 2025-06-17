@@ -223,7 +223,7 @@ if __name__ == "__main__":
                 'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,
