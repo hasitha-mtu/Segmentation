@@ -6,7 +6,7 @@ import tensorflow as tf
 from keras.callbacks import (Callback,
                              CSVLogger)
 import numpy as np
-
+import random
 from unet_data import load_dataset
 from unet_model import unet_model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
@@ -140,12 +140,21 @@ if __name__ == "__main__":
     print(f"physical_devices : {physical_devices}")
     print(tf.__version__)
     print(tf.executing_eagerly())
+
+    SEED = 42
+    os.environ['PYTHONHASHSEED'] = str(SEED)
+    tf.random.set_seed(SEED)
+    np.random.seed(SEED)
+    random.seed(SEED)
+    # # Optional: For full reproducibility (if supported by your TF version)
+    # tf.config.experimental.enable_op_determinism()
+
     image_size = (512, 512) # actual size is (5280, 3956)
     epochs = 50
     batch_size = 4
     # channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny', 'LBP', 'HSV Saturation', 'HSV Value', 'GradMag',
     #             'Shadow Mask', 'Lightness', 'GreenRed', 'BlueYellow', 'X', 'Y', 'Z']
-    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny']
+    channels = ['RED', 'GREEN', 'BLUE']
     channel_count = len(channels)
     if len(physical_devices) > 0:
         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",
