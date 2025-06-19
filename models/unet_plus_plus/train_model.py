@@ -6,7 +6,7 @@ import tensorflow as tf
 from keras.callbacks import (Callback,
                              CSVLogger)
 import numpy as np
-
+import random
 from data import load_dataset
 from model import unet_plus_plus
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
@@ -141,13 +141,22 @@ if __name__ == "__main__":
     print(f"physical_devices : {physical_devices}")
     print(tf.__version__)
     print(tf.executing_eagerly())
-    image_size = (256, 256) # actual size is (5280, 3956)
+
+    SEED = 42
+    os.environ['PYTHONHASHSEED'] = str(SEED)
+    tf.random.set_seed(SEED)
+    np.random.seed(SEED)
+    random.seed(SEED)
+    # # Optional: For full reproducibility (if supported by your TF version)
+    # tf.config.experimental.enable_op_determinism()
+
+    image_size = (512, 512) # actual size is (5280, 3956)
     epochs = 25
     batch_size = 4
-    channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny']
+    channels = ['RED', 'GREEN', 'BLUE']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_256/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,
@@ -162,8 +171,8 @@ if __name__ == "__main__":
         non_water_pixels = np.sum(y_val == 0.0)
         print(f"Water: {water_pixels}, Non-water: {non_water_pixels}")
 
-        # train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
-        #             size = image_size,
-        #             restore=False)
+        train_model(epochs, batch_size, X_train, y_train, X_val, y_val, channel_count,
+                    size = image_size,
+                    restore=False)
         load_with_trained_model(X_val, y_val)
 
