@@ -2,12 +2,9 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 
+# --- ALL YOUR CLASS DEFINITIONS HERE (FFCBlock, DoubleConv, Down, Up, OutConv, UNetWithLaMaFeaturesTF) ---
+# Make sure to copy-paste the exact class definitions you provided above here.
 
-# --- LaMa-inspired Fast Fourier Convolution (FFC) Block (Simplified) ---
-# This block aims to capture global context by processing features in the frequency domain.
-# A full FFC implementation is more complex, involving detailed splits,
-# concatenations, and handling of complex tensors.
-# --- LaMa-inspired Fast Fourier Convolution (FFC) Block (Simplified) ---
 class FFCBlock(keras.Model):
     def __init__(self, out_channels, kernel_size=3, padding='same', ratio_global=0.5, **kwargs):
         super().__init__(**kwargs)
@@ -33,7 +30,6 @@ class FFCBlock(keras.Model):
         x_global_pooled = self.avg_pool(x_global_initial)
         x_global_processed = self.relu_global_processed(self.fc_global(x_global_pooled))
 
-        # Ensure x_global_initial has defined shape for `h` and `w` if inputs is symbolic tensor
         batch_size = tf.shape(x_global_initial)[0]
         h = tf.shape(x_global_initial)[1]
         w = tf.shape(x_global_initial)[2]
@@ -98,8 +94,6 @@ class Up(keras.Model):
         diff_y = tf.shape(x2)[1] - tf.shape(x1)[1]
         diff_x = tf.shape(x2)[2] - tf.shape(x1)[2]
 
-        # CORRECTED SECTION: Using tf.cond for graph-compatible control flow
-        # Define a lambda function for the true branch (padding)
         def true_fn():
             padding = [[0, 0],
                        [diff_y // 2, diff_y - diff_y // 2],
@@ -107,11 +101,9 @@ class Up(keras.Model):
                        [0, 0]]
             return tf.pad(x1, paddings=padding)
 
-        # Define a lambda function for the false branch (no padding, return x1 as is)
         def false_fn():
             return x1
 
-        # The condition needs to be a scalar boolean tensor
         condition = tf.logical_or(tf.greater(diff_y, 0), tf.greater(diff_x, 0))
         x1 = tf.cond(condition, true_fn, false_fn)
 
@@ -172,15 +164,12 @@ class UNetWithLaMaFeaturesTF(keras.Model):
 
 # --- Custom Metric Functions ---
 def psnr_metric(y_true, y_pred):
-    # Ensure y_true and y_pred are within the expected range (e.g., 0 to 1)
-    # Clamp values to avoid NaN/Inf for PSNR if predictions go slightly out of range
-    y_pred = tf.clip_by_value(y_pred, 0.0, 1.0) # Adjust 0.0, 1.0 based on your data normalization
-    return tf.image.psnr(y_true, y_pred, max_val=1.0) # Set max_val according to your data range
+    y_pred = tf.clip_by_value(y_pred, 0.0, 1.0)
+    return tf.image.psnr(y_true, y_pred, max_val=1.0)
 
 def ssim_metric(y_true, y_pred):
-    # Clamp values for SSIM as well
-    y_pred = tf.clip_by_value(y_pred, 0.0, 1.0) # Adjust 0.0, 1.0 based on your data normalization
-    return tf.image.ssim(y_true, y_pred, max_val=1.0) # Set max_val according to your data range
+    y_pred = tf.clip_by_value(y_pred, 0.0, 1.0)
+    return tf.image.ssim(y_true, y_pred, max_val=1.0)
 
 def unet_lama(input_width, input_height, input_channels, output_channels):
     model = UNetWithLaMaFeaturesTF(input_channels, output_channels)
@@ -193,8 +182,8 @@ def unet_lama(input_width, input_height, input_channels, output_channels):
         'accuracy',
         tf.keras.metrics.MeanAbsoluteError(name='mae'),
         tf.keras.metrics.MeanSquaredError(name='mse'),
-        psnr_metric,  # Use the custom wrapper function here
-        ssim_metric  # You can also add SSIM this way
+        psnr_metric,
+        ssim_metric
     ]
 
     model.compile(optimizer=optimizer,
@@ -245,4 +234,4 @@ if __name__ == "__main__":
     # mask = tf.zeros_like(dummy_input)
     # mask = tf.tensor_scatter_nd_update(mask, [[0, i, j, k] for i in range(50,150) for j in range(50,150) for k in range(input_channels)], [1.0]*(100*100*input_channels)) # Example mask
     # masked_image = dummy_input * mask
-    # Then feed masked_image to the model for training/inference.
+    # Then feed masked_image to the model for training/inference

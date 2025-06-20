@@ -8,7 +8,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from keras.callbacks import (Callback,
                              CSVLogger)
 
-from model_test import (unet_lama, Up, Down, FFCBlock, DoubleConv, OutConv, UNetWithLaMaFeaturesTF,
+from model import (unet_lama, Up, Down, FFCBlock, DoubleConv, OutConv, UNetWithLaMaFeaturesTF,
                    psnr_metric, ssim_metric)
 from data import load_dataset
 from models.unet_wsl.wsl_utils import show_image
