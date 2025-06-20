@@ -82,24 +82,27 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, width, 
     plt.show()
     return None
 
+def load_saved_model():
+    custom_objects = {
+        'FFCBlock': FFCBlock,
+        'DoubleConv': DoubleConv,
+        'Down': Down,
+        'Up': Up,
+        'OutConv': OutConv,
+        'UNetWithLaMaFeaturesTF': UNetWithLaMaFeaturesTF,
+        # Add the custom metric functions here as well if you want them re-associated when loading
+        'psnr_metric': psnr_metric,
+        'ssim_metric': ssim_metric
+    }
+    saved_model_path = os.path.join(CKPT_DIR, "unet_lama_best_model")
+    print(f"Restoring from {saved_model_path}")
+    return keras.models.load_model(saved_model_path,
+                                   custom_objects=custom_objects,
+                                   compile=True)
+
 def make_or_restore_model(restore, width, height, input_channels, output_channels):
     if restore:
-        custom_objects = {
-            'FFCBlock': FFCBlock,
-            'DoubleConv': DoubleConv,
-            'Down': Down,
-            'Up': Up,
-            'OutConv': OutConv,
-            'UNetWithLaMaFeaturesTF': UNetWithLaMaFeaturesTF,
-            # Add the custom metric functions here as well if you want them re-associated when loading
-            'psnr_metric': psnr_metric,
-            'ssim_metric': ssim_metric
-        }
-        saved_model_path = os.path.join(CKPT_DIR, "unet_lama_best_model")
-        print(f"Restoring from {saved_model_path}")
-        return keras.models.load_model(saved_model_path,
-                                       custom_objects = custom_objects,
-                                       compile=True)
+        return load_saved_model()
     else:
         print("Creating fresh model")
         return unet_lama(width, height, input_channels, output_channels)

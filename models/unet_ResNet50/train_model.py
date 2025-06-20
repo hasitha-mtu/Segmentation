@@ -78,10 +78,13 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
     plt.show()
     return None
 
+def load_saved_model():
+    return keras.models.load_model(f"{CKPT_DIR}/unet_ResNet50_best_model.h5")
+
 def make_or_restore_model(restore, num_channels, size):
     (width, height) = size
     if restore:
-        return keras.models.load_model(f"{CKPT_DIR}/unet_ResNet50_best_model.h5")
+        return load_saved_model()
     else:
         print("Creating fresh model")
         return unet_model(width, height, num_channels)

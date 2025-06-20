@@ -80,17 +80,20 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
     plt.show()
     return None
 
+def load_saved_model():
+    saved_model_path = os.path.join(CKPT_DIR, "unet_plus_plus_best_model.h5")
+    print(f"Restoring from {saved_model_path}")
+    return keras.models.load_model(saved_model_path,
+                                   custom_objects={'recall_m': recall_m,
+                                                   'precision_m': precision_m,
+                                                   'f1_score': f1_score,
+                                                   'BCEDiceLoss': BCEDiceLoss},
+                                   compile=True)
+
 def make_or_restore_model(restore, num_channels, size):
     (width, height) = size
     if restore:
-        saved_model_path = os.path.join(CKPT_DIR, "unet_plus_plus_best_model.h5")
-        print(f"Restoring from {saved_model_path}")
-        return keras.models.load_model(saved_model_path,
-                                       custom_objects={'recall_m': recall_m,
-                                                       'precision_m': precision_m,
-                                                       'f1_score': f1_score,
-                                                       'BCEDiceLoss' : BCEDiceLoss},
-                                       compile=True)
+        return load_saved_model()
     else:
         print("Creating fresh model")
         return unet_plus_plus(width, height, num_channels)

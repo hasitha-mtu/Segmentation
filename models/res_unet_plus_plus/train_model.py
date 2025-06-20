@@ -79,17 +79,20 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, width, 
     plt.show()
     return None
 
+def load_saved_model():
+    custom_objects = {'recall_m': recall_m,
+                      'precision_m': precision_m,
+                      'f1_score': f1_score,
+                      'combined_masked_dice_bce_loss': combined_masked_dice_bce_loss}
+    saved_model_path = f"{CKPT_DIR}/res_unet_plus_plus_model.h5"
+    print(f"Restoring from {saved_model_path}")
+    return keras.models.load_model(saved_model_path,
+                                   custom_objects=custom_objects,
+                                   compile=True)
+
 def make_or_restore_model(restore, width, height, input_channels):
     if restore:
-        custom_objects = {'recall_m': recall_m,
-                          'precision_m': precision_m,
-                          'f1_score': f1_score,
-                          'combined_masked_dice_bce_loss': combined_masked_dice_bce_loss}
-        saved_model_path = f"{CKPT_DIR}/res_unet_plus_plus_model.h5"
-        print(f"Restoring from {saved_model_path}")
-        return keras.models.load_model(saved_model_path,
-                                       custom_objects = custom_objects,
-                                       compile=True)
+        return load_saved_model()
     else:
         print("Creating fresh model")
         return res_unet_plus_plus(width, height, input_channels)
