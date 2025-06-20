@@ -7,8 +7,8 @@ from keras.callbacks import (Callback,
                              CSVLogger)
 import numpy as np
 import random
-from unet_data import load_dataset
-from unet_model import unet_model
+from data import load_dataset
+from model import unet_model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
 from models.unet_wsl.wsl_utils import show_image
 from tensorflow.keras.callbacks import ModelCheckpoint
