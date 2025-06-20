@@ -146,7 +146,7 @@ if __name__ == "__main__":
     channels = ['RED', 'GREEN', 'BLUE']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_256/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,
