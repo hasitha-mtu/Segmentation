@@ -7,8 +7,8 @@ from keras.callbacks import (Callback,
                              CSVLogger)
 import numpy as np
 import random
-from data import load_dataset
-from model import unet_model
+from models.unet_wsl.data import load_dataset
+from models.unet_wsl.model import unet_model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
 from models.unet_wsl.wsl_utils import show_image
 from tensorflow.keras.callbacks import ModelCheckpoint
@@ -88,6 +88,13 @@ def load_saved_model():
                                                    'f1_score': f1_score,
                                                    'masked_dice_loss': masked_dice_loss},
                                    compile=True)
+
+def make_prediction(image):
+    print(f'make_prediction|image shape:{image.shape}')
+    model  = load_saved_model()
+    pred_mask = model.predict(image)
+    print(f'make_prediction|pred_mask shape:{pred_mask.shape}')
+    return pred_mask
 
 def make_or_restore_model(restore, num_channels, size):
     if restore:
