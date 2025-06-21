@@ -3,6 +3,9 @@ import numpy as np
 import time
 import cv2
 from scipy.spatial.distance import directed_hausdorff
+from keras.utils import load_img, img_to_array
+
+from unet_wsl.train_model import load_saved_model
 
 # Dice Coefficient
 def dice_coefficient(y_true, y_pred, smooth=1e-6):
@@ -47,8 +50,6 @@ def precision_recall(y_true, y_pred, smooth=1e-6):
 
 # Measure Inference Time (optional)
 def measure_inference_time(model, input_sample):
-    input_sample = tf.convert_to_tensor(input_sample)
-    input_sample = tf.expand_dims(input_sample, axis=0)  # add batch dimension
     start_time = time.time()
     _ = model.predict(input_sample)
     end_time = time.time()
@@ -78,6 +79,7 @@ def get_boundary(mask, dilation_ratio=0.02):
     Extract the boundary pixels from a binary mask using dilation and erosion.
     dilation_ratio: proportion of image diagonal to determine boundary width
     """
+    mask = mask.squeeze()
     h, w = mask.shape
     img_diag = np.sqrt(h ** 2 + w ** 2)
     dilation = max(1, int(round(dilation_ratio * img_diag)))
@@ -113,6 +115,9 @@ def hausdorff_distance(y_true, y_pred):
     Compute the Hausdorff Distance between two binary masks.
     Returns the symmetric Hausdorff distance.
     """
+    y_pred = y_pred.squeeze()
+    y_true = y_true.squeeze()
+
     y_true = y_true.astype(np.bool_)
     y_pred = y_pred.astype(np.bool_)
 
@@ -132,8 +137,29 @@ def hausdorff_distance(y_true, y_pred):
 # Hausdorff distance can be sensitive to noise/outliers;
 # consider using a percentile Hausdorff (e.g., 95th percentile) if needed.
 
-if __name__=="__manin__":
-    y_true = ground_truth_mask  # shape: (H, W)
+def load_image(path: str, size=(512, 512),  color_mode = "rgb"):
+    img = load_img(path, color_mode=color_mode)
+    img_array = img_to_array(img)
+    normalized_img_array = img_array/255.
+    formatted_img = tf.image.resize(normalized_img_array, size, method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+    return formatted_img
+
+if __name__=="__main__":
+    image_path = "../input/samples/segnet_512/images/DJI_20250324092908_0001_V.jpg"
+    mask_path = "../input/samples/segnet_512/annotations/DJI_20250324092908_0001_V.jpg"
+    image = load_image(image_path)
+    mask = load_image(image_path, color_mode="grayscale")
+    print(f'image shape:{image.shape}')
+    print(f'mask shape:{mask.shape}')
+
+    image = np.expand_dims(image, 0)
+    print(f'image shape:{image.shape}')
+    # pred_mask = make_prediction(formated_image)
+    # print(f'pred_mask:{pred_mask}')
+
+    model = load_saved_model()
+
+    y_true = mask.numpy()
     y_pred = model.predict(image)  # shape: (H, W)
     results = evaluate_segmentation(y_true, y_pred, model=model, sample=image)
     print(results)
