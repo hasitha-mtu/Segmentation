@@ -212,14 +212,14 @@ if __name__ == "__main__":
     print(f"physical_devices : {physical_devices}")
     print(tf.__version__)
     print(tf.executing_eagerly())
-    image_size = (256, 256) # actual size is (5280, 3956)
+    image_size = (512, 512) # actual size is (5280, 3956)
     epochs = 25
     batch_size = 4
     # channels = ['RED', 'GREEN', 'BLUE', 'NDWI', 'Canny']
     channels = ['RED', 'GREEN', 'BLUE']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_256/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,
@@ -234,8 +234,8 @@ if __name__ == "__main__":
         non_water_pixels = np.sum(y_val == 0.0)
         print(f"Water: {water_pixels}, Non-water: {non_water_pixels}")
 
-        # train_model(25, batch_size, X_train, y_train, X_val, y_val,
-        #             256, 256, 3, 3, restore=False)
+        train_model(25, batch_size, X_train, y_train, X_val, y_val,
+                    512, 512, 3, 3, restore=False)
 
         load_with_trained_model(X_val, y_val)
 
