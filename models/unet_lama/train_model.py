@@ -31,16 +31,25 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, width, 
 
     os.makedirs(CKPT_DIR, exist_ok=True)
 
-    checkpoint_filepath = os.path.join(CKPT_DIR, 'unet_lama_best_model')
+    # checkpoint_filepath = os.path.join(CKPT_DIR, 'unet_lama_best_model')
 
-    model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath=checkpoint_filepath,
-        monitor='val_mae',  # Monitor validation MAE
-        mode='min',  # Save when validation MAE is minimized
-        save_best_only=True,  # Only save the best model found so far
-        save_weights_only=False,  # Save the entire model (architecture + weights + optimizer)
-        save_format="tf",  # CRUCIAL: Save in TensorFlow SavedModel format for subclassed models
-        verbose=1  # Print messages when saving
+    # model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+    #     filepath=checkpoint_filepath,
+    #     monitor='val_mae',  # Monitor validation MAE
+    #     mode='min',  # Save when validation MAE is minimized
+    #     save_best_only=True,  # Only save the best model found so far
+    #     save_weights_only=False,  # Save the entire model (architecture + weights + optimizer)
+    #     save_format="tf",  # CRUCIAL: Save in TensorFlow SavedModel format for subclassed models
+    #     verbose=1  # Print messages when saving
+    # )
+
+    model_checkpoint_callback = ModelCheckpoint(
+        f"{CKPT_DIR}/unet_lama_best_model.h5",  # or "best_model.keras"
+        monitor='val_accuracy',
+        save_best_only=True,
+        save_weights_only=False,  # set to True if you want only weights
+        mode='max',
+        verbose=1
     )
 
     cbs = [
@@ -120,87 +129,84 @@ def load_with_trained_model(X_val, y_val):
     }
 
     try:
-        latest_checkpoint_path = os.path.join(CKPT_DIR, "unet_lama_best_model")
-        if latest_checkpoint_path:
-            loaded_model = tf.keras.models.load_model(
-                latest_checkpoint_path,
-                custom_objects=custom_objects,
-                compile = True
-            )
-            print(f"Model loaded successfully from: {latest_checkpoint_path}")
-            for i in range(len(X_val)):
-                image_array = X_val[i]
-                actual_mask = y_val[i]
-                #
-                # print(f"Original image shape: {image_array.shape}, dtype: {image_array.dtype}")
-                # print(f"Original image pixel value example (top-left): {image_array[0, 0, :]}")
-                #
-                # # --- DEBUG PRINTS: Check image_array before normalization ---
-                # print(f"DEBUG (pre-norm): image_array shape: {image_array.shape}")
-                # print(f"DEBUG (pre-norm): image_array dtype: {image_array.dtype}")
-                # print(f"DEBUG (pre-norm): image_array min value: {np.min(image_array)}")
-                # print(f"DEBUG (pre-norm): image_array max value: {np.max(image_array)}")
-                # # --- END DEBUG PRINTS ---
-                #
-                # # --- Step 2: Normalize the image to 0-1 range (ADJUSTED LOGIC) ---
-                #
-                # # Based on your debug output (`image_array max value: 1.0`),
-                # # the image_array is ALREADY in the 0.0-1.0 range.
-                # # Therefore, simply ensure it's float32 without dividing by 255.0.
-                #
-                # if image_array.max() > 1.0 or image_array.dtype == np.uint8:
-                #     # This block executes if the image was NOT already normalized (e.g., 0-255 range)
-                #     print("Detected unnormalized image (max > 1 or uint8 dtype). Normalizing now.")
-                #     normalized_image_array = image_array.astype(np.float32) / 255.0
-                # else:
-                #     # This block executes if the image is ALREADY normalized (0.0-1.0 float values)
-                #     print("Image appears to be already normalized (0.0-1.0 float). Skipping 255 division.")
-                #     normalized_image_array = image_array.astype(np.float32)  # Just ensure it's float32
-                #
-                # print(f"Normalized image shape: {normalized_image_array.shape}, dtype: {normalized_image_array.dtype}")
-                # print(f"Normalized image pixel value example (top-left): {normalized_image_array[0, 0, :]}")
-                #
-                # # --- Step 3: Add batch dimension (if your model expects it) ---
-                #
-                # # Most Keras models expect inputs in the format (batch_size, height, width, channels)
-                # # If your image is (height, width, channels), you need to add a batch dimension.
-                # input_for_model = np.expand_dims(normalized_image_array, axis=0)  # Adds a dimension at the beginning
-                #
-                # print(f"Input for model shape: {input_for_model.shape}, dtype: {input_for_model.dtype}")
-                # print(f"Input for model min value: {np.min(input_for_model)}")
-                # print(f"Input for model max value: {np.max(input_for_model)}")
+        latest_checkpoint_path = f"{CKPT_DIR}/unet_lama_best_model.h5"
+        loaded_model = tf.keras.models.load_model(
+            latest_checkpoint_path,
+            custom_objects=custom_objects,
+            compile=True
+        )
+        print(f"Model loaded successfully from: {latest_checkpoint_path}")
+        for i in range(len(X_val)):
+            image_array = X_val[i]
+            actual_mask = y_val[i]
+            #
+            # print(f"Original image shape: {image_array.shape}, dtype: {image_array.dtype}")
+            # print(f"Original image pixel value example (top-left): {image_array[0, 0, :]}")
+            #
+            # # --- DEBUG PRINTS: Check image_array before normalization ---
+            # print(f"DEBUG (pre-norm): image_array shape: {image_array.shape}")
+            # print(f"DEBUG (pre-norm): image_array dtype: {image_array.dtype}")
+            # print(f"DEBUG (pre-norm): image_array min value: {np.min(image_array)}")
+            # print(f"DEBUG (pre-norm): image_array max value: {np.max(image_array)}")
+            # # --- END DEBUG PRINTS ---
+            #
+            # # --- Step 2: Normalize the image to 0-1 range (ADJUSTED LOGIC) ---
+            #
+            # # Based on your debug output (`image_array max value: 1.0`),
+            # # the image_array is ALREADY in the 0.0-1.0 range.
+            # # Therefore, simply ensure it's float32 without dividing by 255.0.
+            #
+            # if image_array.max() > 1.0 or image_array.dtype == np.uint8:
+            #     # This block executes if the image was NOT already normalized (e.g., 0-255 range)
+            #     print("Detected unnormalized image (max > 1 or uint8 dtype). Normalizing now.")
+            #     normalized_image_array = image_array.astype(np.float32) / 255.0
+            # else:
+            #     # This block executes if the image is ALREADY normalized (0.0-1.0 float values)
+            #     print("Image appears to be already normalized (0.0-1.0 float). Skipping 255 division.")
+            #     normalized_image_array = image_array.astype(np.float32)  # Just ensure it's float32
+            #
+            # print(f"Normalized image shape: {normalized_image_array.shape}, dtype: {normalized_image_array.dtype}")
+            # print(f"Normalized image pixel value example (top-left): {normalized_image_array[0, 0, :]}")
+            #
+            # # --- Step 3: Add batch dimension (if your model expects it) ---
+            #
+            # # Most Keras models expect inputs in the format (batch_size, height, width, channels)
+            # # If your image is (height, width, channels), you need to add a batch dimension.
+            # input_for_model = np.expand_dims(normalized_image_array, axis=0)  # Adds a dimension at the beginning
+            #
+            # print(f"Input for model shape: {input_for_model.shape}, dtype: {input_for_model.dtype}")
+            # print(f"Input for model min value: {np.min(input_for_model)}")
+            # print(f"Input for model max value: {np.max(input_for_model)}")
 
-                input_image_path = "../../input/samples/segnet_256/images/DJI_20250324092908_0001_V.jpg"
-                image_pil = Image.open(input_image_path).convert('RGB')
-                image_array = np.array(image_pil)
+            input_image_path = "../../input/samples/segnet_256/images/DJI_20250324092908_0001_V.jpg"
+            image_pil = Image.open(input_image_path).convert('RGB')
+            image_array = np.array(image_pil)
 
-                if image_array.max() > 1.0 or image_array.dtype == np.uint8:
-                    print("Detected unnormalized image (max > 1 or uint8 dtype). Normalizing now.")
-                    normalized_image_array = image_array.astype(np.float32) / 255.0
-                else:
-                    print("Image appears to be already normalized (0.0-1.0 float). Skipping 255 division.")
-                    normalized_image_array = image_array.astype(np.float32)
+            if image_array.max() > 1.0 or image_array.dtype == np.uint8:
+                print("Detected unnormalized image (max > 1 or uint8 dtype). Normalizing now.")
+                normalized_image_array = image_array.astype(np.float32) / 255.0
+            else:
+                print("Image appears to be already normalized (0.0-1.0 float). Skipping 255 division.")
+                normalized_image_array = image_array.astype(np.float32)
 
-                print(f"Normalized image shape: {normalized_image_array.shape}, dtype: {normalized_image_array.dtype}")
-                print(f"Normalized image pixel value example (top-left): {normalized_image_array[0, 0, :]}")
+            print(f"Normalized image shape: {normalized_image_array.shape}, dtype: {normalized_image_array.dtype}")
+            print(f"Normalized image pixel value example (top-left): {normalized_image_array[0, 0, :]}")
 
-                # --- Step 3: Add batch dimension ---
-                input_for_model = np.expand_dims(normalized_image_array, axis=0)
+            # --- Step 3: Add batch dimension ---
+            input_for_model = np.expand_dims(normalized_image_array, axis=0)
 
-                pred_mask = loaded_model.predict(input_for_model)
-                plt.figure(figsize=(10, 8))
-                plt.subplot(1, 3, 1)
-                rgb_image = image_array[:, :, :3]
-                show_image(OUTPUT_DIR, rgb_image, index=i, title="Original_Image", save=True)
-                plt.subplot(1, 3, 2)
-                show_image(OUTPUT_DIR, actual_mask.squeeze(), index=i, title="Actual_Mask", save=True)
-                plt.subplot(1, 3, 3)
-                show_image(OUTPUT_DIR, pred_mask.squeeze(), index=i, title="Predicted_Mask", save=True)
+            pred_mask = loaded_model.predict(input_for_model)
+            plt.figure(figsize=(10, 8))
+            plt.subplot(1, 3, 1)
+            rgb_image = image_array[:, :, :3]
+            show_image(OUTPUT_DIR, rgb_image, index=i, title="Original_Image", save=True)
+            plt.subplot(1, 3, 2)
+            show_image(OUTPUT_DIR, actual_mask.squeeze(), index=i, title="Actual_Mask", save=True)
+            plt.subplot(1, 3, 3)
+            show_image(OUTPUT_DIR, pred_mask.squeeze(), index=i, title="Predicted_Mask", save=True)
 
-                plt.tight_layout()
-                plt.show()
-        else:
-            print("No checkpoints found to load.")
+            plt.tight_layout()
+            plt.show()
 
     except Exception as e:
         print(f"Failed to load model. Error: {e}")
