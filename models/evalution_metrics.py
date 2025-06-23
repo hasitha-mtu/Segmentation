@@ -5,7 +5,16 @@ import cv2
 from scipy.spatial.distance import directed_hausdorff
 from keras.utils import load_img, img_to_array
 
-from unet_wsl.train_model import load_saved_model
+from unet_wsl.train_model import load_saved_model as load_saved_unet_model
+from unet_ffc.train_model import load_saved_model as load_saved_unet_ffc_model
+from unet_VGG16.train_model import load_saved_model as load_saved_unet_VGG16_model
+from unet_ResNet50.train_model import load_saved_model as load_saved_unet_ResNet50_model
+from unet_MobileNetV2.train_model import load_saved_model as load_saved_unet_MobileNetV2_model
+from unet_plus_plus.train_model import load_saved_model as load_saved_unet_plus_plus_model
+from segnet.train_model import load_saved_model as load_saved_segnet_model
+from segnet_VGG16.train_model import load_saved_model as load_saved_segnet_VGG16_model
+from res_unet_plus_plus.train_model import load_saved_model as load_saved_res_unet_plus_plus_model
+from deeplabv3_plus.train_model import load_saved_model as load_saved_deeplabv3_plus_model
 
 # Dice Coefficient
 def dice_coefficient(y_true, y_pred, smooth=1e-6):
@@ -132,6 +141,10 @@ def hausdorff_distance(y_true, y_pred):
 
     return max(forward_hd, backward_hd)
 
+def make_prediction(image, mask):
+    unet = load_saved_unet_model()
+    pass
+
 # Both require binary masks (0 or 1) as NumPy arrays.
 # Typically, you'd threshold your model output predictions (e.g., pred_mask = (pred_prob > 0.5)).
 # Hausdorff distance can be sensitive to noise/outliers;
@@ -153,11 +166,8 @@ if __name__=="__main__":
     print(f'mask shape:{mask.shape}')
 
     image = np.expand_dims(image, 0)
-    print(f'image shape:{image.shape}')
-    # pred_mask = make_prediction(formated_image)
-    # print(f'pred_mask:{pred_mask}')
 
-    model = load_saved_model()
+    model = load_saved_unet_model()
 
     y_true = mask.numpy()
     y_pred = model.predict(image)  # shape: (H, W)
