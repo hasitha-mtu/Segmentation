@@ -80,7 +80,13 @@ def evaluate_segmentation(y_true, y_pred, model=None, sample=None):
     if model and sample is not None:
         metrics['Inference Time (ms)'] = float(measure_inference_time(model, sample))
 
-    return metrics
+    b_iou = boundary_iou(y_true, y_pred)
+    metrics['Boundary IoU'] = b_iou
+    hd = hausdorff_distance(y_true, y_pred)
+    metrics['Hausdorff Distance'] = hd
+
+    for key, value in metrics.items():
+        print(f"{key}: {value:.4f}")
 
 
 def get_boundary(mask, dilation_ratio=0.02):
@@ -141,9 +147,65 @@ def hausdorff_distance(y_true, y_pred):
 
     return max(forward_hd, backward_hd)
 
+# from unet_wsl.train_model import load_saved_model as load_saved_unet_model
+# from unet_ffc.train_model import load_saved_model as load_saved_unet_ffc_model
+# from unet_VGG16.train_model import load_saved_model as load_saved_unet_VGG16_model
+# from unet_ResNet50.train_model import load_saved_model as load_saved_unet_ResNet50_model
+# from unet_MobileNetV2.train_model import load_saved_model as load_saved_unet_MobileNetV2_model
+# from unet_plus_plus.train_model import load_saved_model as load_saved_unet_plus_plus_model
+# from segnet.train_model import load_saved_model as load_saved_segnet_model
+# from segnet_VGG16.train_model import load_saved_model as load_saved_segnet_VGG16_model
+# from res_unet_plus_plus.train_model import load_saved_model as load_saved_res_unet_plus_plus_model
+# from deeplabv3_plus.train_model import load_saved_model as load_saved_deeplabv3_plus_model
+
 def make_prediction(image, mask):
     unet = load_saved_unet_model()
-    pass
+    print('UNET')
+    evaluate_model(unet, image, mask)
+    print('==================================================================================================')
+    unet_fcc = load_saved_unet_ffc_model()
+    print('UNET-FFC')
+    evaluate_model(unet_fcc, image, mask)
+    print('==================================================================================================')
+    unet_vgg16 = load_saved_unet_VGG16_model()
+    print('UNET-VGG16')
+    evaluate_model(unet_vgg16, image, mask)
+    print('==================================================================================================')
+    unet_resnet50 = load_saved_unet_ResNet50_model()
+    print('UNET-ResNet50')
+    evaluate_model(unet_resnet50, image, mask)
+    print('==================================================================================================')
+    unet_mobilenetv2 = load_saved_unet_MobileNetV2_model()
+    print('UNET-MobileNetV2')
+    evaluate_model(unet_mobilenetv2, image, mask)
+    print('==================================================================================================')
+    unet_plus_plus = load_saved_unet_plus_plus_model()
+    print('UNET++')
+    evaluate_model(unet_plus_plus, image, mask)
+    print('==================================================================================================')
+    segnet = load_saved_segnet_model()
+    print('SegNet')
+    evaluate_model(segnet, image, mask)
+    print('==================================================================================================')
+    segnet_vgg16 = load_saved_segnet_VGG16_model()
+    print('SegNet-Vgg16')
+    evaluate_model(segnet_vgg16, image, mask)
+    print('==================================================================================================')
+    res_unet_plus_plus = load_saved_res_unet_plus_plus_model()
+    print('ResUNET++')
+    evaluate_model(res_unet_plus_plus, image, mask)
+    print('==================================================================================================')
+    deeplabv3_plus = load_saved_deeplabv3_plus_model()
+    print('DeepLabV3+')
+    evaluate_model(deeplabv3_plus, image, mask)
+    print('==================================================================================================')
+
+def evaluate_model(model, image, mask):
+    image = np.expand_dims(image, 0)
+    y_true = mask.numpy()
+    y_pred = model.predict(image)  # shape: (H, W)
+    results = evaluate_segmentation(y_true, y_pred, model=model, sample=image)
+    print(results)
 
 # Both require binary masks (0 or 1) as NumPy arrays.
 # Typically, you'd threshold your model output predictions (e.g., pred_mask = (pred_prob > 0.5)).
@@ -165,18 +227,28 @@ if __name__=="__main__":
     print(f'image shape:{image.shape}')
     print(f'mask shape:{mask.shape}')
 
-    image = np.expand_dims(image, 0)
+    make_prediction(image, mask)
 
-    model = load_saved_unet_model()
-
-    y_true = mask.numpy()
-    y_pred = model.predict(image)  # shape: (H, W)
-    results = evaluate_segmentation(y_true, y_pred, model=model, sample=image)
-    print(results)
-
-    # y_true and y_pred are binary masks (H, W)
-    b_iou = boundary_iou(y_true, y_pred)
-    hd = hausdorff_distance(y_true, y_pred)
-
-    print(f"Boundary IoU: {b_iou:.4f}")
-    print(f"Hausdorff Distance: {hd:.4f} pixels")
+# if __name__=="__main__":
+#     image_path = "../input/samples/segnet_512/images/DJI_20250324092908_0001_V.jpg"
+#     mask_path = "../input/samples/segnet_512/annotations/DJI_20250324092908_0001_V.jpg"
+#     image = load_image(image_path)
+#     mask = load_image(image_path, color_mode="grayscale")
+#     print(f'image shape:{image.shape}')
+#     print(f'mask shape:{mask.shape}')
+#
+#     image = np.expand_dims(image, 0)
+#
+#     model = load_saved_unet_model()
+#
+#     y_true = mask.numpy()
+#     y_pred = model.predict(image)  # shape: (H, W)
+#     results = evaluate_segmentation(y_true, y_pred, model=model, sample=image)
+#     print(results)
+#
+#     # y_true and y_pred are binary masks (H, W)
+#     b_iou = boundary_iou(y_true, y_pred)
+#     hd = hausdorff_distance(y_true, y_pred)
+#
+#     print(f"Boundary IoU: {b_iou:.4f}")
+#     print(f"Hausdorff Distance: {hd:.4f} pixels")
