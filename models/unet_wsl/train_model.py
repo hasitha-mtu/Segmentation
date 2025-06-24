@@ -117,6 +117,7 @@ def load_with_trained_model(X_val, y_val):
         actual_mask = y_val[i]
         formated_image = np.expand_dims(image, 0)
         pred_mask = model.predict(formated_image)
+        print(f'load_with_trained_model|pred_mask shape:{pred_mask.shape}')
         plt.figure(figsize=(10, 8))
         plt.subplot(1, 3, 1)
         rgb_image = image[:, :, :3]

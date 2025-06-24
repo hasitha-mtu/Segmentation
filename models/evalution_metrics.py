@@ -18,6 +18,8 @@ from deeplabv3_plus.train_model import load_saved_model as load_saved_deeplabv3_
 
 # Dice Coefficient
 def dice_coefficient(y_true, y_pred, smooth=1e-6):
+    print(f'dice_coefficient|y_true shape:{y_true.shape}')
+    print(f'dice_coefficient|y_pred shape:{y_pred.shape}')
     y_true_f = tf.reshape(tf.cast(y_true, tf.float32), [-1])
     y_pred_f = tf.reshape(tf.cast(y_pred, tf.float32), [-1])
     intersection = tf.reduce_sum(y_true_f * y_pred_f)
@@ -203,9 +205,10 @@ def make_prediction(image, mask):
 def evaluate_model(model, image, mask):
     image = np.expand_dims(image, 0)
     y_true = mask.numpy()
-    y_pred = model.predict(image)  # shape: (H, W)
-    results = evaluate_segmentation(y_true, y_pred, model=model, sample=image)
-    print(results)
+    y_pred = model.predict(image)
+    print(f'evaluate_model|y_true shape:{y_true.shape}')
+    print(f'evaluate_model|y_pred shape:{y_pred.shape}')
+    evaluate_segmentation(y_true, y_pred, model=model, sample=image)
 
 # Both require binary masks (0 or 1) as NumPy arrays.
 # Typically, you'd threshold your model output predictions (e.g., pred_mask = (pred_prob > 0.5)).
