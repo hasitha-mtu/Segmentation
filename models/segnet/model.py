@@ -1,5 +1,5 @@
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
-from loss_function import combined_masked_dice_bce_loss
+from models.segnet.loss_function import combined_masked_dice_bce_loss
 from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Activation
 from tensorflow.keras.models import Model
 import keras

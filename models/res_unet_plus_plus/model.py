@@ -5,7 +5,7 @@ from tensorflow.keras.layers import (GlobalAveragePooling2D, Reshape, Dense, Mul
 from tensorflow.keras.models import Model
 
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
-from loss_function import combined_masked_dice_bce_loss
+from models.res_unet_plus_plus.loss_function import combined_masked_dice_bce_loss
 
 
 def SE(inputs, ratio=8):

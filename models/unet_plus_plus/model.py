@@ -1,6 +1,6 @@
 from tensorflow.keras import layers, models
 import keras
-from loss_functions import BCEDiceLoss
+from models.unet_plus_plus.loss_functions import BCEDiceLoss
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 
 def conv_block(x, filters, kernel_size=(3,3), activation='relu', padding='same'):

@@ -5,7 +5,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.applications import MobileNetV2
 
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
-from loss_function import combined_masked_dice_bce_loss
+from models.unet_MobileNetV2.loss_function import combined_masked_dice_bce_loss
 
 def UnetMobileNetV2(shape):
     inputs = Input(shape=shape, name='input_image')

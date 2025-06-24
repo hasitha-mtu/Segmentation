@@ -1,11 +1,11 @@
 import keras
-from tensorflow.keras.layers import (Conv2D, Activation, BatchNormalization, Conv2DTranspose,
-                                     UpSampling2D, Input, Concatenate)
+from tensorflow.keras.layers import (Conv2D, Activation, BatchNormalization,
+                                     Conv2DTranspose, Input, Concatenate)
 from tensorflow.keras.models import Model
 from tensorflow.keras.applications import VGG16
 
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
-from loss_function import combined_masked_dice_bce_loss
+from models.unet_VGG16.loss_function import combined_masked_dice_bce_loss
 
 def conv_block(inputs, num_filters):
     x = Conv2D(num_filters, 3, padding='same')(inputs)

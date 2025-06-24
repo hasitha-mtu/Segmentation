@@ -1,6 +1,6 @@
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
-from loss_function import combined_masked_dice_bce_loss
-from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Activation
+from models.segnet_VGG16.loss_function import combined_masked_dice_bce_loss
+from tensorflow.keras.layers import Input, Conv2D, UpSampling2D, BatchNormalization, Activation
 from tensorflow.keras.models import Model
 from tensorflow.keras.applications import VGG16
 import keras
