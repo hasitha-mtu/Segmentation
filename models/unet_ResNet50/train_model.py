@@ -11,8 +11,7 @@ import random
 from models.unet_ResNet50.data import load_dataset
 from models.unet_ResNet50.model import unet_model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, unet_resnet50_loss_function
-from models.unet_wsl.wsl_utils import show_image
-import sys
+from models.common_utils.images import show_image
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ResNet50\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ResNet50\ckpt"

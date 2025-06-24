@@ -10,7 +10,7 @@ import random
 from models.unet_wsl.data import load_dataset
 from models.unet_wsl.model import unet_model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
-from models.unet_wsl.wsl_utils import show_image
+from models.common_utils.images import show_image
 from tensorflow.keras.callbacks import ModelCheckpoint
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_wsl\logs"

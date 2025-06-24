@@ -8,10 +8,10 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from keras.callbacks import (Callback,
                              CSVLogger)
 
-from model import (unet_lama, Up, Down, FFCBlock, DoubleConv, OutConv, UNetWithLaMaFeaturesTF,
+from models.unet_lama.model import (unet_lama, Up, Down, FFCBlock, DoubleConv, OutConv, UNetWithLaMaFeaturesTF,
                    psnr_metric, ssim_metric)
-from data import load_dataset
-from models.unet_wsl.wsl_utils import show_image
+from models.unet_lama.data import load_dataset
+from models.common_utils.images import show_image
 from PIL import Image
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_lama\logs"

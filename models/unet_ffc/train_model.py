@@ -11,7 +11,7 @@ from keras.callbacks import (Callback,
 from models.unet_ffc.model import unet_model, FFC
 from models.unet_ffc.loss_function import combined_masked_dice_bce_loss
 from models.unet_ffc.data import load_dataset
-from models.unet_wsl.wsl_utils import show_image
+from models.common_utils.images import show_image
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ffc\logs"

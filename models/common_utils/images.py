@@ -7,6 +7,18 @@ from skimage.feature import local_binary_pattern
 from keras.utils import img_to_array
 import tensorflow as tf
 
+def show_image(dir_path, image, index, title=None, save=False):
+    if save:
+        if title:
+            file_name = f"{dir_path}/{title}_{index}.png"
+        else:
+            file_name = f"{dir_path}/predicted_mask_{index}.png"
+        os.makedirs(dir_path, exist_ok=True)
+        plt.imsave(file_name, image)
+    plt.imshow(image)
+    plt.title(title)
+    plt.axis('off')
+
 def read_image(path):
     image = mpimg.imread(path)
     print(type(image))

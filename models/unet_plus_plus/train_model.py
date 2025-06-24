@@ -11,7 +11,7 @@ from models.unet_plus_plus.data import load_dataset
 from models.unet_plus_plus.model import unet_plus_plus
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 from models.unet_plus_plus.loss_functions import BCEDiceLoss
-from models.unet_wsl.wsl_utils import show_image
+from models.common_utils.images import show_image
 from tensorflow.keras.callbacks import ModelCheckpoint
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_plus_plus\logs"

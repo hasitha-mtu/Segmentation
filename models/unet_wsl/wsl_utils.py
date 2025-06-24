@@ -10,18 +10,6 @@ def display_mask(pred):
     plt.imshow(mask)
     plt.show()
 
-def show_image(dir_path, image, index, title=None, save=False):
-    if save:
-        if title:
-            file_name = f"{dir_path}/{title}_{index}.png"
-        else:
-            file_name = f"{dir_path}/predicted_mask_{index}.png"
-        os.makedirs(dir_path, exist_ok=True)
-        plt.imsave(file_name, image)
-    plt.imshow(image)
-    plt.title(title)
-    plt.axis('off')
-
 def overlay_mask_on_image(image, predicted_mask, alpha=0.5):
     """
     Overlays a predicted binary mask on an image.
