@@ -31,7 +31,7 @@ def load_drone_images(size, paths, channels):
         images[i] = image
         mask_path = path.replace("images", "annotations")
         mask_path = mask_path.replace(".jpg", ".png")
-        mask = load_image(size, mask_path, color_mode="grayscale")
+        mask = load_image(size, mask_path)
         masks[i] = mask
     return images, masks
 
