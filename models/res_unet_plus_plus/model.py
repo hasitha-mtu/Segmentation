@@ -136,6 +136,7 @@ def ResUnetPlusPlus(input_shape):
 
     """" Model """
     model = Model(inputs=inputs, outputs=outputs)
+    print("Model output shape:", model.output_shape)
     print(f"Model summary : {model.summary()}")
     keras.utils.plot_model(model, "ResUnetPlusPlus_model.png", show_shapes=True)
 

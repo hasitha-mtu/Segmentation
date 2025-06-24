@@ -93,6 +93,7 @@ def DeepLabV3Plus(shape):
 
     # Model
     model = Model(inputs=inputs, outputs=x)
+    print("Model output shape:", model.output_shape)
     print(f"Model summary : {model.summary()}")
     keras.utils.plot_model(model, "DeepLabV3Plus_model.png", show_shapes=True)
 
