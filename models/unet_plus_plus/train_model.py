@@ -53,6 +53,11 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
     with strategy.scope():
         model = make_or_restore_model(restore, num_channels, size)
 
+    info0 = tf.config.experimental.get_memory_info('GPU:0')
+    print(f"GPU0 Current: {info0['current']} bytes, Peak: {info0['peak']} bytes")
+    info1 = tf.config.experimental.get_memory_info('GPU:1')
+    print(f"GPU1 Current: {info1['current']} bytes, Peak: {info1['peak']} bytes")
+
     history = model.fit(
                     X_train,
                     y_train,
@@ -154,11 +159,15 @@ if __name__ == "__main__":
     # tf.config.experimental.enable_op_determinism()
 
     image_size = (512, 512) # actual size is (5280, 3956)
-    epochs = 25
-    batch_size = 4
+    epochs = 50
+    batch_size = 2
     channels = ['RED', 'GREEN', 'BLUE']
     channel_count = len(channels)
     if len(physical_devices) > 0:
+        info0 = tf.config.experimental.get_memory_info('GPU:0')
+        print(f"GPU0 Current: {info0['current']} bytes, Peak: {info0['peak']} bytes")
+        info1 = tf.config.experimental.get_memory_info('GPU:1')
+        print(f"GPU1 Current: {info1['current']} bytes, Peak: {info1['peak']} bytes")
         (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",
                                                           size = image_size,
                                                           file_extension="jpg",
