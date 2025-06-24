@@ -8,9 +8,9 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from keras.callbacks import (Callback,
                              CSVLogger)
 import random
-from model import unet_mobilenet_v2
-from loss_function import combined_masked_dice_bce_loss
-from data import load_dataset
+from models.unet_MobileNetV2.model import unet_mobilenet_v2
+from models.unet_MobileNetV2.loss_function import combined_masked_dice_bce_loss
+from models.unet_MobileNetV2.data import load_dataset
 from models.unet_wsl.wsl_utils import show_image
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 

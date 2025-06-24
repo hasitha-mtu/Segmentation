@@ -8,9 +8,9 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from keras.callbacks import (Callback,
                              CSVLogger)
 import random
-from model import res_unet_plus_plus
-from loss_function import combined_masked_dice_bce_loss
-from data import load_dataset
+from models.res_unet_plus_plus.model import res_unet_plus_plus
+from models.res_unet_plus_plus.loss_function import combined_masked_dice_bce_loss
+from models.res_unet_plus_plus.data import load_dataset
 from models.unet_wsl.wsl_utils import show_image
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 
