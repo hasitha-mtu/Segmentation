@@ -7,6 +7,8 @@ from tensorflow.keras.applications import VGG16
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 from models.unet_VGG16.loss_function import combined_masked_dice_bce_loss
 
+from models.memory_usage import estimate_model_memory_usage
+
 def conv_block(inputs, num_filters):
     x = Conv2D(num_filters, 3, padding='same')(inputs)
     x = BatchNormalization()(x)
@@ -59,6 +61,8 @@ def UnetVGG16(input_shape):
     model = Model(inputs=inputs, outputs=output, name='Unet-VGG16')
 
     print(f"Model summary : {model.summary()}")
+
+    estimate_model_memory_usage(model, batch_size=4)
 
     keras.utils.plot_model(model, "Unet-VGG16_model.png", show_shapes=True)
 

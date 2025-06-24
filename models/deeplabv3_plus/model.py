@@ -7,6 +7,7 @@ import keras
 
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 from models.deeplabv3_plus.loss_function import combined_masked_dice_bce_loss
+from models.memory_usage import estimate_model_memory_usage
 
 def ASPP(inputs):
     shape = inputs.shape
@@ -95,6 +96,9 @@ def DeepLabV3Plus(shape):
     model = Model(inputs=inputs, outputs=x)
     print("Model output shape:", model.output_shape)
     print(f"Model summary : {model.summary()}")
+
+    estimate_model_memory_usage(model, batch_size=4)
+
     keras.utils.plot_model(model, "DeepLabV3Plus_model.png", show_shapes=True)
 
     return model

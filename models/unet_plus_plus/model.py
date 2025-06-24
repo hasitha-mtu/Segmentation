@@ -2,6 +2,7 @@ from tensorflow.keras import layers, models
 import keras
 from models.unet_plus_plus.loss_functions import BCEDiceLoss
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
+from models.memory_usage import estimate_model_memory_usage
 
 def conv_block(x, filters, kernel_size=(3,3), activation='relu', padding='same'):
     x = layers.Conv2D(filters, kernel_size, activation=activation, padding=padding)(x)
@@ -61,6 +62,8 @@ def build_model(batch_size, input_shape=(512, 512, 3), num_classes=1):
 
     print(f"Model summary : {model.summary()}")
 
+    estimate_model_memory_usage(model, batch_size=4)
+
     keras.utils.plot_model(model, "UNET++_model.png", show_shapes=True)
 
     return model
@@ -71,5 +74,4 @@ def unet_plus_plus(width, height, num_channels, batch_size=4):
 
 
 if __name__ == '__main__':
-    model = build_model(4, input_shape=(512, 512, 16), num_classes=1)
-    model.summary()
+    build_model(4, input_shape=(512, 512, 16), num_classes=1)

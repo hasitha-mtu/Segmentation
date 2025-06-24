@@ -3,6 +3,7 @@ from tensorflow.keras import layers, models
 from tensorflow.keras.applications import ResNet50
 import keras
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, unet_resnet50_loss_function
+from models.memory_usage import estimate_model_memory_usage
 
 def unet_with_resnet50(input_shape=(512, 512, 16), num_classes=1):
     # Step 1: Define 16-channel input
@@ -63,6 +64,8 @@ def unet_with_resnet50(input_shape=(512, 512, 16), num_classes=1):
     )
 
     print(f"Model summary : {model.summary()}")
+
+    estimate_model_memory_usage(model, batch_size=4)
 
     keras.utils.plot_model(model, "UNET-ResNet50_model.png", show_shapes=True)
 
