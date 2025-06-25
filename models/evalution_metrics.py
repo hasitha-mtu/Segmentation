@@ -18,16 +18,36 @@ from deeplabv3_plus.train_model import load_saved_model as load_saved_deeplabv3_
 
 # Dice Coefficient
 def dice_coefficient(y_true, y_pred, smooth=1e-6):
-    print(f'dice_coefficient|y_true shape:{y_true.shape}')
-    print(f'dice_coefficient|y_pred shape:{y_pred.shape}')
+    # Ensure rank-4 tensors
+    y_true = tf.expand_dims(y_true, axis=0) if len(tf.shape(y_true)) == 3 else y_true
+    y_true = tf.cast(y_true, tf.float32)
+
+    y_pred = tf.cast(y_pred, tf.float32)
+
+    # If y_pred has 3 channels, convert to single channel via argmax or mean
+    if tf.shape(y_pred)[-1] == 3:
+        y_pred = tf.reduce_mean(y_pred, axis=-1, keepdims=True)
+
+    # Reshape to flat vectors
     y_true_f = tf.reshape(tf.cast(y_true, tf.float32), [-1])
     y_pred_f = tf.reshape(tf.cast(y_pred, tf.float32), [-1])
+
+    # Dice calculation
     intersection = tf.reduce_sum(y_true_f * y_pred_f)
     return (2. * intersection + smooth) / (tf.reduce_sum(y_true_f) + tf.reduce_sum(y_pred_f) + smooth)
 
-
 # IoU Score
 def iou_score(y_true, y_pred, smooth=1e-6):
+    # Ensure rank-4 tensors
+    y_true = tf.expand_dims(y_true, axis=0) if len(tf.shape(y_true)) == 3 else y_true
+    y_true = tf.cast(y_true, tf.float32)
+
+    y_pred = tf.cast(y_pred, tf.float32)
+
+    # If y_pred has 3 channels, convert to single channel via argmax or mean
+    if tf.shape(y_pred)[-1] == 3:
+        y_pred = tf.reduce_mean(y_pred, axis=-1, keepdims=True)
+
     y_true_f = tf.reshape(tf.cast(y_true, tf.float32), [-1])
     y_pred_f = tf.reshape(tf.cast(y_pred, tf.float32), [-1])
     intersection = tf.reduce_sum(y_true_f * y_pred_f)
@@ -46,6 +66,16 @@ def pixel_accuracy(y_true, y_pred):
 
 # Precision and Recall
 def precision_recall(y_true, y_pred, smooth=1e-6):
+    # Ensure rank-4 tensors
+    y_true = tf.expand_dims(y_true, axis=0) if len(tf.shape(y_true)) == 3 else y_true
+    y_true = tf.cast(y_true, tf.float32)
+
+    y_pred = tf.cast(y_pred, tf.float32)
+
+    # If y_pred has 3 channels, convert to single channel via argmax or mean
+    if tf.shape(y_pred)[-1] == 3:
+        y_pred = tf.reduce_mean(y_pred, axis=-1, keepdims=True)
+
     y_true_f = tf.reshape(tf.cast(y_true, tf.float32), [-1])
     y_pred_f = tf.reshape(tf.cast(y_pred, tf.float32), [-1])
 
@@ -96,7 +126,8 @@ def get_boundary(mask, dilation_ratio=0.02):
     Extract the boundary pixels from a binary mask using dilation and erosion.
     dilation_ratio: proportion of image diagonal to determine boundary width
     """
-    mask = mask.squeeze()
+    print(f'get_boundary|mask shape:{mask.shape}')
+    mask = np.squeeze(mask)
     h, w = mask.shape
     img_diag = np.sqrt(h ** 2 + w ** 2)
     dilation = max(1, int(round(dilation_ratio * img_diag)))
@@ -115,6 +146,16 @@ def boundary_iou(y_true, y_pred, dilation_ratio=0.02):
     y_true = y_true.astype(np.bool_)
     y_pred = y_pred.astype(np.bool_)
 
+    # Ensure rank-4 tensors
+    y_true = tf.expand_dims(y_true, axis=0) if len(tf.shape(y_true)) == 3 else y_true
+    y_true = tf.cast(y_true, tf.float32)
+
+    y_pred = tf.cast(y_pred, tf.float32)
+
+    # If y_pred has 3 channels, convert to single channel via argmax or mean
+    if tf.shape(y_pred)[-1] == 3:
+        y_pred = tf.reduce_mean(y_pred, axis=-1, keepdims=True)
+
     true_boundary = get_boundary(y_true, dilation_ratio)
     pred_boundary = get_boundary(y_pred, dilation_ratio)
 
@@ -132,8 +173,24 @@ def hausdorff_distance(y_true, y_pred):
     Compute the Hausdorff Distance between two binary masks.
     Returns the symmetric Hausdorff distance.
     """
-    y_pred = y_pred.squeeze()
-    y_true = y_true.squeeze()
+    # Ensure rank-4 tensors
+    y_true = tf.expand_dims(y_true, axis=0) if len(tf.shape(y_true)) == 3 else y_true
+    y_true = tf.cast(y_true, tf.float32)
+
+    y_pred = tf.cast(y_pred, tf.float32)
+
+    # If y_pred has 3 channels, convert to single channel via argmax or mean
+    if tf.shape(y_pred)[-1] == 3:
+        y_pred = tf.reduce_mean(y_pred, axis=-1, keepdims=True)
+
+    print(f'hausdorff_distance|y_true shape:{y_true.shape}')
+    print(f'hausdorff_distance|y_pred shape:{y_pred.shape}')
+
+    y_pred = np.squeeze(y_pred)
+    y_true = np.squeeze(y_true)
+
+    print(f'hausdorff_distance1|y_true shape:{y_true.shape}')
+    print(f'hausdorff_distance1|y_pred shape:{y_pred.shape}')
 
     y_true = y_true.astype(np.bool_)
     y_pred = y_pred.astype(np.bool_)
@@ -144,6 +201,8 @@ def hausdorff_distance(y_true, y_pred):
     if len(true_points) == 0 or len(pred_points) == 0:
         return np.nan  # undefined if no points
 
+    print(f'hausdorff_distance|true_points shape:{true_points.shape}')
+    print(f'hausdorff_distance|pred_points shape:{pred_points.shape}')
     forward_hd = directed_hausdorff(true_points, pred_points)[0]
     backward_hd = directed_hausdorff(pred_points, true_points)[0]
 
