@@ -1,20 +1,4 @@
-image shape:(512, 512, 3)
-mask shape:(512, 512, 1)
-Restoring from C:\Users\AdikariAdikari\PycharmProjects\Segmentation\models\unet_wsl\ckpt\unet_wsl_best_model.h5
 UNET
-2025-06-25 14:31:00.164009: I tensorflow/stream_executor/cuda/cuda_dnn.cc:384] Loaded cuDNN version 8100
-1/1 [==============================] - 5s 5s/step
-evaluate_model|y_true shape:(512, 512, 1)
-evaluate_model|y_pred shape:(1, 512, 512, 3)
-1/1 [==============================] - 0s 38ms/step
-get_boundary|mask shape:(1, 512, 512, 1)
-get_boundary|mask shape:(1, 512, 512, 1)
-hausdorff_distance|y_true shape:(1, 512, 512, 1)
-hausdorff_distance|y_pred shape:(1, 512, 512, 1)
-hausdorff_distance1|y_true shape:(512, 512)
-hausdorff_distance1|y_pred shape:(512, 512)
-hausdorff_distance|true_points shape:(261988, 2)
-hausdorff_distance|pred_points shape:(232970, 2)
 Dice Coefficient: 0.0026
 IoU Score: 0.0013
 Pixel Accuracy: 0.0240
@@ -24,20 +8,7 @@ Inference Time (ms): 85.2492
 Boundary IoU: 0.0559
 Hausdorff Distance: 11.7047
 ==================================================================================================
-Restoring from C:\Users\AdikariAdikari\PycharmProjects\Segmentation\models\unet_ffc\ckpt/unet_ffc_model.h5
 UNET-FFC
-1/1 [==============================] - 2s 2s/step
-evaluate_model|y_true shape:(512, 512, 1)
-evaluate_model|y_pred shape:(1, 512, 512, 3)
-1/1 [==============================] - 0s 47ms/step
-get_boundary|mask shape:(1, 512, 512, 1)
-get_boundary|mask shape:(1, 512, 512, 1)
-hausdorff_distance|y_true shape:(1, 512, 512, 1)
-hausdorff_distance|y_pred shape:(1, 512, 512, 1)
-hausdorff_distance1|y_true shape:(512, 512)
-hausdorff_distance1|y_pred shape:(512, 512)
-hausdorff_distance|true_points shape:(261988, 2)
-hausdorff_distance|pred_points shape:(262144, 2)
 Dice Coefficient: 0.0131
 IoU Score: 0.0066
 Pixel Accuracy: 0.1097
@@ -47,20 +18,7 @@ Inference Time (ms): 93.2877
 Boundary IoU: 0.0000
 Hausdorff Distance: 3.6056
 ==================================================================================================
-Restoring from C:\Users\AdikariAdikari\PycharmProjects\Segmentation\models\unet_VGG16\ckpt/unet_vgg16_model.h5
 UNET-VGG16
-1/1 [==============================] - 2s 2s/step
-evaluate_model|y_true shape:(512, 512, 1)
-evaluate_model|y_pred shape:(1, 512, 512, 1)
-1/1 [==============================] - 0s 33ms/step
-get_boundary|mask shape:(1, 512, 512, 1)
-get_boundary|mask shape:(1, 512, 512, 1)
-hausdorff_distance|y_true shape:(1, 512, 512, 1)
-hausdorff_distance|y_pred shape:(1, 512, 512, 1)
-hausdorff_distance1|y_true shape:(512, 512)
-hausdorff_distance1|y_pred shape:(512, 512)
-hausdorff_distance|true_points shape:(261988, 2)
-hausdorff_distance|pred_points shape:(262144, 2)
 Dice Coefficient: 0.0120
 IoU Score: 0.0060
 Pixel Accuracy: 0.0337
@@ -71,18 +29,6 @@ Boundary IoU: 0.0000
 Hausdorff Distance: 3.6056
 ==================================================================================================
 UNET-ResNet50
-1/1 [==============================] - 3s 3s/step
-evaluate_model|y_true shape:(512, 512, 1)
-evaluate_model|y_pred shape:(1, 512, 512, 1)
-1/1 [==============================] - 0s 38ms/step
-get_boundary|mask shape:(1, 512, 512, 1)
-get_boundary|mask shape:(1, 512, 512, 1)
-hausdorff_distance|y_true shape:(1, 512, 512, 1)
-hausdorff_distance|y_pred shape:(1, 512, 512, 1)
-hausdorff_distance1|y_true shape:(512, 512)
-hausdorff_distance1|y_pred shape:(512, 512)
-hausdorff_distance|true_points shape:(261988, 2)
-hausdorff_distance|pred_points shape:(262048, 2)
 Dice Coefficient: 0.0094
 IoU Score: 0.0047
 Pixel Accuracy: 0.0267
@@ -92,21 +38,7 @@ Inference Time (ms): 83.9589
 Boundary IoU: 0.0000
 Hausdorff Distance: 5.0000
 ==================================================================================================
-Restoring from C:\Users\AdikariAdikari\PycharmProjects\Segmentation\models\unet_MobileNetV2\ckpt/unet_mobilenet_v2_model.h5
 UNET-MobileNetV2
-WARNING:tensorflow:5 out of the last 9 calls to <function Model.make_predict_function.<locals>.predict_function at 0x000001F257215040> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
-1/1 [==============================] - 2s 2s/step
-evaluate_model|y_true shape:(512, 512, 1)
-evaluate_model|y_pred shape:(1, 512, 512, 1)
-1/1 [==============================] - 0s 33ms/step
-get_boundary|mask shape:(1, 512, 512, 1)
-get_boundary|mask shape:(1, 512, 512, 1)
-hausdorff_distance|y_true shape:(1, 512, 512, 1)
-hausdorff_distance|y_pred shape:(1, 512, 512, 1)
-hausdorff_distance1|y_true shape:(512, 512)
-hausdorff_distance1|y_pred shape:(512, 512)
-hausdorff_distance|true_points shape:(261988, 2)
-hausdorff_distance|pred_points shape:(262144, 2)
 Dice Coefficient: 0.0110
 IoU Score: 0.0055
 Pixel Accuracy: 0.0281
@@ -116,21 +48,7 @@ Inference Time (ms): 67.7505
 Boundary IoU: 0.0000
 Hausdorff Distance: 3.6056
 ==================================================================================================
-Restoring from C:\Users\AdikariAdikari\PycharmProjects\Segmentation\models\unet_plus_plus\ckpt\unet_plus_plus_best_model.h5
 UNET++
-1/1 [==============================] - 8s 8s/step
-WARNING:tensorflow:6 out of the last 11 calls to <function Model.make_predict_function.<locals>.predict_function at 0x000001F266C17280> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
-evaluate_model|y_true shape:(512, 512, 1)
-evaluate_model|y_pred shape:(1, 512, 512, 1)
-1/1 [==============================] - 0s 34ms/step
-get_boundary|mask shape:(1, 512, 512, 1)
-get_boundary|mask shape:(1, 512, 512, 1)
-hausdorff_distance|y_true shape:(1, 512, 512, 1)
-hausdorff_distance|y_pred shape:(1, 512, 512, 1)
-hausdorff_distance1|y_true shape:(512, 512)
-hausdorff_distance1|y_pred shape:(512, 512)
-hausdorff_distance|true_points shape:(261988, 2)
-hausdorff_distance|pred_points shape:(262144, 2)
 Dice Coefficient: 0.0114
 IoU Score: 0.0057
 Pixel Accuracy: 0.0295
@@ -140,20 +58,7 @@ Inference Time (ms): 147.6283
 Boundary IoU: 0.0000
 Hausdorff Distance: 3.6056
 ==================================================================================================
-Restoring from C:\Users\AdikariAdikari\PycharmProjects\Segmentation\models\segnet\ckpt/segnet_model.h5
 SegNet
-1/1 [==============================] - 1s 719ms/step
-evaluate_model|y_true shape:(512, 512, 1)
-evaluate_model|y_pred shape:(1, 512, 512, 1)
-1/1 [==============================] - 0s 32ms/step
-get_boundary|mask shape:(1, 512, 512, 1)
-get_boundary|mask shape:(1, 512, 512, 1)
-hausdorff_distance|y_true shape:(1, 512, 512, 1)
-hausdorff_distance|y_pred shape:(1, 512, 512, 1)
-hausdorff_distance1|y_true shape:(512, 512)
-hausdorff_distance1|y_pred shape:(512, 512)
-hausdorff_distance|true_points shape:(261988, 2)
-hausdorff_distance|pred_points shape:(262144, 2)
 Dice Coefficient: 0.0134
 IoU Score: 0.0067
 Pixel Accuracy: 0.0320
@@ -163,20 +68,7 @@ Inference Time (ms): 82.0508
 Boundary IoU: 0.0000
 Hausdorff Distance: 3.6056
 ==================================================================================================
-Restoring from C:\Users\AdikariAdikari\PycharmProjects\Segmentation\models\segnet_VGG16\ckpt/segnet_VGG16_model.h5
 SegNet-Vgg16
-1/1 [==============================] - 1s 819ms/step
-evaluate_model|y_true shape:(512, 512, 1)
-evaluate_model|y_pred shape:(1, 512, 512, 1)
-1/1 [==============================] - 0s 32ms/step
-get_boundary|mask shape:(1, 512, 512, 1)
-get_boundary|mask shape:(1, 512, 512, 1)
-hausdorff_distance|y_true shape:(1, 512, 512, 1)
-hausdorff_distance|y_pred shape:(1, 512, 512, 1)
-hausdorff_distance1|y_true shape:(512, 512)
-hausdorff_distance1|y_pred shape:(512, 512)
-hausdorff_distance|true_points shape:(261988, 2)
-hausdorff_distance|pred_points shape:(262144, 2)
 Dice Coefficient: 0.0107
 IoU Score: 0.0054
 Pixel Accuracy: 0.0277
@@ -186,20 +78,7 @@ Inference Time (ms): 73.5660
 Boundary IoU: 0.0000
 Hausdorff Distance: 3.6056
 ==================================================================================================
-Restoring from C:\Users\AdikariAdikari\PycharmProjects\Segmentation\models\res_unet_plus_plus\ckpt/res_unet_plus_plus_model.h5
 ResUNET++
-1/1 [==============================] - 2s 2s/step
-evaluate_model|y_true shape:(512, 512, 1)
-evaluate_model|y_pred shape:(1, 512, 512, 1)
-1/1 [==============================] - 0s 48ms/step
-get_boundary|mask shape:(1, 512, 512, 1)
-get_boundary|mask shape:(1, 512, 512, 1)
-hausdorff_distance|y_true shape:(1, 512, 512, 1)
-hausdorff_distance|y_pred shape:(1, 512, 512, 1)
-hausdorff_distance1|y_true shape:(512, 512)
-hausdorff_distance1|y_pred shape:(512, 512)
-hausdorff_distance|true_points shape:(261988, 2)
-hausdorff_distance|pred_points shape:(262144, 2)
 Dice Coefficient: 0.0126
 IoU Score: 0.0063
 Pixel Accuracy: 0.0332
@@ -209,20 +88,7 @@ Inference Time (ms): 85.6936
 Boundary IoU: 0.0000
 Hausdorff Distance: 3.6056
 ==================================================================================================
-Restoring from C:\Users\AdikariAdikari\PycharmProjects\Segmentation\models\unet_ffc\ckpt/deeplabv3_plus_model.h5
 DeepLabV3+
-1/1 [==============================] - 1s 1s/step
-evaluate_model|y_true shape:(512, 512, 1)
-evaluate_model|y_pred shape:(1, 512, 512, 1)
-1/1 [==============================] - 0s 34ms/step
-get_boundary|mask shape:(1, 512, 512, 1)
-get_boundary|mask shape:(1, 512, 512, 1)
-hausdorff_distance|y_true shape:(1, 512, 512, 1)
-hausdorff_distance|y_pred shape:(1, 512, 512, 1)
-hausdorff_distance1|y_true shape:(512, 512)
-hausdorff_distance1|y_pred shape:(512, 512)
-hausdorff_distance|true_points shape:(261988, 2)
-hausdorff_distance|pred_points shape:(262144, 2)
 Dice Coefficient: 0.0116
 IoU Score: 0.0059
 Pixel Accuracy: 0.0319
@@ -232,5 +98,3 @@ Inference Time (ms): 71.5613
 Boundary IoU: 0.0000
 Hausdorff Distance: 3.6056
 ==================================================================================================
-
-Process finished with exit code 0
