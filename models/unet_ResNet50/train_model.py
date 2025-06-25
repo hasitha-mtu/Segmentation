@@ -78,7 +78,11 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
     return None
 
 def load_saved_model():
-    return keras.models.load_model(f"{CKPT_DIR}/unet_ResNet50_best_model.h5")
+    return keras.models.load_model(f"{CKPT_DIR}/unet_ResNet50_best_model.h5",
+                                    custom_objects={'recall_m': recall_m,
+                                                    'precision_m': precision_m,
+                                                    'f1_score': f1_score,
+                                                    'unet_resnet50_loss_function': unet_resnet50_loss_function})
 
 def make_or_restore_model(restore, num_channels, size):
     (width, height) = size
