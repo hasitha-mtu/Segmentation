@@ -4,6 +4,7 @@ import time
 import cv2
 from scipy.spatial.distance import directed_hausdorff
 from keras.utils import load_img, img_to_array
+import os
 
 from unet_wsl.train_model import load_saved_model as load_saved_unet_model
 from unet_ffc.train_model import load_saved_model as load_saved_unet_ffc_model
@@ -15,6 +16,11 @@ from segnet.train_model import load_saved_model as load_saved_segnet_model
 from segnet_VGG16.train_model import load_saved_model as load_saved_segnet_VGG16_model
 from res_unet_plus_plus.train_model import load_saved_model as load_saved_res_unet_plus_plus_model
 from deeplabv3_plus.train_model import load_saved_model as load_saved_deeplabv3_plus_model
+
+from models.common_utils.images import save_image
+from models.common_utils.data import load_dataset
+
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output"
 
 # Dice Coefficient
 def dice_coefficient(y_true, y_pred, smooth=1e-6):
@@ -120,6 +126,8 @@ def evaluate_segmentation(y_true, y_pred, model=None, sample=None):
     for key, value in metrics.items():
         print(f"{key}: {value:.4f}")
 
+    return metrics
+
 
 def get_boundary(mask, dilation_ratio=0.02):
     """
@@ -219,55 +227,76 @@ def hausdorff_distance(y_true, y_pred):
 # from res_unet_plus_plus.train_model import load_saved_model as load_saved_res_unet_plus_plus_model
 # from deeplabv3_plus.train_model import load_saved_model as load_saved_deeplabv3_plus_model
 
-def make_prediction(image, mask):
+def make_prediction(image, mask, index=0):
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    output_path = f'{OUTPUT_DIR}/{index}'
+    os.makedirs(output_path, exist_ok=True)
+    save_image(output_path, image, f'image_{index}')
+    save_image(output_path, mask.squeeze(), f'actual_mask_{index}')
+    result_metrics = {}
     unet = load_saved_unet_model()
     print('UNET')
-    evaluate_model(unet, image, mask)
+    result_metrics['UNET'] = evaluate_model('UNET', unet, image, mask, index, output_path)
     print('==================================================================================================')
     unet_fcc = load_saved_unet_ffc_model()
     print('UNET-FFC')
-    evaluate_model(unet_fcc, image, mask)
+    result_metrics['UNET-FFC'] = evaluate_model('UNET-FFC', unet_fcc, image, mask, index, output_path)
     print('==================================================================================================')
     unet_vgg16 = load_saved_unet_VGG16_model()
     print('UNET-VGG16')
-    evaluate_model(unet_vgg16, image, mask)
+    result_metrics['UNET-VGG16'] = evaluate_model('UNET-VGG16', unet_vgg16, image, mask, index, output_path)
     print('==================================================================================================')
     unet_resnet50 = load_saved_unet_ResNet50_model()
     print('UNET-ResNet50')
-    evaluate_model(unet_resnet50, image, mask)
+    result_metrics['UNET-ResNet50'] = evaluate_model('UNET-ResNet50', unet_resnet50, image, mask, index, output_path)
     print('==================================================================================================')
     unet_mobilenetv2 = load_saved_unet_MobileNetV2_model()
     print('UNET-MobileNetV2')
-    evaluate_model(unet_mobilenetv2, image, mask)
+    result_metrics['UNET-MobileNetV2'] = evaluate_model('UNET-MobileNetV2', unet_mobilenetv2, image, mask, index, output_path)
     print('==================================================================================================')
     unet_plus_plus = load_saved_unet_plus_plus_model()
     print('UNET++')
-    evaluate_model(unet_plus_plus, image, mask)
+    result_metrics['UNET++'] = evaluate_model('UNET++', unet_plus_plus, image, mask, index, output_path)
     print('==================================================================================================')
     segnet = load_saved_segnet_model()
     print('SegNet')
-    evaluate_model(segnet, image, mask)
+    result_metrics['SegNet'] = evaluate_model('SegNet', segnet, image, mask, index, output_path)
     print('==================================================================================================')
     segnet_vgg16 = load_saved_segnet_VGG16_model()
     print('SegNet-Vgg16')
-    evaluate_model(segnet_vgg16, image, mask)
+    result_metrics['SegNet-Vgg16'] = evaluate_model('SegNet-Vgg16', segnet_vgg16, image, mask, index, output_path)
     print('==================================================================================================')
     res_unet_plus_plus = load_saved_res_unet_plus_plus_model()
     print('ResUNET++')
-    evaluate_model(res_unet_plus_plus, image, mask)
+    result_metrics['ResUNET++'] = evaluate_model('ResUNET++', res_unet_plus_plus, image, mask, index, output_path)
     print('==================================================================================================')
     deeplabv3_plus = load_saved_deeplabv3_plus_model()
     print('DeepLabV3+')
-    evaluate_model(deeplabv3_plus, image, mask)
-    print('==================================================================================================')
+    result_metrics['DeepLabV3+'] = evaluate_model('DeepLabV3+', deeplabv3_plus, image, mask, index, output_path)
 
-def evaluate_model(model, image, mask):
+    result_file = f'{output_path}/result_metrics_{index}.csv'
+    with open(result_file, 'w') as file:
+        file.write('Model Name,Dice Coefficient,IoU Score,Pixel Accuracy,Precision,Recall,Boundary IoU,'
+                   'Hausdorff Distance,Inference Time (ms)\n')
+        for model_name, metrics in result_metrics.items():
+            file.write(f'{model_name},'
+                       f'{metrics["Dice Coefficient"]},'
+                       f'{metrics["IoU Score"]},'
+                       f'{metrics["Pixel Accuracy"]},'
+                       f'{metrics["Precision"]},'
+                       f'{metrics["Recall"]},'
+                       f'{metrics["Boundary IoU"]},'
+                       f'{metrics["Hausdorff Distance"]},'
+                       f'{metrics["Inference Time (ms)"]}\n')
+    return result_metrics
+
+def evaluate_model(model_name, model, image, mask, index, output_path):
     image = np.expand_dims(image, 0)
-    y_true = mask.numpy()
+    y_true = mask
     y_pred = model.predict(image)
-    print(f'evaluate_model|y_true shape:{y_true.shape}')
-    print(f'evaluate_model|y_pred shape:{y_pred.shape}')
-    evaluate_segmentation(y_true, y_pred, model=model, sample=image)
+    save_image(output_path, y_pred.squeeze(), f'{model_name}_{index}')
+
+    return evaluate_segmentation(y_true, y_pred, model=model, sample=image)
 
 # Both require binary masks (0 or 1) as NumPy arrays.
 # Typically, you'd threshold your model output predictions (e.g., pred_mask = (pred_prob > 0.5)).
@@ -281,15 +310,33 @@ def load_image(path: str, size=(512, 512),  color_mode = "rgb"):
     formatted_img = tf.image.resize(normalized_img_array, size, method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
     return formatted_img
 
-if __name__=="__main__":
-    image_path = "../input/samples/segnet_512/images/DJI_20250324092908_0001_V.jpg"
-    mask_path = "../input/samples/segnet_512/annotations/DJI_20250324092908_0001_V.jpg"
-    image = load_image(image_path)
-    mask = load_image(image_path, color_mode="grayscale")
-    print(f'image shape:{image.shape}')
-    print(f'mask shape:{mask.shape}')
+# if __name__=="__main__":
+#     image_path = "../input/samples/segnet_512/images/DJI_20250324092908_0001_V.jpg"
+#     mask_path = "../input/samples/segnet_512/annotations/DJI_20250324092908_0001_V.jpg"
+#     image = load_image(image_path)
+#     mask = load_image(image_path, color_mode="grayscale")
+#     print(f'image shape:{image.shape}')
+#     print(f'mask shape:{mask.shape}')
+#
+#     make_prediction(image, mask)
 
-    make_prediction(image, mask)
+if __name__=="__main__":
+    path = "../input/samples/segnet_512/images"
+    image_count = 10
+    (images, masks) = load_dataset(path,
+                                   size=(512, 512),
+                                   file_extension="jpg",
+                                   channels=['RED', 'GREEN', 'BLUE'],
+                                   image_count=image_count)
+    print(f'images shape:{images.shape}')
+    print(f'masks shape:{masks.shape}')
+    for i in range(image_count):
+        make_prediction(images[i], masks[i], i)
+
+    # for image in images:
+    #     print(f'image shape:{image.shape}')
+    #     print(f'mask shape:{mask.shape}')
+    #     make_prediction(image, mask)
 
 # if __name__=="__main__":
 #     image_path = "../input/samples/segnet_512/images/DJI_20250324092908_0001_V.jpg"
