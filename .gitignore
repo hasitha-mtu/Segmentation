@@ -54,3 +54,6 @@ models/unet_VGG16/output/
 models/res_unet_plus_plus/ckpt/
 models/res_unet_plus_plus/logs/
 models/res_unet_plus_plus/output/
+
+output/
+
