@@ -7,6 +7,11 @@ from skimage.feature import local_binary_pattern
 from keras.utils import img_to_array
 import tensorflow as tf
 
+def save_image(dir_path, image, filename):
+    file_name = f"{dir_path}/{filename}.png"
+    os.makedirs(dir_path, exist_ok=True)
+    plt.imsave(file_name, image)
+
 def show_image(dir_path, image, index, title=None, save=False):
     if save:
         if title:
