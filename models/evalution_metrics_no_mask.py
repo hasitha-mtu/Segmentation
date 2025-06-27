@@ -20,17 +20,11 @@ from deeplabv3_plus.train_model import load_saved_model as load_saved_deeplabv3_
 from models.common_utils.images import save_image
 from models.common_utils.data import load_dataset
 
-OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output"
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output_no_mask"
 # OUTPUT_DIR = "G:\Other computers\My Mac\GoogleDrive\ModelResults"
 
 # Dice Coefficient
 def dice_coefficient(y_true, y_pred, smooth=1e-6):
-    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
-    print(f'dice_coefficient|y_true shape:{y_true.shape}')
-    print(f'dice_coefficient|y_pred shape:{y_pred.shape}')
-    print(f'dice_coefficient|mask shape:{mask.shape}')
-    y_true = y_true * mask
-    y_pred = y_pred * mask
     # Ensure rank-4 tensors
     y_true = tf.expand_dims(y_true, axis=0) if len(tf.shape(y_true)) == 3 else y_true
     y_true = tf.cast(y_true, tf.float32)
@@ -51,12 +45,6 @@ def dice_coefficient(y_true, y_pred, smooth=1e-6):
 
 # IoU Score
 def iou_score(y_true, y_pred, smooth=1e-6):
-    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
-    print(f'iou_score|y_true shape:{y_true.shape}')
-    print(f'iou_score|y_pred shape:{y_pred.shape}')
-    print(f'iou_score|mask shape:{mask.shape}')
-    y_true = y_true * mask
-    y_pred = y_pred * mask
     # Ensure rank-4 tensors
     y_true = tf.expand_dims(y_true, axis=0) if len(tf.shape(y_true)) == 3 else y_true
     y_true = tf.cast(y_true, tf.float32)
@@ -76,12 +64,6 @@ def iou_score(y_true, y_pred, smooth=1e-6):
 
 # Pixel Accuracy
 def pixel_accuracy(y_true, y_pred):
-    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
-    print(f'pixel_accuracy|y_true shape:{y_true.shape}')
-    print(f'pixel_accuracy|y_pred shape:{y_pred.shape}')
-    print(f'pixel_accuracy|mask shape:{mask.shape}')
-    y_true = y_true * mask
-    y_pred = y_pred * mask
     y_true = tf.cast(y_true, tf.bool)
     y_pred = tf.cast(tf.math.greater_equal(y_pred, 0.5), tf.bool)
     correct = tf.reduce_sum(tf.cast(tf.equal(y_true, y_pred), tf.float32))
@@ -91,12 +73,6 @@ def pixel_accuracy(y_true, y_pred):
 
 # Precision and Recall
 def precision_recall(y_true, y_pred, smooth=1e-6):
-    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
-    print(f'precision_recall|y_true shape:{y_true.shape}')
-    print(f'precision_recall|y_pred shape:{y_pred.shape}')
-    print(f'precision_recall|mask shape:{mask.shape}')
-    y_true = y_true * mask
-    y_pred = y_pred * mask
     # Ensure rank-4 tensors
     y_true = tf.expand_dims(y_true, axis=0) if len(tf.shape(y_true)) == 3 else y_true
     y_true = tf.cast(y_true, tf.float32)
@@ -173,19 +149,12 @@ def get_boundary(mask, dilation_ratio=0.02):
 
 
 def boundary_iou(y_true, y_pred, dilation_ratio=0.02):
-    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
-    print(f'boundary_iou|y_true shape:{y_true.shape}')
-    print(f'boundary_iou|y_pred shape:{y_pred.shape}')
-    print(f'boundary_iou|mask shape:{mask.shape}')
-
     """
     Calculate Boundary IoU score for binary masks.
     """
     y_true = y_true.astype(np.bool_)
     y_pred = y_pred.astype(np.bool_)
 
-    y_true = y_true * mask
-    y_pred = y_pred * mask
 
     # Ensure rank-4 tensors
     y_true = tf.expand_dims(y_true, axis=0) if len(tf.shape(y_true)) == 3 else y_true
@@ -210,10 +179,6 @@ def boundary_iou(y_true, y_pred, dilation_ratio=0.02):
 
 
 def hausdorff_distance(y_true, y_pred):
-    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
-    y_true = y_true * mask
-    y_pred = y_pred * mask
-
     """
     Compute the Hausdorff Distance between two binary masks.
     Returns the symmetric Hausdorff distance.
