@@ -20,11 +20,17 @@ from deeplabv3_plus.train_model import load_saved_model as load_saved_deeplabv3_
 from models.common_utils.images import save_image
 from models.common_utils.data import load_dataset
 
-# OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output"
-OUTPUT_DIR = "G:\Other computers\My Mac\GoogleDrive\ModelResults"
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output"
+# OUTPUT_DIR = "G:\Other computers\My Mac\GoogleDrive\ModelResults"
 
 # Dice Coefficient
 def dice_coefficient(y_true, y_pred, smooth=1e-6):
+    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
+    print(f'dice_coefficient|y_true shape:{y_true.shape}')
+    print(f'dice_coefficient|y_pred shape:{y_pred.shape}')
+    print(f'dice_coefficient|mask shape:{mask.shape}')
+    y_true = y_true * mask
+    y_pred = y_pred * mask
     # Ensure rank-4 tensors
     y_true = tf.expand_dims(y_true, axis=0) if len(tf.shape(y_true)) == 3 else y_true
     y_true = tf.cast(y_true, tf.float32)
@@ -45,6 +51,12 @@ def dice_coefficient(y_true, y_pred, smooth=1e-6):
 
 # IoU Score
 def iou_score(y_true, y_pred, smooth=1e-6):
+    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
+    print(f'iou_score|y_true shape:{y_true.shape}')
+    print(f'iou_score|y_pred shape:{y_pred.shape}')
+    print(f'iou_score|mask shape:{mask.shape}')
+    y_true = y_true * mask
+    y_pred = y_pred * mask
     # Ensure rank-4 tensors
     y_true = tf.expand_dims(y_true, axis=0) if len(tf.shape(y_true)) == 3 else y_true
     y_true = tf.cast(y_true, tf.float32)
@@ -64,6 +76,12 @@ def iou_score(y_true, y_pred, smooth=1e-6):
 
 # Pixel Accuracy
 def pixel_accuracy(y_true, y_pred):
+    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
+    print(f'pixel_accuracy|y_true shape:{y_true.shape}')
+    print(f'pixel_accuracy|y_pred shape:{y_pred.shape}')
+    print(f'pixel_accuracy|mask shape:{mask.shape}')
+    y_true = y_true * mask
+    y_pred = y_pred * mask
     y_true = tf.cast(y_true, tf.bool)
     y_pred = tf.cast(tf.math.greater_equal(y_pred, 0.5), tf.bool)
     correct = tf.reduce_sum(tf.cast(tf.equal(y_true, y_pred), tf.float32))
@@ -73,6 +91,12 @@ def pixel_accuracy(y_true, y_pred):
 
 # Precision and Recall
 def precision_recall(y_true, y_pred, smooth=1e-6):
+    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
+    print(f'precision_recall|y_true shape:{y_true.shape}')
+    print(f'precision_recall|y_pred shape:{y_pred.shape}')
+    print(f'precision_recall|mask shape:{mask.shape}')
+    y_true = y_true * mask
+    y_pred = y_pred * mask
     # Ensure rank-4 tensors
     y_true = tf.expand_dims(y_true, axis=0) if len(tf.shape(y_true)) == 3 else y_true
     y_true = tf.cast(y_true, tf.float32)
@@ -149,11 +173,19 @@ def get_boundary(mask, dilation_ratio=0.02):
 
 
 def boundary_iou(y_true, y_pred, dilation_ratio=0.02):
+    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
+    print(f'boundary_iou|y_true shape:{y_true.shape}')
+    print(f'boundary_iou|y_pred shape:{y_pred.shape}')
+    print(f'boundary_iou|mask shape:{mask.shape}')
+
     """
     Calculate Boundary IoU score for binary masks.
     """
     y_true = y_true.astype(np.bool_)
     y_pred = y_pred.astype(np.bool_)
+
+    y_true = y_true * mask
+    y_pred = y_pred * mask
 
     # Ensure rank-4 tensors
     y_true = tf.expand_dims(y_true, axis=0) if len(tf.shape(y_true)) == 3 else y_true
@@ -178,6 +210,10 @@ def boundary_iou(y_true, y_pred, dilation_ratio=0.02):
 
 
 def hausdorff_distance(y_true, y_pred):
+    mask = tf.cast(tf.not_equal(y_true, 0.0), tf.float32)
+    y_true = y_true * mask
+    y_pred = y_pred * mask
+
     """
     Compute the Hausdorff Distance between two binary masks.
     Returns the symmetric Hausdorff distance.
@@ -192,14 +228,8 @@ def hausdorff_distance(y_true, y_pred):
     if tf.shape(y_pred)[-1] == 3:
         y_pred = tf.reduce_mean(y_pred, axis=-1, keepdims=True)
 
-    print(f'hausdorff_distance|y_true shape:{y_true.shape}')
-    print(f'hausdorff_distance|y_pred shape:{y_pred.shape}')
-
     y_pred = np.squeeze(y_pred)
     y_true = np.squeeze(y_true)
-
-    print(f'hausdorff_distance1|y_true shape:{y_true.shape}')
-    print(f'hausdorff_distance1|y_pred shape:{y_pred.shape}')
 
     y_true = y_true.astype(np.bool_)
     y_pred = y_pred.astype(np.bool_)
@@ -209,24 +239,11 @@ def hausdorff_distance(y_true, y_pred):
 
     if len(true_points) == 0 or len(pred_points) == 0:
         return np.nan  # undefined if no points
-
-    print(f'hausdorff_distance|true_points shape:{true_points.shape}')
-    print(f'hausdorff_distance|pred_points shape:{pred_points.shape}')
     forward_hd = directed_hausdorff(true_points, pred_points)[0]
     backward_hd = directed_hausdorff(pred_points, true_points)[0]
 
     return max(forward_hd, backward_hd)
 
-# from unet_wsl.train_model import load_saved_model as load_saved_unet_model
-# from unet_ffc.train_model import load_saved_model as load_saved_unet_ffc_model
-# from unet_VGG16.train_model import load_saved_model as load_saved_unet_VGG16_model
-# from unet_ResNet50.train_model import load_saved_model as load_saved_unet_ResNet50_model
-# from unet_MobileNetV2.train_model import load_saved_model as load_saved_unet_MobileNetV2_model
-# from unet_plus_plus.train_model import load_saved_model as load_saved_unet_plus_plus_model
-# from segnet.train_model import load_saved_model as load_saved_segnet_model
-# from segnet_VGG16.train_model import load_saved_model as load_saved_segnet_VGG16_model
-# from res_unet_plus_plus.train_model import load_saved_model as load_saved_res_unet_plus_plus_model
-# from deeplabv3_plus.train_model import load_saved_model as load_saved_deeplabv3_plus_model
 
 def make_prediction(image, mask, index=0):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -297,7 +314,7 @@ def evaluate_model(model_name, model, image, mask, index, output_path):
     y_pred = model.predict(image)
     save_image(output_path, y_pred.squeeze(), f'{model_name}_{index}')
 
-    return evaluate_segmentation(y_true, y_pred, model=model, sample=image)
+    return evaluate_segmentation(y_true, y_pred[0], model=model, sample=image)
 
 # Both require binary masks (0 or 1) as NumPy arrays.
 # Typically, you'd threshold your model output predictions (e.g., pred_mask = (pred_prob > 0.5)).
