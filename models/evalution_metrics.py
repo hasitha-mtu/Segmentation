@@ -20,8 +20,8 @@ from deeplabv3_plus.train_model import load_saved_model as load_saved_deeplabv3_
 from models.common_utils.images import save_image
 from models.common_utils.data import load_dataset
 
-OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output"
-# OUTPUT_DIR = "G:\Other computers\My Mac\GoogleDrive\ModelResults"
+# OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output"
+OUTPUT_DIR = "G:\My Drive\Model Results\output"
 
 # Dice Coefficient
 def dice_coefficient(y_true, y_pred, smooth=1e-6):
@@ -340,7 +340,7 @@ def load_image(path: str, size=(512, 512),  color_mode = "rgb"):
 
 if __name__=="__main__":
     path = "../input/samples/segnet_512/images"
-    image_count = 10
+    image_count = 50
     (images, masks) = load_dataset(path,
                                    size=(512, 512),
                                    file_extension="jpg",
