@@ -58,3 +58,5 @@ models/res_unet_plus_plus/output/
 output/
 output_no_mask/
 
+models/.ipynb_checkpoints/
+
