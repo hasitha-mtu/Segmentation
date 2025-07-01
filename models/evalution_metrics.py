@@ -23,7 +23,7 @@ from models.common_utils.data import load_dataset
 from gradcam_keras import gradcam,gradcam_plus_plus
 
 # OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output"
-OUTPUT_DIR = "G:\My Drive\Model Results\output"
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\OneDrive - Munster Technological University\ModelResults\Segmentation\output"
 
 # Dice Coefficient
 def dice_coefficient(y_true, y_pred, smooth=1e-6):
