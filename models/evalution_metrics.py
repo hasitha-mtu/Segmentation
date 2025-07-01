@@ -20,6 +20,8 @@ from deeplabv3_plus.train_model import load_saved_model as load_saved_deeplabv3_
 from models.common_utils.images import save_image
 from models.common_utils.data import load_dataset
 
+from gradcam_keras import gradcam,gradcam_plus_plus
+
 # OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output"
 OUTPUT_DIR = "G:\My Drive\Model Results\output"
 
@@ -255,42 +257,91 @@ def make_prediction(image, mask, index=0):
     unet = load_saved_unet_model()
     print('UNET')
     result_metrics['UNET'] = evaluate_model('UNET', unet, image, mask, index, output_path)
+    unet_gradcam = gradcam(image, unet, 'conv2d_23')
+    save_image(output_path, unet_gradcam, f'UNET_gradcam_{index}')
+    unet_gradcam_plus_plus = gradcam_plus_plus(image, unet, 'conv2d_23')
+    save_image(output_path, unet_gradcam_plus_plus, f'UNET_gradcam_plus_plus_{index}')
+
     print('==================================================================================================')
     unet_fcc = load_saved_unet_ffc_model()
     print('UNET-FFC')
     result_metrics['UNET-FFC'] = evaluate_model('UNET-FFC', unet_fcc, image, mask, index, output_path)
+    unet_fcc_gradcam = gradcam(image, unet_fcc, 'conv2d_15')
+    save_image(output_path, unet_fcc_gradcam, f'UNET-FFC_gradcam_{index}')
+    unet_fcc_gradcam_plus_plus = gradcam_plus_plus(image, unet_fcc, 'conv2d_15')
+    save_image(output_path, unet_fcc_gradcam_plus_plus, f'UNET-FFC_gradcam_plus_plus_{index}')
+
     print('==================================================================================================')
     unet_vgg16 = load_saved_unet_VGG16_model()
     print('UNET-VGG16')
     result_metrics['UNET-VGG16'] = evaluate_model('UNET-VGG16', unet_vgg16, image, mask, index, output_path)
+    unet_vgg16_gradcam = gradcam(image, unet_vgg16, 'conv2d_7')
+    save_image(output_path, unet_vgg16_gradcam, f'UNET-VGG16_gradcam_{index}')
+    unet_vgg16_gradcam_plus_plus = gradcam_plus_plus(image, unet_vgg16, 'conv2d_7')
+    save_image(output_path, unet_vgg16_gradcam_plus_plus, f'UNET-VGG16_gradcam_plus_plus_{index}')
+
     print('==================================================================================================')
     unet_resnet50 = load_saved_unet_ResNet50_model()
     print('UNET-ResNet50')
     result_metrics['UNET-ResNet50'] = evaluate_model('UNET-ResNet50', unet_resnet50, image, mask, index, output_path)
+    unet_resnet50_gradcam = gradcam(image, unet_resnet50, 'conv2d_8')
+    save_image(output_path, unet_resnet50_gradcam, f'UNET-ResNet50_gradcam_{index}')
+    unet_resnet50_gradcam_plus_plus = gradcam_plus_plus(image, unet_resnet50, 'conv2d_8')
+    save_image(output_path, unet_resnet50_gradcam_plus_plus, f'UNET-ResNet50_gradcam_plus_plus_{index}')
+
     print('==================================================================================================')
     unet_mobilenetv2 = load_saved_unet_MobileNetV2_model()
     print('UNET-MobileNetV2')
     result_metrics['UNET-MobileNetV2'] = evaluate_model('UNET-MobileNetV2', unet_mobilenetv2, image, mask, index, output_path)
+    unet_mobilenetv2_gradcam = gradcam(image, unet_mobilenetv2, 'conv2d_10')
+    save_image(output_path, unet_mobilenetv2_gradcam, f'UNET-MobileNetV2_gradcam_{index}')
+    unet_mobilenetv2_gradcam_plus_plus = gradcam_plus_plus(image, unet_mobilenetv2, 'conv2d_10')
+    save_image(output_path, unet_mobilenetv2_gradcam_plus_plus, f'UNET-MobileNetV2_gradcam_plus_plus_{index}')
+
     print('==================================================================================================')
     unet_plus_plus = load_saved_unet_plus_plus_model()
     print('UNET++')
     result_metrics['UNET++'] = evaluate_model('UNET++', unet_plus_plus, image, mask, index, output_path)
+    unet_plus_plus_gradcam = gradcam(image, unet_plus_plus, 'conv2d_28')
+    save_image(output_path, unet_plus_plus_gradcam, f'UNET++_gradcam_{index}')
+    unet_plus_plus_gradcam_plus_plus = gradcam_plus_plus(image, unet_plus_plus, 'conv2d_28')
+    save_image(output_path, unet_plus_plus_gradcam_plus_plus, f'UNET++_gradcam_plus_plus_{index}')
+
     print('==================================================================================================')
     segnet = load_saved_segnet_model()
     print('SegNet')
     result_metrics['SegNet'] = evaluate_model('SegNet', segnet, image, mask, index, output_path)
+    segnet_gradcam = gradcam(image, segnet, 'conv2d_14')
+    save_image(output_path, segnet_gradcam, f'SegNet_gradcam_{index}')
+    segnet_gradcam_plus_plus = gradcam_plus_plus(image, segnet, 'conv2d_14')
+    save_image(output_path, segnet_gradcam_plus_plus, f'SegNet_gradcam_plus_plus_{index}')
+
     print('==================================================================================================')
     segnet_vgg16 = load_saved_segnet_VGG16_model()
     print('SegNet-Vgg16')
     result_metrics['SegNet-Vgg16'] = evaluate_model('SegNet-Vgg16', segnet_vgg16, image, mask, index, output_path)
+    segnet_vgg16_gradcam = gradcam(image, segnet_vgg16, 'conv2d_8')
+    save_image(output_path, segnet_vgg16_gradcam, f'SegNet-Vgg16_gradcam_{index}')
+    segnet_vgg16_gradcam_plus_plus = gradcam_plus_plus(image, segnet_vgg16, 'conv2d_8')
+    save_image(output_path, segnet_vgg16_gradcam_plus_plus, f'SegNet-Vgg16_gradcam_plus_plus_{index}')
+
     print('==================================================================================================')
     res_unet_plus_plus = load_saved_res_unet_plus_plus_model()
     print('ResUNET++')
     result_metrics['ResUNET++'] = evaluate_model('ResUNET++', res_unet_plus_plus, image, mask, index, output_path)
+    res_unet_plus_plus_gradcam = gradcam(image, res_unet_plus_plus, 'conv2d_38')
+    save_image(output_path,res_unet_plus_plus_gradcam, f'ResUNET++_gradcam_{index}')
+    res_unet_plus_plus_gradcam_plus_plus = gradcam_plus_plus(image, res_unet_plus_plus, 'conv2d_38')
+    save_image(output_path, res_unet_plus_plus_gradcam_plus_plus, f'ResUNET++_gradcam_plus_plus_{index}')
+
     print('==================================================================================================')
     deeplabv3_plus = load_saved_deeplabv3_plus_model()
     print('DeepLabV3+')
     result_metrics['DeepLabV3+'] = evaluate_model('DeepLabV3+', deeplabv3_plus, image, mask, index, output_path)
+    deeplabv3_plus_gradcam = gradcam(image, deeplabv3_plus, 'conv2d_8')
+    save_image(output_path, deeplabv3_plus_gradcam, f'DeepLabV3+_gradcam_{index}')
+    deeplabv3_plus_gradcam_plus_plus = gradcam_plus_plus(image, deeplabv3_plus, 'conv2d_8')
+    save_image(output_path, deeplabv3_plus_gradcam_plus_plus, f'DeepLabV3+_gradcam_plus_plus_{index}')
 
     result_file = f'{output_path}/result_metrics_{index}.csv'
     with open(result_file, 'w') as file:
@@ -340,7 +391,7 @@ def load_image(path: str, size=(512, 512),  color_mode = "rgb"):
 
 if __name__=="__main__":
     path = "../input/samples/segnet_512/images"
-    image_count = 50
+    image_count = 1
     (images, masks) = load_dataset(path,
                                    size=(512, 512),
                                    file_extension="jpg",
