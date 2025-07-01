@@ -101,6 +101,10 @@ def DeepLabV3Plus(shape):
 
     keras.utils.plot_model(model, "DeepLabV3Plus_model.png", show_shapes=True)
 
+
+    print(f'Model type: {type(model)}')
+    print(f'Model output shape: {model.output.shape}')
+
     return model
 
 def deeplab_v3_plus(width, height, input_channels):
