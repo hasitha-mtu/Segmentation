@@ -9,7 +9,7 @@ from models.deeplabv3_plus.train_model import load_saved_model
 from common_utils.images import load_image
 
 def score(output):
-    return tf.reduce_mean(output[..., 0])  # ✅ target water class
+    return tf.reduce_mean(output[..., 0])  # as we have one target water class
 
 def execute_gradcam(image_path, model):
     image_tensor = load_image(image_path)
@@ -27,6 +27,9 @@ def execute_gradcam(image_path, model):
 
     # Post-process CAM
     heatmap = cam[0]  # Shape: (H, W)
+    visualize(heatmap, image_tensor)
+
+def visualize(heatmap, image_tensor):
     image_tensor = image_tensor.numpy().squeeze()
 
     # Resize CAM to image size
