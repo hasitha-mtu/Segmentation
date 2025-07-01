@@ -11,20 +11,15 @@ from common_utils.images import load_image
 def score(output):
     return tf.reduce_mean(output[..., 0])  # ✅ target water class
 
-if __name__=="__main__":
-    model = load_saved_model()
-    print(f"model summary : {model.summary()}")
-    target_layer_name = 'conv2d_4' # (None, 32, 32, 256)
-
-    image_path = '../input/samples/segnet_512/images/DJI_20250324092953_0009_V.jpg'
-    image_tensor =  load_image(image_path)
-    image_tensor =  tf.expand_dims(image_tensor, axis=0)
+def execute_gradcam(image_path, model):
+    image_tensor = load_image(image_path)
+    image_tensor = tf.expand_dims(image_tensor, axis=0)
 
     # Create GradCAM object
     gradcam = Gradcam(model,
                       model_modifier=ReplaceToLinear(),
                       clone=True)
-
+    target_layer_name = 'conv2d_4'  # (None, 32, 32, 256)
     # Generate CAM
     cam = gradcam(score,
                   seed_input=image_tensor,
@@ -55,3 +50,10 @@ if __name__=="__main__":
     plt.imshow(np.uint8(overlay))
     plt.axis('off')
     plt.show()
+
+if __name__=="__main__":
+    model = load_saved_model()
+    print(f"model summary : {model.summary()}")
+
+    image_path = '../input/samples/segnet_512/images/DJI_20250324092953_0009_V.jpg'
+    execute_gradcam(image_path, model)
