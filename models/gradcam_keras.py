@@ -1,6 +1,7 @@
 import numpy as np
 import tensorflow as tf
 from tf_keras_vis.gradcam import Gradcam
+from tf_keras_vis.gradcam_plus_plus import GradcamPlusPlus
 from tf_keras_vis.utils.model_modifiers import ReplaceToLinear
 import matplotlib.pyplot as plt
 import cv2
@@ -22,6 +23,25 @@ def execute_gradcam(image_path, model):
     target_layer_name = 'conv2d_4'  # (None, 32, 32, 256)
     # Generate CAM
     cam = gradcam(score,
+                  seed_input=image_tensor,
+                  penultimate_layer=target_layer_name)
+
+    # Post-process CAM
+    heatmap = cam[0]  # Shape: (H, W)
+    visualize(heatmap, image_tensor)
+
+def execute_gradcam_plus_plus(image_path, model):
+    image_tensor = load_image(image_path)
+    image_tensor = tf.expand_dims(image_tensor, axis=0)
+
+    # Create GradCAM++ object
+    gradcam_pp = GradcamPlusPlus(model,
+                                 model_modifier=ReplaceToLinear(),
+                                 clone=True)
+
+    target_layer_name = 'conv2d_4'  # (None, 32, 32, 256)
+    # Generate CAM
+    cam = gradcam_pp(score,
                   seed_input=image_tensor,
                   penultimate_layer=target_layer_name)
 
@@ -60,3 +80,4 @@ if __name__=="__main__":
 
     image_path = '../input/samples/segnet_512/images/DJI_20250324092953_0009_V.jpg'
     execute_gradcam(image_path, model)
+    execute_gradcam_plus_plus(image_path, model)
