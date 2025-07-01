@@ -4,8 +4,15 @@ import cv2
 import numpy as np
 import os
 from skimage.feature import local_binary_pattern
-from keras.utils import img_to_array
 import tensorflow as tf
+from keras.utils import load_img, img_to_array
+
+def load_image(path: str, size=(512,512), color_mode = "rgb"):
+    img = load_img(path, color_mode=color_mode)
+    img_array = img_to_array(img)
+    normalized_img_array = img_array/255.
+    resized_img = tf.image.resize(normalized_img_array, size, method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+    return resized_img
 
 def save_image(dir_path, image, filename):
     file_name = f"{dir_path}/{filename}.png"
