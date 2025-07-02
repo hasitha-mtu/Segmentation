@@ -23,7 +23,7 @@ from models.common_utils.data import load_dataset
 from gradcam_keras import gradcam,gradcam_plus_plus
 
 # OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output"
-OUTPUT_DIR = "C:\\Users\AdikariAdikari\OneDrive - Munster Technological University\ModelResults\Segmentation\output"
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\OneDrive - Munster Technological University\ModelResults\Segmentation\output2"
 
 # Dice Coefficient
 def dice_coefficient(y_true, y_pred, smooth=1e-6):
@@ -390,7 +390,7 @@ def load_image(path: str, size=(512, 512),  color_mode = "rgb"):
 #     make_prediction(image, mask)
 
 if __name__=="__main__":
-    path = "../input/samples/segnet_512/images"
+    path = "../input/samples/validation_512/images"
     image_count = 1
     (images, masks) = load_dataset(path,
                                    size=(512, 512),
