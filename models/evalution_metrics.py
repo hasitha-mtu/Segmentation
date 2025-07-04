@@ -390,8 +390,8 @@ def load_image(path: str, size=(512, 512),  color_mode = "rgb"):
 #     make_prediction(image, mask)
 
 if __name__=="__main__":
-    path = "../input/samples/validation_512/images"
-    image_count = 1
+    path = "../input/updated_samples/segnet_512/images"
+    image_count = 10
     (images, masks) = load_dataset(path,
                                    size=(512, 512),
                                    file_extension="jpg",
