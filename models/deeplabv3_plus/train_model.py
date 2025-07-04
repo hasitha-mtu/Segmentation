@@ -8,6 +8,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from keras.callbacks import (Callback,
                              CSVLogger)
 import random
+import time
 from models.deeplabv3_plus.model import deeplab_v3_plus
 from models.deeplabv3_plus.loss_function import combined_masked_dice_bce_loss
 from models.deeplabv3_plus.data import load_dataset
@@ -79,7 +80,9 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, width, 
     plt.plot(epochs, val_loss, "b", label="Validation loss")
     plt.title("Training and validation loss")
     plt.legend()
-    plt.show()
+    plt.show(block=False)
+    time.sleep(3)
+    plt.close()
     return None
 
 def load_saved_model():
@@ -119,7 +122,9 @@ def load_with_trained_model(X_val, y_val):
         show_image(OUTPUT_DIR, pred_mask.squeeze(), index=i, title="Predicted_Mask", save=True)
 
         plt.tight_layout()
-        plt.show()
+        plt.show(block=False)
+        time.sleep(3)
+        plt.close()
 
 if __name__ == "__main__":
     print(tf.config.list_physical_devices('GPU'))
@@ -137,7 +142,7 @@ if __name__ == "__main__":
     tf.config.experimental.enable_op_determinism()
 
     image_size = (512, 512) # actual size is (5280, 3956)
-    epochs = 50
+    epochs = 25
     batch_size = 4
     channels = ['RED', 'GREEN', 'BLUE']
     channel_count = len(channels)
