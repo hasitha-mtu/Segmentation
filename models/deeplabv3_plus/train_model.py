@@ -19,8 +19,8 @@ MODEL_FILE_NAME = 'deeplabv3_plus_model1.h5'
 DATASET_PATH = '../../input/updated_samples/segnet_512/images'
 
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\deeplabv3_plus\logs"
-CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ffc\ckpt"
-OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ffc\output"
+CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\deeplabv3_plus\ckpt"
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\deeplabv3_plus\output"
 
 def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, width, height,
                 input_channels, restore=True):
@@ -71,10 +71,15 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, width, 
     loss = history.history["loss"]
     val_loss = history.history["val_loss"]
     epochs = range(1, len(accuracy) + 1)
+    plt.figure()
     plt.plot(epochs, accuracy, "bo", label="Training accuracy")
     plt.plot(epochs, val_accuracy, "b", label="Validation accuracy")
     plt.title("Training and validation accuracy")
     plt.legend()
+    plt.show(block=False)
+    time.sleep(3)
+    plt.close()
+
     plt.figure()
     plt.plot(epochs, loss, "bo", label="Training loss")
     plt.plot(epochs, val_loss, "b", label="Validation loss")
@@ -83,6 +88,7 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, width, 
     plt.show(block=False)
     time.sleep(3)
     plt.close()
+
     return None
 
 def load_saved_model():
@@ -103,9 +109,11 @@ def make_or_restore_model(restore, width, height, input_channels):
         print("Creating fresh model")
         return deeplab_v3_plus(width, height, input_channels)
 
-def load_with_trained_model(X_val, y_val):
+def load_with_trained_model(X_val, y_val, count=None):
     loaded_model = load_saved_model()
-    for i in range(len(X_val)):
+    if count is None:
+        count = len(X_val)
+    for i in range(count):
         image_array = X_val[i]
         actual_mask = y_val[i]
 
@@ -123,7 +131,7 @@ def load_with_trained_model(X_val, y_val):
 
         plt.tight_layout()
         plt.show(block=False)
-        time.sleep(3)
+        time.sleep(5)
         plt.close()
 
 if __name__ == "__main__":
@@ -165,4 +173,4 @@ if __name__ == "__main__":
         train_model(epochs, batch_size, X_train, y_train, X_val, y_val,
                     512, 512, 3, restore=False)
 
-        load_with_trained_model(X_val, y_val)
+        load_with_trained_model(X_val, y_val, 10)
