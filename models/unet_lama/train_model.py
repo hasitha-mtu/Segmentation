@@ -14,6 +14,9 @@ from models.unet_lama.data import load_dataset
 from models.common_utils.images import show_image
 from PIL import Image
 
+MODEL_FILE_NAME = 'unet_lama_best_model1.h5'
+DATASET_PATH = '../../input/updated_samples/segnet_512/images'
+
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_lama\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_lama\ckpt"
 OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_lama\output"
@@ -44,7 +47,7 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, width, 
     # )
 
     model_checkpoint_callback = ModelCheckpoint(
-        f"{CKPT_DIR}/unet_lama_best_model.h5",  # or "best_model.keras"
+        f"{CKPT_DIR}/{MODEL_FILE_NAME}",  # or "best_model.keras"
         monitor='val_accuracy',
         save_best_only=True,
         save_weights_only=False,  # set to True if you want only weights
@@ -103,7 +106,7 @@ def load_saved_model():
         'psnr_metric': psnr_metric,
         'ssim_metric': ssim_metric
     }
-    saved_model_path = os.path.join(CKPT_DIR, "unet_lama_best_model")
+    saved_model_path = os.path.join(CKPT_DIR, MODEL_FILE_NAME)
     print(f"Restoring from {saved_model_path}")
     return keras.models.load_model(saved_model_path,
                                    custom_objects=custom_objects,
@@ -129,13 +132,7 @@ def load_with_trained_model(X_val, y_val):
     }
 
     try:
-        latest_checkpoint_path = f"{CKPT_DIR}/unet_lama_best_model.h5"
-        loaded_model = tf.keras.models.load_model(
-            latest_checkpoint_path,
-            custom_objects=custom_objects,
-            compile=True
-        )
-        print(f"Model loaded successfully from: {latest_checkpoint_path}")
+        loaded_model = load_saved_model()
         for i in range(len(X_val)):
             image_array = X_val[i]
             actual_mask = y_val[i]
@@ -225,7 +222,7 @@ if __name__ == "__main__":
     channels = ['RED', 'GREEN', 'BLUE']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset(DATASET_PATH,
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,

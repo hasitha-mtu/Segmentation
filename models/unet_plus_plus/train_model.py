@@ -14,6 +14,9 @@ from models.unet_plus_plus.loss_functions import BCEDiceLoss
 from models.common_utils.images import show_image
 from tensorflow.keras.callbacks import ModelCheckpoint
 
+MODEL_FILE_NAME = 'unet_plus_plus_best_model1.h5'
+DATASET_PATH = '../../input/updated_samples/segnet_512/images'
+
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_plus_plus\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_plus_plus\ckpt"
 OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_plus_plus\output"
@@ -33,7 +36,7 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
     os.makedirs(CKPT_DIR, exist_ok=True)
 
     checkpoint_cb = ModelCheckpoint(
-        f"{CKPT_DIR}/unet_plus_plus_best_model.h5",  # or "best_model.keras"
+        f"{CKPT_DIR}/{MODEL_FILE_NAME}",  # or "best_model.keras"
         monitor='val_accuracy',
         save_best_only=True,
         save_weights_only=False,  # set to True if you want only weights
@@ -104,14 +107,7 @@ def make_or_restore_model(restore, num_channels, size):
         return unet_plus_plus(width, height, num_channels)
 
 def load_with_trained_model(X_val, y_val):
-    saved_model_path = os.path.join(CKPT_DIR, "unet_plus_plus_best_model.h5")
-    print(f"Restoring from {saved_model_path}")
-    model = keras.models.load_model(saved_model_path,
-                                    custom_objects={'recall_m': recall_m,
-                                                    'precision_m': precision_m,
-                                                    'f1_score': f1_score,
-                                                    'BCEDiceLoss': BCEDiceLoss},
-                                    compile=True)
+    model = load_saved_model()
     for i in range(len(X_val)):
         image = X_val[i]
         actual_mask = y_val[i]
@@ -168,7 +164,7 @@ if __name__ == "__main__":
         print(f"GPU0 Current: {info0['current']} bytes, Peak: {info0['peak']} bytes")
         info1 = tf.config.experimental.get_memory_info('GPU:1')
         print(f"GPU1 Current: {info1['current']} bytes, Peak: {info1['peak']} bytes")
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset(DATASET_PATH,
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,

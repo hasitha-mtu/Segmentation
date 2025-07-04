@@ -14,6 +14,9 @@ from models.unet_VGG16.data import load_dataset
 from models.common_utils.images import show_image
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 
+MODEL_FILE_NAME = 'unet_vgg16_model1.h5'
+DATASET_PATH = '../../input/updated_samples/segnet_512/images'
+
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_VGG16\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_VGG16\ckpt"
 OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_VGG16\output"
@@ -32,7 +35,7 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, width, 
     os.makedirs(CKPT_DIR, exist_ok=True)
 
     model_checkpoint_callback = ModelCheckpoint(
-        f"{CKPT_DIR}/unet_vgg16_model.h5",  # or "best_model.keras"
+        f"{CKPT_DIR}/{MODEL_FILE_NAME}",  # or "best_model.keras"
         monitor='val_accuracy',
         save_best_only=True,
         save_weights_only=False,  # set to True if you want only weights
@@ -84,7 +87,7 @@ def load_saved_model():
                       'precision_m': precision_m,
                       'f1_score': f1_score,
                       'combined_masked_dice_bce_loss': combined_masked_dice_bce_loss}
-    saved_model_path = f"{CKPT_DIR}/unet_vgg16_model.h5"
+    saved_model_path = f"{CKPT_DIR}/{MODEL_FILE_NAME}"
     print(f"Restoring from {saved_model_path}")
     return keras.models.load_model(saved_model_path,
                                    custom_objects=custom_objects,
@@ -98,17 +101,7 @@ def make_or_restore_model(restore, width, height, input_channels):
         return unet_vgg16(width, height, input_channels)
 
 def load_with_trained_model(X_val, y_val):
-    saved_model_path = f"{CKPT_DIR}/unet_vgg16_model.h5"
-    custom_objects = {'recall_m': recall_m,
-                      'precision_m': precision_m,
-                      'f1_score': f1_score,
-                      'combined_masked_dice_bce_loss': combined_masked_dice_bce_loss}
-    loaded_model = tf.keras.models.load_model(
-        saved_model_path,
-        custom_objects=custom_objects,
-        compile=True
-    )
-    print(f"Model loaded successfully from: {saved_model_path}")
+    loaded_model = load_saved_model()
     for i in range(len(X_val)):
         image_array = X_val[i]
         actual_mask = y_val[i]
@@ -149,7 +142,7 @@ if __name__ == "__main__":
     channels = ['RED', 'GREEN', 'BLUE']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset(DATASET_PATH,
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,

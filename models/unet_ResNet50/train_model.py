@@ -13,6 +13,9 @@ from models.unet_ResNet50.model import unet_model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, unet_resnet50_loss_function
 from models.common_utils.images import show_image
 
+MODEL_FILE_NAME = 'unet_ResNet50_best_model1.h5'
+DATASET_PATH = '../../input/updated_samples/segnet_512/images'
+
 LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ResNet50\logs"
 CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ResNet50\ckpt"
 OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ResNet50\output"
@@ -30,7 +33,7 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
     os.makedirs(CKPT_DIR, exist_ok=True)
 
     checkpoint_cb = tf.keras.callbacks.ModelCheckpoint(
-        f"{CKPT_DIR}/unet_ResNet50_best_model.h5",  # or "best_model.keras"
+        f"{CKPT_DIR}/{MODEL_FILE_NAME}",  # or "best_model.keras"
         monitor='val_accuracy',
         save_best_only=True,
         save_weights_only=False,  # set to True if you want only weights
@@ -78,7 +81,7 @@ def train_model(epoch_count, batch_size, X_train, y_train, X_val, y_val, num_cha
     return None
 
 def load_saved_model():
-    return keras.models.load_model(f"{CKPT_DIR}/unet_ResNet50_best_model.h5",
+    return keras.models.load_model(f"{CKPT_DIR}/{MODEL_FILE_NAME}",
                                     custom_objects={'recall_m': recall_m,
                                                     'precision_m': precision_m,
                                                     'f1_score': f1_score,
@@ -93,12 +96,7 @@ def make_or_restore_model(restore, num_channels, size):
         return unet_model(width, height, num_channels)
 
 def load_with_trained_model(X_val, y_val):
-    print(f"Restoring from {CKPT_DIR}/unet_ResNet50_best_model.h5")
-    model = keras.models.load_model(f"{CKPT_DIR}/unet_ResNet50_best_model.h5",
-                                    custom_objects={'recall_m': recall_m,
-                                                    'precision_m': precision_m,
-                                                    'f1_score': f1_score,
-                                                    'unet_resnet50_loss_function': unet_resnet50_loss_function})
+    model = load_saved_model()
     for i in range(len(X_val)):
         image = X_val[i]
         actual_mask = y_val[i]
@@ -161,7 +159,7 @@ if __name__ == "__main__":
     channels = ['RED', 'GREEN', 'BLUE']
     channel_count = len(channels)
     if len(physical_devices) > 0:
-        (X_train, y_train), (X_val, y_val) = load_dataset("../../input/samples/segnet_512/images",
+        (X_train, y_train), (X_val, y_val) = load_dataset(DATASET_PATH,
                                                           size = image_size,
                                                           file_extension="jpg",
                                                           channels=channels,
