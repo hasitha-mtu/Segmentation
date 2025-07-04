@@ -432,8 +432,8 @@ def create_confidence_mask(annotation, threshold=0.0):
 #         cv2.imwrite(updated_mask_path, (mask * 255).astype(np.uint8))
 
 if __name__ == "__main__":
-    image_dir = "../../input/samples/crookstown2/images"
-    formatted_image_dir = "../../input/samples/validation_512/images"
+    image_dir = "../../input/updated_samples/samples/crookstown/images"
+    formatted_image_dir = "../../input/updated_samples/segnet_512/images"
 
     os.makedirs(formatted_image_dir, exist_ok=True)
 
@@ -448,8 +448,8 @@ if __name__ == "__main__":
         cv2.imwrite(updated_image_path, resized_image)
 
 if __name__ == "__main__":
-    annotation_dir = "../../input/samples/crookstown2/annotations"
-    formatted_annotation_dir = "../../input/samples/validation_512/annotations"
+    annotation_dir = "../../input/updated_samples/samples/crookstown/annotations"
+    formatted_annotation_dir = "../../input/updated_samples/segnet_512/annotations"
 
     os.makedirs(formatted_annotation_dir, exist_ok=True)
 
