@@ -111,14 +111,18 @@ def augment_data(image, mask):
 def create_tf_dataset(config, paired_paths, batch_size, buffer_size, augment=True, shuffle=True):
     # Create a dataset from slices of the paths
     path_ds = tf.data.Dataset.from_tensor_slices([path[1] for path in paired_paths])
+    print(f'create_tf_dataset|path_ds:{path_ds}')
     mask_path_ds = tf.data.Dataset.from_tensor_slices([path[2] for path in paired_paths])
+    print(f'create_tf_dataset|mask_path_ds:{mask_path_ds}')
 
     # Zip image and mask paths together
     dataset = tf.data.Dataset.zip((path_ds, mask_path_ds))
+    print(f'create_tf_dataset|dataset:{dataset}')
 
     # Load images and masks from paths
     # Use num_parallel_calls for faster loading
     dataset = dataset.map(load_image_mask, num_parallel_calls=tf.data.AUTOTUNE)
+    print(f'create_tf_dataset|dataset:{dataset}')
 
     # Apply augmentation conditionally
     if augment:
