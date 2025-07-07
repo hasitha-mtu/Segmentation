@@ -29,17 +29,23 @@ def set_seed(seed_value):
     tf.random.set_seed(seed_value)
     tf.config.experimental.enable_op_determinism()
 
-
+# formatted_annotation_dir = "../../input/updated_samples/segnet_512/masks"
 def get_image_mask_paths(config, image_dir, mask_dir):
-    image_paths = sorted(glob(os.path.join(image_dir, '*.jpg')))  # Assuming .jpg, adjust if .png etc.
+    print(f'get_image_mask_paths|image_dir:{image_dir}')
+    print(f'get_image_mask_paths|mask_dir:{mask_dir}')
+    image_paths = sorted(glob(os.path.join(image_dir, '*.jpg')))  # Assuming .jpg for images
     mask_paths = sorted(glob(os.path.join(mask_dir, '*.png')))  # Assuming .png for masks
 
     # Ensure masks match images (by filename prefix)
     # This is a critical step for segmentation datasets
     paired_paths = []
+    print(f'get_image_mask_paths|image_paths:{image_paths}')
+    print(f'get_image_mask_paths|mask_paths:{mask_paths}')
     image_names = {os.path.basename(p).split('.')[0]: p for p in image_paths}
     for mask_path in mask_paths:
+        print(f'get_image_mask_paths|mask_path:{mask_path}')
         mask_name_prefix = os.path.basename(mask_path).split('.')[0]
+        print(f'get_image_mask_paths|mask_name_prefix:{mask_name_prefix}')
         if mask_name_prefix in image_names:
             paired_paths.append((config, image_names[mask_name_prefix], mask_path))
 
