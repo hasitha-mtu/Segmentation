@@ -444,7 +444,7 @@ if __name__ == "__main__":
         image = cv2.imread(path)
         resized_image = cv2.resize(image, (512, 512))
 
-        updated_image_path = os.path.join(formatted_image_dir, filename)
+        updated_image_path = os.path.join(formatted_image_dir, f'image_{filename}')
         cv2.imwrite(updated_image_path, resized_image)
 
 if __name__ == "__main__":
@@ -462,7 +462,7 @@ if __name__ == "__main__":
         mask = create_confidence_mask(ann)
 
         # Save mask as 8-bit single-channel image
-        updated_mask_path = os.path.join(formatted_annotation_dir, filename)
+        updated_mask_path = os.path.join(formatted_annotation_dir, f'mask_{filename}')
         print(f"Updated mask path: {updated_mask_path}")
         cv2.imwrite(updated_mask_path, (mask * 255).astype(np.uint8))
 
