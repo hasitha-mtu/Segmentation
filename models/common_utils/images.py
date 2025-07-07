@@ -416,8 +416,8 @@ def create_confidence_mask(annotation, threshold=0.0):
     return mask[..., np.newaxis]
 
 # if __name__ == "__main__":
-#     annotation_dir = "../../input/samples/crookstown/annotations"
-#     formatted_annotation_dir = "../../input/samples/segnet/annotations"
+#     annotation_dir = "../../input/samples/crookstown/masks"
+#     formatted_annotation_dir = "../../input/samples/segnet/masks"
 #     os.makedirs(formatted_annotation_dir, exist_ok=True)
 #     for filename in os.listdir(annotation_dir):
 #         path = os.path.join(annotation_dir, filename)
@@ -448,8 +448,8 @@ if __name__ == "__main__":
         cv2.imwrite(updated_image_path, resized_image)
 
 if __name__ == "__main__":
-    annotation_dir = "../../input/updated_samples/samples/crookstown/annotations"
-    formatted_annotation_dir = "../../input/updated_samples/segnet_512/annotations"
+    annotation_dir = "../../input/updated_samples/samples/crookstown/masks"
+    formatted_annotation_dir = "../../input/updated_samples/segnet_512/masks"
 
     os.makedirs(formatted_annotation_dir, exist_ok=True)
 
@@ -484,8 +484,8 @@ if __name__ == "__main__":
 #         cv2.imwrite(updated_image_path, resized_image)
 #
 # if __name__ == "__main__":
-#     annotation_dir = "../../input/samples/crookstown/annotations"
-#     formatted_annotation_dir = "../../input/samples/segnet_256/annotations"
+#     annotation_dir = "../../input/samples/crookstown/masks"
+#     formatted_annotation_dir = "../../input/samples/segnet_256/masks"
 #
 #     os.makedirs(formatted_annotation_dir, exist_ok=True)
 #

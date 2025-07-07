@@ -295,7 +295,7 @@ def load_image(path: str, size=(512, 512),  color_mode = "rgb"):
 
 # if __name__=="__main__":
 #     image_path = "../input/samples/segnet_512/images/DJI_20250324092908_0001_V.jpg"
-#     mask_path = "../input/samples/segnet_512/annotations/DJI_20250324092908_0001_V.jpg"
+#     mask_path = "../input/samples/segnet_512/masks/DJI_20250324092908_0001_V.jpg"
 #     image = load_image(image_path)
 #     mask = load_image(image_path, color_mode="grayscale")
 #     print(f'image shape:{image.shape}')
@@ -323,7 +323,7 @@ if __name__=="__main__":
 
 # if __name__=="__main__":
 #     image_path = "../input/samples/segnet_512/images/DJI_20250324092908_0001_V.jpg"
-#     mask_path = "../input/samples/segnet_512/annotations/DJI_20250324092908_0001_V.jpg"
+#     mask_path = "../input/samples/segnet_512/masks/DJI_20250324092908_0001_V.jpg"
 #     image = load_image(image_path)
 #     mask = load_image(image_path, color_mode="grayscale")
 #     print(f'image shape:{image.shape}')

@@ -42,10 +42,10 @@ def generator(path):
     all_paths = sorted(glob(path + "/*.jpg" ))
     for i, path in tqdm(enumerate(all_paths), total=len(all_paths), desc="Loading"):
         image_path = path
-        mask_path = image_path.replace("images", "annotations")
+        mask_path = image_path.replace("images", "masks")
         mask_path = mask_path.replace(".jpg", ".png")
-        # supervised_mask_path = mask_path.replace("annotations", "supervised_masks")
-        partial_supervised_mask_path = mask_path.replace("annotations", "partial_supervision_masks")
+        # supervised_mask_path = mask_path.replace("masks", "supervised_masks")
+        partial_supervised_mask_path = mask_path.replace("masks", "partial_supervision_masks")
         create_partial_supervision_masks(mask_path, partial_supervised_mask_path)
         # generate_supervised_mask(image_path, mask_path, supervised_mask_path)
 
@@ -59,9 +59,9 @@ def load_images(path):
 
     for i, path in tqdm(enumerate(all_paths), total=len(all_paths), desc="Loading"):
         image_path = path
-        mask_path = image_path.replace("images", "annotations")
+        mask_path = image_path.replace("images", "masks")
         mask_path = mask_path.replace(".jpg", ".png")
-        partial_supervised_mask_path = mask_path.replace("annotations", "partial_supervision_masks")
+        partial_supervised_mask_path = mask_path.replace("masks", "partial_supervision_masks")
         mask_supervised = cv2.imread(partial_supervised_mask_path, cv2.IMREAD_GRAYSCALE)
         mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
         image = cv2.imread(image_path)

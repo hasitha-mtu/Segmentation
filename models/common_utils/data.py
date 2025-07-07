@@ -15,7 +15,7 @@ def load_drone_images(size, paths, channels):
     for i, path in tqdm(enumerate(paths), total=len(paths), desc="Loading"):
         image = get_stacked_image(channels, size, path)
         images[i] = image
-        mask_path = path.replace("images", "annotations")
+        mask_path = path.replace("images", "masks")
         mask_path = mask_path.replace(".jpg", ".png")
         mask = load_image(size, mask_path, color_mode='grayscale')
         masks[i] = mask
