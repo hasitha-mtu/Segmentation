@@ -58,14 +58,23 @@ def get_image_mask_paths(config, image_dir, mask_dir):
     return paired_paths
 
 def load_image(config, image_path):
+    print(f'load_image|image_path:{image_path}')
     image = tf.io.read_file(image_path)
+    channels_tensor = config['model']['output_channels']
+    print(f'load_image|channels_tensor:{channels_tensor}')
+    print(f'load_image|channels_tensor type:{type(channels_tensor)}')
+    channels = int(channels_tensor.numpy())
+    print(f'load_mask|channels:{channels}')
     image = tf.image.decode_jpeg(image, channels=config['model']['input_channels']) # Use decode_png if your images are PNG
     image = tf.image.convert_image_dtype(image, tf.float32) # Normalize to [0, 1]
     image = tf.image.resize(image, [config['data']['image_size']['height'], config['data']['image_size']['width']])
     return image
 
 def load_mask(config, mask_path):
+    print(f'load_mask|mask_path:{mask_path}')
     mask = tf.io.read_file(mask_path)
+    channels = config['model']['output_channels']
+    print(f'load_mask|channels:{channels}')
     mask = tf.image.decode_png(mask, channels=config['model']['output_channels']) # Masks are typically PNG
     # Convert mask to binary (0 or 1). Water > 0.0, rest 0.0
     mask = tf.image.convert_image_dtype(mask, tf.float32) # Convert to float
@@ -74,10 +83,19 @@ def load_mask(config, mask_path):
     mask = tf.where(mask > 0.0, 1.0, 0.0) # Ensure it's strictly binary (0 or 1)
     return mask
 
-def load_image_mask(config, image_path, mask_path):
-    image = load_image(config, image_path)
-    mask = load_mask(config, mask_path)
+def load_image_mask(dataset):
+    print(f'load_image_mask|dataset:{dataset}')
+    print(f'load_image_mask|config:{dataset["config"]}')
+    print(f'load_image_mask|image_path:{dataset["image_path"]}')
+    print(f'load_image_mask|mask_path:{dataset["mask_path"]}')
+    image = load_image(dataset["config"], dataset["image_path"])
+    mask = load_mask(dataset["config"], dataset["mask_path"])
     return image, mask
+
+# def load_image_mask(config, image_path, mask_path):
+#     image = load_image(config, image_path)
+#     mask = load_mask(config, mask_path)
+#     return image, mask
 
 def augment_data(image, mask):
     # Random horizontal flip
@@ -116,12 +134,25 @@ def create_tf_dataset(config, paired_paths, batch_size, buffer_size, augment=Tru
     print(f'create_tf_dataset|mask_path_ds:{mask_path_ds}')
 
     # Zip image and mask paths together
-    dataset = tf.data.Dataset.zip((path_ds, mask_path_ds))
-    print(f'create_tf_dataset|dataset:{dataset}')
+    zipped_paths_ds  = tf.data.Dataset.zip((path_ds, mask_path_ds))
+    print(f'create_tf_dataset|zipped_paths_ds :{zipped_paths_ds }')
+
+    def add_config_to_element(image_path, mask_path):
+        return {
+            'config': config,  # Include the static Python dictionary
+            'image_path': image_path,
+            'mask_path': mask_path
+        }
+
+    final_dataset = zipped_paths_ds.map(add_config_to_element)
+
+    print("Elements with config:")
+    for element in final_dataset:
+        print(element)
 
     # Load images and masks from paths
     # Use num_parallel_calls for faster loading
-    dataset = dataset.map(load_image_mask, num_parallel_calls=tf.data.AUTOTUNE)
+    dataset = final_dataset.map(load_image_mask, num_parallel_calls=tf.data.AUTOTUNE)
     print(f'create_tf_dataset|dataset:{dataset}')
 
     # Apply augmentation conditionally
@@ -163,10 +194,15 @@ def load_datasets(config_path):
     image_dir = f'{dataset_path}/images'
     mask_dir = f'{dataset_path}/masks'
     all_paired_paths = get_image_mask_paths(config, image_dir, mask_dir)
+    print(f'all_paired_paths[0][0]:{all_paired_paths[0][0]}')
+    print(f'all_paired_paths[0][1]:{all_paired_paths[0][1]}')
+    print(f'all_paired_paths[0][2]:{all_paired_paths[0][2]}')
     train_paths, val_paths = train_test_split(all_paired_paths,
                                               test_size=config['data']['test_size'],
                                               random_state=config['data']['seed'])
-
+    print(f'train_paths[0][0]:{train_paths[0][0]}')
+    print(f'train_paths[0][1]:{train_paths[0][1]}')
+    print(f'train_paths[0][2]:{train_paths[0][2]}')
     train_dataset = create_tf_dataset(config,
                                       train_paths,
                                       config['data']['batch_size'],
