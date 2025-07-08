@@ -116,11 +116,11 @@ if __name__ == "__main__":
         train_dataset, validation_dataset = load_datasets(config_file, True)
         print(f'train_dataset: {train_dataset}')
         print(f'validation_dataset: {validation_dataset}')
-        # train_model(ModelConfig.TRAINING_EPOCHS,
-        #             ModelConfig.BATCH_SIZE,
-        #             train_dataset,
-        #             validation_dataset,
-        #             channel_count,
-        #             size = image_size,
-        #             restore=False)
+        train_model(ModelConfig.TRAINING_EPOCHS,
+                    ModelConfig.BATCH_SIZE,
+                    train_dataset,
+                    validation_dataset,
+                    channel_count,
+                    size = image_size,
+                    restore=False)
         load_with_trained_model(validation_dataset, 4)

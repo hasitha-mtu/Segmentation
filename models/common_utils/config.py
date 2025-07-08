@@ -1,36 +1,6 @@
 import yaml
 import os
 
-# model:
-#   name: "Unet"
-#   input_channels: 3
-#   output_channels: 1
-#
-# data:
-#   dataset_path: "../../input/updated_samples/segnet_512"
-#   image_size:
-#     height: 512
-#     width: 512
-#   batch_size: 4
-#   buffer_size: 100
-#   seed: 42
-#   test_size: 0.2
-#   augmentation:
-#     rotate: true
-#     flip_horizontal: true
-#     zoom_range: 0.1
-#
-# training:
-#   epochs: 100
-#   learning_rate: 0.0001
-#   optimizer: "Adam"
-#   training_split: 0.2
-#
-# paths:
-#   model_save_dir: "./ckpt"
-#   log_dir: "./logs"
-#   output_dir: "./output"
-
 # Define a class or module to hold your "constants"
 class ModelConfig:
     pass

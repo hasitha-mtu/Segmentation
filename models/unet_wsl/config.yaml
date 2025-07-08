@@ -1,7 +1,7 @@
 # config.yaml
 
 model:
-  name: "Unet"
+  name: "UNET"
   input_channels: 3
   output_channels: 1
 

@@ -62,17 +62,18 @@ def unet_model(image_width, image_height, image_channels):
 
     model = tf.keras.Model(inputs=[inputs],
                            outputs=[outputs],
-                           name="UNET")
+                           name=ModelConfig.MODEL_NAME)
 
     model.compile(
-        optimizer='adam',
-        loss=masked_dice_loss, # Use `None` to skip the second loss
+        optimizer=ModelConfig.TRAINING_OPTIMIZER,
+        loss=masked_dice_loss,
         metrics=['accuracy', f1_score, precision_m, recall_m] # Metrics only for the segmentation output
     )
 
     print("Model output shape:", model.output_shape)
 
-    print(f"Model summary : {model.summary()}")
+    # print(f"Model summary : {model.summary()}")
+    model.summary()
 
     estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
