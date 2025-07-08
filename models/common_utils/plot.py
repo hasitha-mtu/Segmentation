@@ -24,7 +24,7 @@ def plot_model_history(history):
     plt.title("Training and validation loss")
     plt.legend()
     plt.show(block=False)
-    time.sleep(3)
+    time.sleep(5)
     plt.close()
 
 def plot_prediction(i, rgb_image, actual_mask, pred_mask, dir_path):
@@ -39,6 +39,6 @@ def plot_prediction(i, rgb_image, actual_mask, pred_mask, dir_path):
 
     plt.tight_layout()
     plt.show(block=False)
-    time.sleep(5)
+    time.sleep(10)
     plt.close()
 

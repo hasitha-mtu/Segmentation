@@ -2,7 +2,7 @@ import keras
 import tensorflow as tf
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
 from models.memory_usage import estimate_model_memory_usage
-
+from models.common_utils.config import load_config, ModelConfig
 
 def encoding_block(inputs, filters, dropout, batch_normalization=True, pooling=True, kernel_size=(3,3), activation="relu",
                    kernel_initializer="he_normal", padding="same"):
@@ -74,7 +74,7 @@ def unet_model(image_width, image_height, image_channels):
 
     print(f"Model summary : {model.summary()}")
 
-    estimate_model_memory_usage(model, batch_size=4)
+    estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
     keras.utils.plot_model(model, "UNET_model.png", show_shapes=True)
 
@@ -98,7 +98,9 @@ def unet_model(image_width, image_height, image_channels):
     # return scaled, x  # also return the attention weights for inspection
 
 if __name__ == '__main__':
-    unet_model(512, 512, 3)
+    config_file = 'config.yaml'
+    load_config(config_file)
+    unet_model(ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH, ModelConfig.MODEL_INPUT_CHANNELS)
 
 
 
