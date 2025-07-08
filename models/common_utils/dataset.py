@@ -18,21 +18,15 @@ def set_seed(seed_value):
 
 # formatted_annotation_dir = "../../input/updated_samples/segnet_512/masks"
 def get_image_mask_paths(image_dir, mask_dir):
-    print(f'get_image_mask_paths|image_dir:{image_dir}')
-    print(f'get_image_mask_paths|mask_dir:{mask_dir}')
     image_paths = sorted(glob(os.path.join(image_dir, '*.jpg')))  # Assuming .jpg for images
     mask_paths = sorted(glob(os.path.join(mask_dir, '*.png')))  # Assuming .png for masks
 
     # Ensure masks match images (by filename prefix)
     # This is a critical step for segmentation datasets
     paired_paths = []
-    print(f'get_image_mask_paths|image_paths:{image_paths}')
-    print(f'get_image_mask_paths|mask_paths:{mask_paths}')
     image_names = {os.path.basename(p).split('.')[0]: p for p in image_paths}
     for mask_path in mask_paths:
-        print(f'get_image_mask_paths|mask_path:{mask_path}')
         mask_name_prefix = os.path.basename(mask_path).split('.')[0]
-        print(f'get_image_mask_paths|mask_name_prefix:{mask_name_prefix}')
         if mask_name_prefix in image_names:
             paired_paths.append((image_names[mask_name_prefix], mask_path))
 
@@ -45,7 +39,6 @@ def get_image_mask_paths(image_dir, mask_dir):
     return paired_paths
 
 def load_image(image_path):
-    print(f'load_image|image_path:{image_path}')
     image = tf.io.read_file(image_path)
     image = tf.image.decode_jpeg(image, channels=ModelConfig.MODEL_INPUT_CHANNELS) # Use decode_png if your images are PNG
     image = tf.image.convert_image_dtype(image, tf.float32) # Normalize to [0, 1]
@@ -53,7 +46,6 @@ def load_image(image_path):
     return image
 
 def load_mask(mask_path):
-    print(f'load_mask|mask_path:{mask_path}')
     mask = tf.io.read_file(mask_path)
     mask = tf.image.decode_png(mask, channels=ModelConfig.MODEL_OUTPUT_CHANNELS) # Masks are typically PNG
     # Convert mask to binary (0 or 1). Water > 0.0, rest 0.0
@@ -64,16 +56,9 @@ def load_mask(mask_path):
     return mask
 
 def load_image_mask(image_path, mask_path):
-    print(f'load_image_mask|image_path:{image_path}')
-    print(f'load_image_mask|mask_path:{mask_path}')
     image = load_image(image_path)
     mask = load_mask(mask_path)
     return image, mask
-
-# def load_image_mask(config, image_path, mask_path):
-#     image = load_image(config, image_path)
-#     mask = load_mask(config, mask_path)
-#     return image, mask
 
 def augment_data(image, mask):
     # Random horizontal flip
