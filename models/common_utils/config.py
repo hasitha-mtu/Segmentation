@@ -66,6 +66,16 @@ def load_config(config_file):
     ModelConfig.TRAINING_OPTIMIZER = config_data.get('training', {}).get('optimizer', 'Adam')
     ModelConfig.TRAINING_SPLIT = config_data.get('training', {}).get('training_split', 0.2)
 
+    ModelConfig.CHECKPOINT_CALLBACK_MONITOR = config_data.get('training', {}).get('checkpoint_callback', {}).get('monitor', 'val_accuracy')
+    ModelConfig.CHECKPOINT_CALLBACK_MODE = config_data.get('training', {}).get('checkpoint_callback', {}).get('mode', 'max')
+    ModelConfig.CHECKPOINT_CALLBACK_SAVE_BEST_ONLY = config_data.get('training', {}).get('checkpoint_callback', {}).get('save_best_only', True)
+    ModelConfig.CHECKPOINT_CALLBACK_SAVE_WEIGHTS_ONLY = config_data.get('training', {}).get('checkpoint_callback', {}).get('save_weights_only', False)
+
+    ModelConfig.EARLY_STOPPING_CALLBACK_MONITOR = config_data.get('training', {}).get('early_stopping_callback', {}).get('monitor', 'val_loss')
+    ModelConfig.EARLY_STOPPING_CALLBACK_MODE = config_data.get('training', {}).get('early_stopping_callback', {}).get('mode', 'min')
+    ModelConfig.EARLY_STOPPING_CALLBACK_PATIENCE = config_data.get('training', {}).get('early_stopping_callback', {}).get('patience', 5)
+    ModelConfig.EARLY_STOPPING_CALLBACK_RESTORE_BEST_WEIGHTS = config_data.get('training', {}).get('early_stopping_callback', {}).get('restore_best_weights', True)
+
     ModelConfig.MODEL_SAVE_DIR = config_data.get('paths', {}).get('model_save_dir', './ckpt')
     ModelConfig.LOG_DIR = config_data.get('paths', {}).get('log_dir', './logs')
     ModelConfig.OUTPUT_DIR = config_data.get('paths', {}).get('output_dir', './output')

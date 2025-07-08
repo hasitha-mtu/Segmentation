@@ -132,8 +132,9 @@ def display_sample(image, mask):
     plt.axis('off')
     plt.show()
 
-def load_datasets(config_file):
-    load_config(config_file)
+def load_datasets(config_file, config_loaded=False):
+    if not config_loaded:
+        load_config(config_file)
     image_dir = f'{ModelConfig.DATASET_PATH}/images'
     mask_dir = f'{ModelConfig.DATASET_PATH}/masks'
     all_paired_paths = get_image_mask_paths(image_dir, mask_dir)
