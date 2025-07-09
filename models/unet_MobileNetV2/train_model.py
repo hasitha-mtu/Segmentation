@@ -21,12 +21,14 @@ def load_saved_model():
                                    custom_objects=custom_objects,
                                    compile=True)
 
-def make_or_restore_model(restore, width, height, input_channels):
+
+def make_or_restore_model(restore, num_channels, size):
+    (width, height) = size
     if restore:
         return load_saved_model()
     else:
         print("Creating fresh model")
-        return unet_mobilenet_v2(width, height, input_channels)
+        return unet_mobilenet_v2(width, height, num_channels)
 
 
 if __name__ == "__main__":
