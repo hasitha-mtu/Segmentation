@@ -14,6 +14,7 @@ def set_seed(seed_value, enable_op_determinism=True):
     random.seed(seed_value)
     np.random.seed(seed_value)
     tf.random.set_seed(seed_value)
+    print(f'OP Determinism enabled : {enable_op_determinism}')
     if enable_op_determinism:
         tf.config.experimental.enable_op_determinism()
 

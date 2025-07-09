@@ -3,6 +3,7 @@ import keras
 from models.unet_plus_plus.loss_functions import BCEDiceLoss
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 from models.memory_usage import estimate_model_memory_usage
+from models.common_utils.config import load_config, ModelConfig
 
 def conv_block(x, filters, kernel_size=(3,3), activation='relu', padding='same'):
     x = layers.Conv2D(filters, kernel_size, activation=activation, padding=padding)(x)
@@ -46,15 +47,17 @@ def build_model(batch_size, input_shape=(512, 512, 3), num_classes=1):
 
     # Final output (from the last node in the topmost dense path)
     if num_classes == 1:
-        output = layers.Conv2D(1, (1, 1), activation='sigmoid')(x04)
+        outputs = layers.Conv2D(1, (1, 1), activation='sigmoid')(x04)
     else:
-        output = layers.Conv2D(num_classes, (1, 1), activation='softmax')(x04)
+        outputs = layers.Conv2D(num_classes, (1, 1), activation='softmax')(x04)
 
-    model = models.Model(inputs, output)
+    model = models.Model(inputs=[inputs],
+                           outputs=[outputs],
+                           name=ModelConfig.MODEL_NAME)
 
     loss_fn = BCEDiceLoss(global_batch_size=batch_size)
 
-    model.compile(optimizer='adam',
+    model.compile(optimizer=ModelConfig.TRAINING_OPTIMIZER,
                   loss=loss_fn,
                   metrics=['accuracy', f1_score, precision_m, recall_m])
 
@@ -62,7 +65,7 @@ def build_model(batch_size, input_shape=(512, 512, 3), num_classes=1):
 
     print(f"Model summary : {model.summary()}")
 
-    estimate_model_memory_usage(model, batch_size=4)
+    estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
     keras.utils.plot_model(model, "UNET++_model.png", show_shapes=True)
 
@@ -74,4 +77,6 @@ def unet_plus_plus(width, height, num_channels, batch_size=4):
 
 
 if __name__ == '__main__':
+    config_file = 'config.yaml'
+    load_config(config_file)
     build_model(4, input_shape=(512, 512, 16), num_classes=1)

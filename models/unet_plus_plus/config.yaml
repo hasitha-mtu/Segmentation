@@ -1,0 +1,44 @@
+# config.yaml
+
+model:
+  name: "UNET-PLUS-PLUS"
+  input_channels: 3
+  output_channels: 1
+
+data:
+  dataset_path: "../../input/updated_samples/segnet_512"
+  image_size:
+    height: 512
+    width: 512
+  channels: ["RED", "GREEN", "BLUE"]
+  batch_size: 2
+  buffer_size: 100
+  seed: 42
+  enable_op_determinism: false
+  test_size: 0.2
+  augmentation:
+    rotate: true
+    flip_horizontal: true
+    zoom_range: 0.1
+
+training:
+  epochs: 100
+  learning_rate: 0.0001
+  optimizer: "Adam"
+  training_split: 0.2
+  checkpoint_callback:
+    monitor: "val_accuracy"
+    mode: "max"
+    save_best_only: true
+    save_weights_only: false
+  early_stopping_callback:
+    monitor: "val_loss"
+    mode: "min"
+    patience: 10
+    restore_best_weights: true
+
+paths:
+  model_save_dir: "./ckpt"
+  log_dir: "./logs"
+  output_dir: "./output"
+  saved_file_name: "model.h5"
