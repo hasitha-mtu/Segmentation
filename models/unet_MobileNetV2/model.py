@@ -7,6 +7,7 @@ from tensorflow.keras.applications import MobileNetV2
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 from models.unet_MobileNetV2.loss_function import combined_masked_dice_bce_loss
 from models.memory_usage import estimate_model_memory_usage
+from models.common_utils.config import load_config, ModelConfig
 
 def UnetMobileNetV2(shape):
     inputs = Input(shape=shape, name='input_image')
@@ -39,11 +40,11 @@ def UnetMobileNetV2(shape):
     x = Conv2D(1, (1, 1),  padding='same')(x)
     x = Activation('sigmoid')(x)
 
-    model = Model(inputs=inputs, outputs=x,  name='Unet-MobileNetV2')
+    model = Model(inputs=inputs, outputs=x,  name=ModelConfig.MODEL_NAME)
 
     print(f"Model summary : {model.summary()}")
 
-    estimate_model_memory_usage(model, batch_size=4)
+    estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
     keras.utils.plot_model(model, "Unet-MobileNetV2_model.png", show_shapes=True)
 
@@ -53,12 +54,14 @@ def unet_mobilenet_v2(width, height, input_channels):
     input_shape = (width, height, input_channels)
     model = UnetMobileNetV2(input_shape)
     model.compile(
-        optimizer='adam',
+        optimizer=ModelConfig.TRAINING_OPTIMIZER,
         loss=combined_masked_dice_bce_loss,
         metrics=['accuracy', f1_score, precision_m, recall_m]
     )
     return model
 
 if __name__=='__main__':
+    config_file = 'config.yaml'
+    load_config(config_file)
     unet_mobilenet_v2(512, 512, 3)
 
