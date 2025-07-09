@@ -11,7 +11,6 @@ from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from models.common_utils.dataset import load_datasets, set_seed
 from models.common_utils.config import load_config, ModelConfig
 
-MODEL_FILE_NAME = 'model.h5'
 
 def train_model(epoch_count, batch_size, train_dataset, validation_dataset, num_channels,
                 size = (256, 256),
@@ -26,7 +25,7 @@ def train_model(epoch_count, batch_size, train_dataset, validation_dataset, num_
     os.makedirs(ModelConfig.MODEL_SAVE_DIR, exist_ok=True)
 
     checkpoint_cb = ModelCheckpoint(
-        f"{ModelConfig.MODEL_SAVE_DIR}/{MODEL_FILE_NAME}",  # or "best_model.keras"
+        f"{ModelConfig.MODEL_SAVE_DIR}/{ModelConfig.SAVED_FILE_NAME}",  # or "best_model.keras"
         monitor=ModelConfig.CHECKPOINT_CALLBACK_MONITOR,
         save_best_only=ModelConfig.CHECKPOINT_CALLBACK_SAVE_BEST_ONLY,
         save_weights_only=ModelConfig.CHECKPOINT_CALLBACK_SAVE_WEIGHTS_ONLY,  # set to True if you want only weights
@@ -66,10 +65,10 @@ def train_model(epoch_count, batch_size, train_dataset, validation_dataset, num_
                     verbose=1
                 )
 
-    plot_model_history(history)
+    plot_model_history(history, ModelConfig.OUTPUT_DIR)
 
 def load_saved_model():
-    saved_model_path = os.path.join(ModelConfig.MODEL_SAVE_DIR, MODEL_FILE_NAME)
+    saved_model_path = os.path.join(ModelConfig.MODEL_SAVE_DIR, ModelConfig.SAVED_FILE_NAME)
     print(f"Restoring from {saved_model_path}")
     return keras.models.load_model(saved_model_path,
                                    custom_objects={'recall_m': recall_m,
