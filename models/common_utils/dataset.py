@@ -9,12 +9,13 @@ from sklearn.model_selection import train_test_split
 from models.common_utils.config import load_config, ModelConfig
 
 
-def set_seed(seed_value):
+def set_seed(seed_value, enable_op_determinism=True):
     os.environ['PYTHONHASHSEED'] = str(seed_value)
     random.seed(seed_value)
     np.random.seed(seed_value)
     tf.random.set_seed(seed_value)
-    tf.config.experimental.enable_op_determinism()
+    if enable_op_determinism:
+        tf.config.experimental.enable_op_determinism()
 
 # formatted_annotation_dir = "../../input/updated_samples/segnet_512/masks"
 def get_image_mask_paths(image_dir, mask_dir):

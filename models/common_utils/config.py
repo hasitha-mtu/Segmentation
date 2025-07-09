@@ -23,8 +23,10 @@ def load_config(config_file):
     ModelConfig.IMAGE_WIDTH = config_data.get('data', {}).get('image_size', {}).get('width', 512)
 
     ModelConfig.BATCH_SIZE = config_data.get('data', {}).get('batch_size', 4)
+    ModelConfig.CHANNELS = config_data.get('data', {}).get('channels', ["RED", "GREEN", "BLUE", "NDWI"])
     ModelConfig.BUFFER_SIZE = config_data.get('data', {}).get('buffer_size', 100)
     ModelConfig.SEED = config_data.get('data', {}).get('seed', 42)
+    ModelConfig.ENABLE_OP_DETERMINISM = config_data.get('data', {}).get('enable_op_determinism', False)
     ModelConfig.TEST_SIZE = config_data.get('data', {}).get('test_size', 0.2)
 
     ModelConfig.AUGMENTATION_ROTATE = config_data.get('data', {}).get('augmentation', {}).get('rotate', True)
@@ -56,11 +58,12 @@ def load_config(config_file):
 # --- Usage ---
 if __name__ == "__main__":
     try:
-        load_config('../unet_wsl/config.yaml')
+        load_config('../unet_ResNet50/config.yaml')
 
         print(f"MODEL_NAME (YAML): {ModelConfig.MODEL_NAME}")
         print(f"DATASET_PATH (YAML): {ModelConfig.DATASET_PATH}")
         print(f"IMAGE_HEIGHT (YAML): {ModelConfig.IMAGE_HEIGHT}")
+        print(f"CHANNELS (YAML): {ModelConfig.CHANNELS}")
         print(f"BATCH_SIZE (YAML): {ModelConfig.BATCH_SIZE}")
         print(f"AUGMENTATION_ROTATE (YAML): {ModelConfig.AUGMENTATION_ROTATE}")
         print(f"TRAINING_EPOCHS (YAML): {ModelConfig.TRAINING_EPOCHS}")

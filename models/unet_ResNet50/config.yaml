@@ -1,7 +1,7 @@
 # config.yaml
 
 model:
-  name: "UNET-VGG16"
+  name: "UNET-ResNet50"
   input_channels: 3
   output_channels: 1
 
@@ -10,9 +10,11 @@ data:
   image_size:
     height: 512
     width: 512
+  channels: ["RED", "GREEN", "BLUE"]
   batch_size: 4
   buffer_size: 100
   seed: 42
+  enable_op_determinism: false
   test_size: 0.2
   augmentation:
     rotate: true
