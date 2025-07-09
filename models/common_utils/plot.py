@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import time
 from models.common_utils.images import show_image
 
-def plot_model_history(history):
+def plot_model_history(history, path):
     print(f'plot_model_history|history:{history.history}')
     accuracy = history.history["accuracy"]
     val_accuracy = history.history["val_accuracy"]
@@ -14,6 +14,7 @@ def plot_model_history(history):
     plt.plot(epochs, val_accuracy, "b", label="Validation accuracy")
     plt.title("Training and validation accuracy")
     plt.legend()
+    plt.savefig(f'{path}/training_and_validation_accuracy.png')
     plt.show(block=False)
     time.sleep(3)
     plt.close()
@@ -23,6 +24,7 @@ def plot_model_history(history):
     plt.plot(epochs, val_loss, "b", label="Validation loss")
     plt.title("Training and validation loss")
     plt.legend()
+    plt.savefig(f'{path}/training_and_validation_loss.png')
     plt.show(block=False)
     time.sleep(5)
     plt.close()

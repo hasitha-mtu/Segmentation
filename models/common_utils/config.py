@@ -49,6 +49,7 @@ def load_config(config_file):
     ModelConfig.MODEL_SAVE_DIR = config_data.get('paths', {}).get('model_save_dir', './ckpt')
     ModelConfig.LOG_DIR = config_data.get('paths', {}).get('log_dir', './logs')
     ModelConfig.OUTPUT_DIR = config_data.get('paths', {}).get('output_dir', './output')
+    ModelConfig.SAVED_FILE_NAME = config_data.get('paths', {}).get('saved_file_name', 'model.h5')
 
     print(f"Loaded config from {config_file}")
 
