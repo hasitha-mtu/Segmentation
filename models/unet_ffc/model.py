@@ -4,6 +4,7 @@ import keras
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 from models.unet_ffc.loss_function import combined_masked_dice_bce_loss
 from models.memory_usage import estimate_model_memory_usage
+from models.common_utils.config import load_config, ModelConfig
 
 # --- Fast Fourier Convolution (FFC) block ---
 class FFC(tf.keras.layers.Layer):
@@ -118,21 +119,27 @@ def unet_model(image_width, image_height, image_channels):
     u5 = decoding_block(u4, c2, 32)
     u6 = decoding_block(u5, c1, 16)
 
-    outputs = tf.keras.layers.Conv2D(3, kernel_size=3, activation='sigmoid', padding='same', name="segmentation_output")(u6)
+    outputs = tf.keras.layers.Conv2D(1,
+                                     kernel_size=3,
+                                     activation='sigmoid',
+                                     padding='same',
+                                     name="segmentation_output")(u6)
 
-    model = tf.keras.Model(inputs=[inputs], outputs=[outputs], name="UNET_FFC")
+    model = tf.keras.Model(inputs=[inputs],
+                           outputs=[outputs],
+                           name=ModelConfig.MODEL_NAME)
 
     model.compile(
-        optimizer='adam',
+        optimizer=ModelConfig.TRAINING_OPTIMIZER,
         loss=combined_masked_dice_bce_loss,
         metrics=['accuracy', f1_score, precision_m, recall_m]
     )
 
     print("Model output shape:", model.output_shape)
 
-    print(f"Model summary : {model.summary()}")
+    model.summary()
 
-    estimate_model_memory_usage(model, batch_size=4)
+    estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
     keras.utils.plot_model(model, "UNET_FFC.png", show_shapes=True)
 
@@ -140,4 +147,6 @@ def unet_model(image_width, image_height, image_channels):
 
 
 if __name__ == '__main__':
+    config_file = 'config.yaml'
+    load_config(config_file)
     unet_model(512, 512, 5)
