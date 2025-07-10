@@ -119,7 +119,7 @@ def unet_model(image_width, image_height, image_channels):
     u5 = decoding_block(u4, c2, 32)
     u6 = decoding_block(u5, c1, 16)
 
-    outputs = tf.keras.layers.Conv2D(1,
+    outputs = tf.keras.layers.Conv2D(1, # To return (512,512,1) shape output for binary_crossentropy loss function
                                      kernel_size=3,
                                      activation='sigmoid',
                                      padding='same',

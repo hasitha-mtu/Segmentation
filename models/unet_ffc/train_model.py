@@ -1,28 +1,11 @@
-import tensorflow as tf
-import numpy as np
-import matplotlib.pyplot as plt
 import os
-from datetime import datetime
 import keras
-from tensorflow.keras.callbacks import ModelCheckpoint
-from keras.callbacks import (Callback,
-                             CSVLogger)
-
 from models.unet_ffc.model import unet_model, FFC
 from models.unet_ffc.loss_function import combined_masked_dice_bce_loss
-from models.unet_ffc.data import load_dataset
-from models.common_utils.images import show_image
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
-
 from models.common_utils.config import ModelConfig
 from models.train_model_utils import execute_model
 
-# MODEL_FILE_NAME = 'unet_ffc_model1.h5'
-# DATASET_PATH = '../../input/updated_samples/segnet_512/images'
-#
-# LOG_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ffc\logs"
-# CKPT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ffc\ckpt"
-# OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ffc\output"
 
 
 def load_saved_model():
