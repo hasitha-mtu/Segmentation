@@ -7,6 +7,7 @@ from tensorflow.keras.models import Model
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 from models.res_unet_plus_plus.loss_function import combined_masked_dice_bce_loss
 from models.memory_usage import estimate_model_memory_usage
+from models.common_utils.config import load_config, ModelConfig
 
 
 def SE(inputs, ratio=8):
@@ -132,15 +133,17 @@ def ResUnetPlusPlus(input_shape):
 
     """" Output """
     outputs = aspp_block(d3, 16)
-    outputs = Conv2D(1, 1, padding='same')(outputs)
+    outputs = Conv2D(ModelConfig.MODEL_OUTPUT_CHANNELS, 1, padding='same')(outputs)
     outputs = Activation('sigmoid')(outputs)
 
     """" Model """
-    model = Model(inputs=inputs, outputs=outputs)
+    model = Model(inputs=inputs,
+                  outputs=outputs,
+                  name=ModelConfig.MODEL_NAME)
     print("Model output shape:", model.output_shape)
     print(f"Model summary : {model.summary()}")
 
-    estimate_model_memory_usage(model, batch_size=4)
+    estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
     keras.utils.plot_model(model, "ResUnetPlusPlus_model.png", show_shapes=True)
 
@@ -151,12 +154,14 @@ def res_unet_plus_plus(width, height, input_channels):
     input_shape = (width, height, input_channels)
     model = ResUnetPlusPlus(input_shape)
     model.compile(
-        optimizer='adam',
+        optimizer=ModelConfig.TRAINING_OPTIMIZER,
         loss=combined_masked_dice_bce_loss,
         metrics=['accuracy', f1_score, precision_m, recall_m]
     )
     return model
 
 if __name__=='__main__':
+    config_file = 'config.yaml'
+    load_config(config_file)
     res_unet_plus_plus(512, 512, 3)
 
