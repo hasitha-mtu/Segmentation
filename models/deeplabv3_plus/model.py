@@ -8,6 +8,7 @@ import keras
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 from models.deeplabv3_plus.loss_function import combined_masked_dice_bce_loss
 from models.memory_usage import estimate_model_memory_usage
+from models.common_utils.config import load_config, ModelConfig
 
 def ASPP(inputs):
     shape = inputs.shape
@@ -89,15 +90,17 @@ def DeepLabV3Plus(shape):
     print(f'UpSampling2D x shape:{x.shape}')
 
     # Output
-    x = Conv2D(1, (1, 1), name='output_layer')(x)
-    x = Activation('sigmoid')(x)
+    outputs = Conv2D(ModelConfig.MODEL_OUTPUT_CHANNELS, (1, 1), name='output_layer')(x)
+    outputs = Activation('sigmoid')(outputs)
 
     # Model
-    model = Model(inputs=inputs, outputs=x)
+    model = Model(inputs=inputs,
+                  outputs=outputs,
+                  name=ModelConfig.MODEL_NAME)
     print("Model output shape:", model.output_shape)
     print(f"Model summary : {model.summary()}")
 
-    estimate_model_memory_usage(model, batch_size=4)
+    estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
     keras.utils.plot_model(model, "DeepLabV3Plus_model.png", show_shapes=True)
 
@@ -111,12 +114,14 @@ def deeplab_v3_plus(width, height, input_channels):
     input_shape = (width, height, input_channels)
     model = DeepLabV3Plus(input_shape)
     model.compile(
-        optimizer='adam',
+        optimizer=ModelConfig.TRAINING_OPTIMIZER,
         loss=combined_masked_dice_bce_loss,
         metrics=['accuracy', f1_score, precision_m, recall_m]
     )
     return model
 
 if __name__ == '__main__':
+    config_file = 'config.yaml'
+    load_config(config_file)
     input_shape = (256, 256, 3)
     DeepLabV3Plus(input_shape)
