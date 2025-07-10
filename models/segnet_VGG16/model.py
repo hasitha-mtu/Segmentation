@@ -5,6 +5,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.applications import VGG16
 import keras
 from models.memory_usage import estimate_model_memory_usage
+from models.common_utils.config import load_config, ModelConfig
 
 def SegNetVGG16(input_shape):
     inputs = Input(shape=input_shape)
@@ -12,7 +13,6 @@ def SegNetVGG16(input_shape):
 
     """ Encoder """
     x = vgg16.get_layer('block5_conv3').output  # 32x32
-    print(f'x shape: {x.shape}')
 
     # Decoder
     x = UpSampling2D(size=(2, 2))(x)  # 32x32 → 64x64
@@ -51,14 +51,16 @@ def SegNetVGG16(input_shape):
     x = Activation('relu')(x)
 
     # Final layer
-    x = Conv2D(1, (1, 1), padding='valid')(x)
+    x = Conv2D(ModelConfig.MODEL_OUTPUT_CHANNELS, (1, 1), padding='valid')(x)
     outputs = Activation('sigmoid')(x)  # Use 'sigmoid' if binary segmentation
 
-    model = Model(inputs=inputs, outputs=outputs)
+    model = Model(inputs=inputs,
+                  outputs=outputs,
+                  name=ModelConfig.MODEL_NAME)
     print("Model output shape:", model.output_shape)
-    print(f"Model summary : {model.summary()}")
+    model.summary()
 
-    estimate_model_memory_usage(model, batch_size=4)
+    estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
     keras.utils.plot_model(model, "SegNet-VGG16_model.png", show_shapes=True)
 
@@ -68,11 +70,13 @@ def segnet_vgg16(width, height, input_channels):
     input_shape = (width, height, input_channels)
     model = SegNetVGG16(input_shape)
     model.compile(
-        optimizer='adam',
+        optimizer=ModelConfig.TRAINING_OPTIMIZER,
         loss=combined_masked_dice_bce_loss,
         metrics=['accuracy', f1_score, precision_m, recall_m]
     )
     return model
 
 if __name__=='__main__':
+    config_file = 'config.yaml'
+    load_config(config_file)
     segnet_vgg16(512, 512, 3)
