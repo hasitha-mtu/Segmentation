@@ -20,10 +20,12 @@ from deeplabv3_plus.train_model import load_saved_model as load_saved_deeplabv3_
 from models.common_utils.images import save_image
 from models.common_utils.data import load_dataset
 
+from train import train_all_models
+
 from gradcam_keras import gradcam,gradcam_plus_plus
 
 # OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output"
-OUTPUT_DIR = "C:\\Users\AdikariAdikari\OneDrive - Munster Technological University\ModelResults\Segmentation\output2"
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\OneDrive - Munster Technological University\ModelResults\Segmentation\output3"
 
 # Dice Coefficient
 def dice_coefficient(y_true, y_pred, smooth=1e-6):
@@ -390,8 +392,9 @@ def load_image(path: str, size=(512, 512),  color_mode = "rgb"):
 #     make_prediction(image, mask)
 
 if __name__=="__main__":
+    train_all_models()
     path = "../input/updated_samples/segnet_512/images"
-    image_count = 10
+    image_count = 20
     (images, masks) = load_dataset(path,
                                    size=(512, 512),
                                    file_extension="jpg",
