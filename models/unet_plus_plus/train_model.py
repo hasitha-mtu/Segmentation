@@ -26,8 +26,7 @@ def make_or_restore_model(restore, num_channels, size):
         return unet_plus_plus(width, height, num_channels)
 
 
-def model_execution():
-    config_file = 'config.yaml'
+def model_execution(config_file):
     execute_model(config_file, make_or_restore_model, load_saved_model)
 
 

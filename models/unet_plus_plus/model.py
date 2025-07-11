@@ -1,5 +1,6 @@
 from tensorflow.keras import layers, models
 import keras
+import os
 from models.unet_plus_plus.loss_functions import BCEDiceLoss
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 from models.memory_usage import estimate_model_memory_usage
@@ -67,7 +68,7 @@ def build_model(batch_size, input_shape=(512, 512, 3), num_classes=1):
 
     estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
-    keras.utils.plot_model(model, "UNET++_model.png", show_shapes=True)
+    keras.utils.plot_model(model, os.path.join(ModelConfig.MODEL_DIR, "UNET++_model.png"), show_shapes=True)
 
     return model
 

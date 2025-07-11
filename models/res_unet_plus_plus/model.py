@@ -3,6 +3,7 @@ from tensorflow.keras.layers import (GlobalAveragePooling2D, Reshape, Dense, Mul
                                      Conv2D, BatchNormalization, Add, Activation,
                                      MaxPooling2D, UpSampling2D, Concatenate, Input)
 from tensorflow.keras.models import Model
+import os
 
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 from models.res_unet_plus_plus.loss_function import combined_masked_dice_bce_loss
@@ -145,7 +146,7 @@ def ResUnetPlusPlus(input_shape):
 
     estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
-    keras.utils.plot_model(model, "ResUnetPlusPlus_model.png", show_shapes=True)
+    keras.utils.plot_model(model, os.path.join(ModelConfig.MODEL_DIR, "ResUnetPlusPlus_model.png"), show_shapes=True)
 
     return model
 

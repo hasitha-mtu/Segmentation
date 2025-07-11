@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import layers
 import keras
+import os
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 from models.unet_ffc.loss_function import combined_masked_dice_bce_loss
 from models.memory_usage import estimate_model_memory_usage
@@ -141,7 +142,7 @@ def unet_model(image_width, image_height, image_channels):
 
     estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
-    keras.utils.plot_model(model, "UNET_FFC.png", show_shapes=True)
+    keras.utils.plot_model(model, os.path.join(ModelConfig.MODEL_DIR, "UNET_FFC.png"), show_shapes=True)
 
     return model
 

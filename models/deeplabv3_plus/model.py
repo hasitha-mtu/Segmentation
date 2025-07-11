@@ -4,7 +4,7 @@ from tensorflow.keras.layers import (Conv2D, BatchNormalization, Activation, UpS
 from tensorflow.keras.models import Model
 from tensorflow.keras.applications import ResNet50
 import keras
-
+import os
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 from models.deeplabv3_plus.loss_function import combined_masked_dice_bce_loss
 from models.memory_usage import estimate_model_memory_usage
@@ -102,7 +102,7 @@ def DeepLabV3Plus(shape):
 
     estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
-    keras.utils.plot_model(model, "DeepLabV3Plus_model.png", show_shapes=True)
+    keras.utils.plot_model(model, os.path.join(ModelConfig.MODEL_DIR, "DeepLabV3Plus_model.png"), show_shapes=True)
 
 
     print(f'Model type: {type(model)}')

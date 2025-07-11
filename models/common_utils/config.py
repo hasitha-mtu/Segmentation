@@ -16,8 +16,9 @@ def load_config(config_file):
     ModelConfig.MODEL_NAME = config_data.get('model', {}).get('name', 'Unet')
     ModelConfig.MODEL_INPUT_CHANNELS = config_data.get('model', {}).get('input_channels', 3)
     ModelConfig.MODEL_OUTPUT_CHANNELS = config_data.get('model', {}).get('output_channels', 1)
+    ModelConfig.MODEL_DIR = config_data.get('model', {}).get('model_dir', 'C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/unet_wsl')
 
-    ModelConfig.DATASET_PATH = config_data.get('data', {}).get('dataset_path', '../../input/updated_samples/segnet_512')
+    ModelConfig.DATASET_PATH = config_data.get('data', {}).get('dataset_path', 'C:/Users/AdikariAdikari/PycharmProjects/Segmentation/input/updated_samples/segnet_512')
 
     ModelConfig.IMAGE_HEIGHT = config_data.get('data', {}).get('image_size', {}).get('height', 512)
     ModelConfig.IMAGE_WIDTH = config_data.get('data', {}).get('image_size', {}).get('width', 512)
@@ -48,9 +49,9 @@ def load_config(config_file):
     ModelConfig.EARLY_STOPPING_CALLBACK_PATIENCE = config_data.get('training', {}).get('early_stopping_callback', {}).get('patience', 5)
     ModelConfig.EARLY_STOPPING_CALLBACK_RESTORE_BEST_WEIGHTS = config_data.get('training', {}).get('early_stopping_callback', {}).get('restore_best_weights', True)
 
-    ModelConfig.MODEL_SAVE_DIR = config_data.get('paths', {}).get('model_save_dir', './ckpt')
-    ModelConfig.LOG_DIR = config_data.get('paths', {}).get('log_dir', './logs')
-    ModelConfig.OUTPUT_DIR = config_data.get('paths', {}).get('output_dir', './output')
+    ModelConfig.MODEL_SAVE_DIR = config_data.get('paths', {}).get('model_save_dir', 'C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/deeplabv3_plus/ckpt')
+    ModelConfig.LOG_DIR = config_data.get('paths', {}).get('log_dir', 'C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/deeplabv3_plus/logs')
+    ModelConfig.OUTPUT_DIR = config_data.get('paths', {}).get('output_dir', 'C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/deeplabv3_plus/output')
     ModelConfig.SAVED_FILE_NAME = config_data.get('paths', {}).get('saved_file_name', 'model.h5')
 
     print(f"Loaded config from {config_file}")

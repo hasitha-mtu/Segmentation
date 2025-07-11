@@ -4,6 +4,7 @@ from tensorflow.keras.layers import Input, Conv2D, UpSampling2D, BatchNormalizat
 from tensorflow.keras.models import Model
 from tensorflow.keras.applications import VGG16
 import keras
+import os
 from models.memory_usage import estimate_model_memory_usage
 from models.common_utils.config import load_config, ModelConfig
 
@@ -62,7 +63,7 @@ def SegNetVGG16(input_shape):
 
     estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
-    keras.utils.plot_model(model, "SegNet-VGG16_model.png", show_shapes=True)
+    keras.utils.plot_model(model, os.path.join(ModelConfig.MODEL_DIR, "SegNet-VGG16_model.png"), show_shapes=True)
 
     return model
 

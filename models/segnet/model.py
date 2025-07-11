@@ -3,6 +3,7 @@ from models.segnet.loss_function import combined_masked_dice_bce_loss
 from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Activation
 from tensorflow.keras.models import Model
 import keras
+import os
 from models.memory_usage import estimate_model_memory_usage
 from models.common_utils.config import load_config, ModelConfig
 
@@ -77,7 +78,7 @@ def SegNet(input_shape=(256, 256, 3)):
 
     estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
-    keras.utils.plot_model(model, "SegNet_model.png", show_shapes=True)
+    keras.utils.plot_model(model, os.path.join(ModelConfig.MODEL_DIR, "SegNet_model.png"), show_shapes=True)
 
     return model
 

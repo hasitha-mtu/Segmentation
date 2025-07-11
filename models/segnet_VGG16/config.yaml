@@ -4,9 +4,10 @@ model:
   name: "SegNet-VGG16"
   input_channels: 3
   output_channels: 1
+  model_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/segnet_VGG16"
 
 data:
-  dataset_path: "../../input/updated_samples/segnet_512"
+  dataset_path: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/input/updated_samples/segnet_512"
   image_size:
     height: 512
     width: 512
@@ -37,8 +38,14 @@ training:
     patience: 10
     restore_best_weights: true
 
+#paths:
+#  model_save_dir: "./ckpt"
+#  log_dir: "./logs"
+#  output_dir: "./output"
+#  saved_file_name: "model.h5"
+
 paths:
-  model_save_dir: "./ckpt"
-  log_dir: "./logs"
-  output_dir: "./output"
+  model_save_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/segnet_VGG16/ckpt"
+  log_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/segnet_VGG16/logs"
+  output_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/segnet_VGG16/output"
   saved_file_name: "model.h5"

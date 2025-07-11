@@ -3,6 +3,7 @@ from tensorflow.keras.layers import (Conv2D, Activation, BatchNormalization,
                                      UpSampling2D, Input, Concatenate)
 from tensorflow.keras.models import Model
 from tensorflow.keras.applications import MobileNetV2
+import os
 
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 from models.unet_MobileNetV2.loss_function import combined_masked_dice_bce_loss
@@ -46,7 +47,7 @@ def UnetMobileNetV2(shape):
 
     estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
-    keras.utils.plot_model(model, "Unet-MobileNetV2_model.png", show_shapes=True)
+    keras.utils.plot_model(model, os.path.join(ModelConfig.MODEL_DIR, "Unet-MobileNetV2_model.png"), show_shapes=True)
 
     return model
 
