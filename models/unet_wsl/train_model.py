@@ -1,10 +1,11 @@
 import os
 import keras.callbacks_v1
 from models.unet_wsl.model import unet_model
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
+from models.common_utils.loss_functions import recall_m, precision_m, f1_score, masked_dice_loss
 
 from models.common_utils.config import ModelConfig
 from models.train_model_utils import execute_model
+
 
 def load_saved_model():
     custom_objects = {'recall_m': recall_m,
@@ -25,6 +26,12 @@ def make_or_restore_model(restore, num_channels, size):
     else:
         print("Creating fresh model")
         return unet_model(size[0], size[1], num_channels)
+
+
+def model_execution():
+    config_file = 'config.yaml'
+    execute_model(config_file, make_or_restore_model, load_saved_model)
+
 
 if __name__ == "__main__":
     config_file = 'config.yaml'

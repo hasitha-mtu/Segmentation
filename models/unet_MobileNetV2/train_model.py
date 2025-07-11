@@ -28,6 +28,12 @@ def make_or_restore_model(restore, num_channels, size):
         print("Creating fresh model")
         return unet_mobilenet_v2(width, height, num_channels)
 
+
+def model_execution():
+    config_file = 'config.yaml'
+    execute_model(config_file, make_or_restore_model, load_saved_model)
+
+
 if __name__ == "__main__":
     config_file = 'config.yaml'
     execute_model(config_file, make_or_restore_model, load_saved_model)
