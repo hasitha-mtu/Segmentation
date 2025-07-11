@@ -31,7 +31,9 @@ def decoder_block(inputs, skip_features, num_filters):
 
 def UnetVGG16(input_shape):
     inputs = Input(shape=input_shape)
+    print(f'inputs shape:{inputs.shape}')
     vgg16 = VGG16(include_top=False, weights='imagenet', input_tensor=inputs)
+    vgg16.summary()
 
     """ Encoder """
     s1 = vgg16.get_layer('block1_conv2').output # 512x512
@@ -58,12 +60,12 @@ def UnetVGG16(input_shape):
     print(f'd4 shape: {d4.shape}')
 
     """ Output """
-    output = Conv2D(1, 1, padding='same', activation='sigmoid')(d4)
+    output = Conv2D(ModelConfig.MODEL_OUTPUT_CHANNELS, 1, padding='same', activation='sigmoid')(d4)
     model = Model(inputs=inputs,
                   outputs=output,
                   name=ModelConfig.MODEL_NAME)
 
-    print(f"Model summary : {model.summary()}")
+    model.summary()
 
     estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 

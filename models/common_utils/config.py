@@ -23,7 +23,7 @@ def load_config(config_file):
     ModelConfig.IMAGE_WIDTH = config_data.get('data', {}).get('image_size', {}).get('width', 512)
 
     ModelConfig.BATCH_SIZE = config_data.get('data', {}).get('batch_size', 4)
-    ModelConfig.CHANNELS = config_data.get('data', {}).get('channels', ["RED", "GREEN", "BLUE", "NDWI"])
+    ModelConfig.CHANNELS = config_data.get('data', {}).get('channels', ["RED", "GREEN", "BLUE"])
     ModelConfig.BUFFER_SIZE = config_data.get('data', {}).get('buffer_size', 100)
     ModelConfig.SEED = config_data.get('data', {}).get('seed', 42)
     ModelConfig.ENABLE_OP_DETERMINISM = config_data.get('data', {}).get('enable_op_determinism', False)
