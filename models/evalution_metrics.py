@@ -6,16 +6,16 @@ from scipy.spatial.distance import directed_hausdorff
 from keras.utils import load_img, img_to_array
 import os
 
-from unet_wsl.train_model import load_saved_model as load_saved_unet_model
-from unet_ffc.train_model import load_saved_model as load_saved_unet_ffc_model
-from unet_VGG16.train_model import load_saved_model as load_saved_unet_VGG16_model
-from unet_ResNet50.train_model import load_saved_model as load_saved_unet_ResNet50_model
-from unet_MobileNetV2.train_model import load_saved_model as load_saved_unet_MobileNetV2_model
-from unet_plus_plus.train_model import load_saved_model as load_saved_unet_plus_plus_model
-from segnet.train_model import load_saved_model as load_saved_segnet_model
-from segnet_VGG16.train_model import load_saved_model as load_saved_segnet_VGG16_model
-from res_unet_plus_plus.train_model import load_saved_model as load_saved_res_unet_plus_plus_model
-from deeplabv3_plus.train_model import load_saved_model as load_saved_deeplabv3_plus_model
+from models.train import load_saved_unet_model
+from models.train import load_saved_unet_ffc_model
+from models.train import load_saved_unet_VGG16_model
+from models.train import load_saved_unet_ResNet50_model
+from models.train import load_saved_unet_MobileNetV2_model
+from models.train import load_saved_unet_plus_plus_model
+from models.train import load_saved_segnet_model
+from models.train import load_saved_segnet_VGG16_model
+from models.train import load_saved_res_unet_plus_plus_model
+from models.train import load_saved_deeplabv3_plus_model
 
 from models.common_utils.images import save_image
 from models.common_utils.data import load_dataset
