@@ -38,6 +38,9 @@ training:
     patience: 10
     restore_best_weights: true
 
+plots:
+  display: true
+
 paths:
   model_save_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/unet_wsl/ckpt"
   log_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/unet_wsl/logs"

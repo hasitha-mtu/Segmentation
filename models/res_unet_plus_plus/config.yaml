@@ -12,7 +12,7 @@ data:
     height: 512
     width: 512
   channels: ["RED", "GREEN", "BLUE"]
-  batch_size: 4
+  batch_size: 2
   buffer_size: 100
   seed: 42
   enable_op_determinism: false
@@ -38,11 +38,8 @@ training:
     patience: 10
     restore_best_weights: true
 
-#paths:
-#  model_save_dir: "./ckpt"
-#  log_dir: "./logs"
-#  output_dir: "./output"
-#  saved_file_name: "model.h5"
+plots:
+  display: true
 
 paths:
   model_save_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/res_unet_plus_plus/ckpt"
