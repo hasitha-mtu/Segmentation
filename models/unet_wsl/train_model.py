@@ -7,18 +7,26 @@ from models.common_utils.config import ModelConfig
 from models.train_model_utils import execute_model
 
 
-def load_saved_model():
+def load_saved_model(saved_model_path = None):
+    if saved_model_path is None:
+        saved_model_path = os.path.join(ModelConfig.MODEL_SAVE_DIR, ModelConfig.SAVED_FILE_NAME)
+    if os.path.exists(saved_model_path):
+        return loading_model(saved_model_path)
+    else:
+        print(f"Saved model file '{saved_model_path}' does not exist.")
+        config_file = os.path.join(ModelConfig.MODEL_DIR, 'config.yaml')
+        model_execution(config_file)
+        return loading_model(saved_model_path)
+
+def loading_model(saved_model_path):
+    print(f"Restoring from {saved_model_path}")
     custom_objects = {'recall_m': recall_m,
                       'precision_m': precision_m,
                       'f1_score': f1_score,
                       'masked_dice_loss': masked_dice_loss}
-
-    saved_model_path = os.path.join(ModelConfig.MODEL_SAVE_DIR, ModelConfig.SAVED_FILE_NAME)
-    print(f"Restoring from {saved_model_path}")
     return keras.models.load_model(saved_model_path,
                                    custom_objects=custom_objects,
                                    compile=True)
-
 
 def make_or_restore_model(restore, num_channels, size):
     if restore:
