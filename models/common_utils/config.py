@@ -6,6 +6,7 @@ class ModelConfig:
     pass
 
 def load_config(config_file):
+    print(f'Loading config file:{config_file}')
     if not os.path.exists(config_file):
         raise FileNotFoundError(f"Config file not found: {config_file}")
     with open(config_file, 'r') as f:
@@ -53,6 +54,8 @@ def load_config(config_file):
     ModelConfig.LOG_DIR = config_data.get('paths', {}).get('log_dir', 'C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/deeplabv3_plus/logs')
     ModelConfig.OUTPUT_DIR = config_data.get('paths', {}).get('output_dir', 'C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/deeplabv3_plus/output')
     ModelConfig.SAVED_FILE_NAME = config_data.get('paths', {}).get('saved_file_name', 'model.h5')
+
+    ModelConfig.PLOT_DISPLAY = config_data.get('plots', {}).get('display', True)
 
     print(f"Loaded config from {config_file}")
 
