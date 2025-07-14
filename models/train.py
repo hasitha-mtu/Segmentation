@@ -22,43 +22,43 @@ from deeplabv3_plus.train_model import load_saved_model as load_deeplabv3_plus_m
 
 def load_saved_unet_model():
     config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_wsl\config.yaml'
-    load_unet_model(config_file)
+    return load_unet_model(config_file)
 
 def load_saved_unet_VGG16_model():
     config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_VGG16\config.yaml'
-    load_unet_VGG16_model(config_file)
+    return load_unet_VGG16_model(config_file)
 
 def load_saved_unet_ResNet50_model():
     config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ResNet50\config.yaml'
-    load_unet_ResNet50_model(config_file)
+    return load_unet_ResNet50_model(config_file)
 
 def load_saved_unet_plus_plus_model():
     config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_plus_plus\config.yaml'
-    load_unet_plus_plus_model(config_file)
+    return load_unet_plus_plus_model(config_file)
 
 def load_saved_unet_MobileNetV2_model():
     config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_MobileNetV2\config.yaml'
-    load_unet_MobileNetV2_model(config_file)
+    return load_unet_MobileNetV2_model(config_file)
 
 def load_saved_unet_ffc_model():
     config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ffc\config.yaml'
-    load_unet_ffc_model(config_file)
+    return load_unet_ffc_model(config_file)
 
 def load_saved_segnet_VGG16_model():
     config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\segnet_VGG16\config.yaml'
-    load_segnet_model(config_file)
+    return load_segnet_model(config_file)
 
 def load_saved_segnet_model():
     config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\segnet\config.yaml'
-    load_segnet_VGG16_model(config_file)
+    return load_segnet_VGG16_model(config_file)
 
 def load_saved_res_unet_plus_plus_model():
     config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\res_unet_plus_plus\config.yaml'
-    load_res_unet_plus_plus_model(config_file)
+    return load_res_unet_plus_plus_model(config_file)
 
 def load_saved_deeplabv3_plus_model():
     config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\deeplabv3_plus\config.yaml'
-    load_deeplabv3_plus_model(config_file)
+    return load_deeplabv3_plus_model(config_file)
 
 def train_all_models():
     print('UNET model training...')

@@ -392,7 +392,6 @@ def load_image(path: str, size=(512, 512),  color_mode = "rgb"):
 #     make_prediction(image, mask)
 
 if __name__=="__main__":
-    train_all_models()
     path = "../input/updated_samples/segnet_512/images"
     image_count = 20
     (images, masks) = load_dataset(path,
