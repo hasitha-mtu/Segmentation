@@ -39,7 +39,7 @@ training:
     restore_best_weights: true
 
 plots:
-  display: true
+  display: false
 
 paths:
   model_save_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/res_unet_plus_plus/ckpt"
