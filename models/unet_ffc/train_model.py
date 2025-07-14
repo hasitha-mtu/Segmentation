@@ -3,17 +3,16 @@ import keras
 from models.unet_ffc.model import unet_model, FFC
 from models.unet_ffc.loss_function import combined_masked_dice_bce_loss
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
-from models.common_utils.config import ModelConfig
+from models.common_utils.config import ModelConfig, load_config
 from models.train_model_utils import execute_model
 
-def load_saved_model(saved_model_path = None):
-    if saved_model_path is None:
-        saved_model_path = os.path.join(ModelConfig.MODEL_SAVE_DIR, ModelConfig.SAVED_FILE_NAME)
+def load_saved_model(config_file):
+    load_config(config_file)
+    saved_model_path = os.path.join(ModelConfig.MODEL_SAVE_DIR, ModelConfig.SAVED_FILE_NAME)
     if os.path.exists(saved_model_path):
         return loading_model(saved_model_path)
     else:
         print(f"Saved model file '{saved_model_path}' does not exist.")
-        config_file = os.path.join(ModelConfig.MODEL_DIR, 'config.yaml')
         model_execution(config_file)
         return loading_model(saved_model_path)
 
