@@ -8,21 +8,22 @@ import cv2
 
 from common_utils.images import load_image
 
-from unet_wsl.train_model import load_saved_model as load_saved_unet_model
-from unet_ffc.train_model import load_saved_model as load_saved_unet_ffc_model
-from unet_VGG16.train_model import load_saved_model as load_saved_unet_VGG16_model
-from unet_ResNet50.train_model import load_saved_model as load_saved_unet_ResNet50_model
-from unet_MobileNetV2.train_model import load_saved_model as load_saved_unet_MobileNetV2_model
-from unet_plus_plus.train_model import load_saved_model as load_saved_unet_plus_plus_model
-from segnet.train_model import load_saved_model as load_saved_segnet_model
-from segnet_VGG16.train_model import load_saved_model as load_saved_segnet_VGG16_model
-from res_unet_plus_plus.train_model import load_saved_model as load_saved_res_unet_plus_plus_model
-from deeplabv3_plus.train_model import load_saved_model as load_saved_deeplabv3_plus_model
+from models.train import load_saved_unet_model
+from models.train import load_saved_unet_ffc_model
+from models.train import load_saved_unet_VGG16_model
+from models.train import load_saved_unet_ResNet50_model
+from models.train import load_saved_unet_MobileNetV2_model
+from models.train import load_saved_unet_plus_plus_model
+from models.train import load_saved_segnet_model
+from models.train import load_saved_segnet_VGG16_model
+from models.train import load_saved_res_unet_plus_plus_model
+from models.train import load_saved_deeplabv3_plus_model
 
 def score(output):
     return tf.reduce_mean(output[..., 0])  # as we have one target water class
 
 def gradcam(image, model, target_layer_name = 'conv2d_4'):
+    print(f'gradcam|model summary: {model.summary()}')
     image_tensor = tf.expand_dims(image, axis=0)
 
     # Create GradCAM object
@@ -152,11 +153,11 @@ def visualize(heatmap, image):
     plt.show()
 
 if __name__=="__main__":
-    model = load_saved_unet_ResNet50_model()
+    model = load_saved_deeplabv3_plus_model()
     print(f"model summary : {model.summary()}")
 
     image_path = '../input/samples/segnet_512/images/DJI_20250324092953_0009_V.jpg'
     image_tensor = load_image(image_path)
-    target_layer_name = 'conv2d_8'
+    target_layer_name = 'conv2d_49'
     execute_gradcam(image_tensor, model, target_layer_name)
     execute_gradcam_plus_plus(image_tensor, model, target_layer_name)
