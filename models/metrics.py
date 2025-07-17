@@ -3,8 +3,9 @@ import pandas as pd
 import numpy as np
 
 if __name__=="__main__":
-    root_path = "../output/"
+    root_path = "../output/17_07_2025"
     paths = os.listdir(root_path)
+    print(f'paths : {paths}')
     results = []
     for dir_name in paths:
         result_path = f"{root_path}/{dir_name}/result_metrics_{dir_name}.csv"
