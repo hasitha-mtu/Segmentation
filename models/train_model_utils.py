@@ -70,8 +70,8 @@ def train_model(epoch_count, batch_size, train_dataset, validation_dataset, num_
     os.makedirs(ModelConfig.OUTPUT_DIR, exist_ok=True)
     plot_model_history(history, ModelConfig.OUTPUT_DIR)
 
-def load_with_trained_model(load_saved_model, dataset, num_display=2):
-    model = load_saved_model()
+def load_with_trained_model(load_saved_model, dataset, config_file, num_display=2):
+    model = load_saved_model(config_file)
     for images, true_masks in dataset.take(1):  # Take one batch
         predicted_masks = model.predict(images)
         for i in range(min(num_display, ModelConfig.BATCH_SIZE)):
@@ -108,5 +108,5 @@ def execute_model(config_file, make_or_restore_model, load_saved_model):
                     config_file,
                     size=(ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH),
                     restore=False)
-        load_with_trained_model(load_saved_model, validation_dataset, 4)
+        load_with_trained_model(load_saved_model, validation_dataset, config_file,  4)
 
