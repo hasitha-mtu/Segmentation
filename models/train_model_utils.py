@@ -13,6 +13,7 @@ from models.common_utils.config import load_config, ModelConfig
 
 def train_model(epoch_count, batch_size, train_dataset, validation_dataset, num_channels,
                 make_or_restore_model,
+                config_file,
                 size = (256, 256),
                 restore=True):
 
@@ -55,7 +56,7 @@ def train_model(epoch_count, batch_size, train_dataset, validation_dataset, num_
     print("Number of devices: {}".format(strategy.num_replicas_in_sync))
 
     with strategy.scope():
-        model = make_or_restore_model(restore, num_channels, size)
+        model = make_or_restore_model(restore, num_channels, size, config_file)
 
     history = model.fit(
                     train_dataset,
@@ -104,6 +105,7 @@ def execute_model(config_file, make_or_restore_model, load_saved_model):
                     validation_dataset,
                     channel_count,
                     make_or_restore_model,
+                    config_file,
                     size=(ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH),
                     restore=False)
         load_with_trained_model(load_saved_model, validation_dataset, 4)

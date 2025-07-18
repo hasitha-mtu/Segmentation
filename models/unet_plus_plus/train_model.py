@@ -26,10 +26,10 @@ def loading_model(saved_model_path):
                                                    'BCEDiceLoss': BCEDiceLoss},
                                    compile=True)
 
-def make_or_restore_model(restore, num_channels, size):
+def make_or_restore_model(restore, num_channels, size, config_file):
     (width, height) = size
     if restore:
-        return load_saved_model()
+        return load_saved_model(config_file)
     else:
         print("Creating fresh model")
         return unet_plus_plus(width, height, num_channels)

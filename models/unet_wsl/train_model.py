@@ -27,9 +27,9 @@ def loading_model(saved_model_path):
                                    custom_objects=custom_objects,
                                    compile=True)
 
-def make_or_restore_model(restore, num_channels, size):
+def make_or_restore_model(restore, num_channels, size, config_file):
     if restore:
-        return load_saved_model()
+        return load_saved_model(config_file)
     else:
         print("Creating fresh model")
         return unet_model(size[0], size[1], num_channels)
