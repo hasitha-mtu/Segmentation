@@ -152,3 +152,120 @@ def overlay_mask_on_image(image, mask, alpha = 0.5, gamma = 0):
 # plt.imshow(cv2.cvtColor(overlay_highlight, cv2.COLOR_BGR2RGB))
 # plt.axis('off')
 # plt.show()
+
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+
+def overlay_mask_on_image(image, mask, color=(0, 255, 0), alpha=0.5):
+    """
+    Overlays a binary or grayscale segmentation mask on an RGB image.
+
+    Args:
+        image (np.ndarray): The original RGB image (H, W, 3).
+        mask (np.ndarray): The binary or grayscale mask (H, W, 1) or (H, W).
+                           Assumes 1 for foreground, 0 for background.
+        color (tuple): The RGB color for the mask overlay (e.g., (0, 255, 0) for green).
+        alpha (float): The transparency of the mask overlay (0.0 for fully transparent, 1.0 for fully opaque).
+
+    Returns:
+        np.ndarray: The image with the mask overlaid.
+    """
+    if mask.ndim == 3 and mask.shape[2] == 1:
+        mask = mask.squeeze() # Remove the channel dimension if present (512, 512, 1) -> (512, 512)
+
+    if image.shape[:2] != mask.shape[:2]:
+        raise ValueError("Image and mask must have the same height and width.")
+
+    # Convert mask to 3 channels for coloring
+    # Create an empty 3-channel image for the colored mask
+    colored_mask = np.zeros_like(image, dtype=np.uint8)
+
+    # Apply the desired color to the mask regions
+    # Where mask is > 0 (assuming foreground is 1), apply the color
+    # Ensure mask is boolean for direct indexing or use np.where
+    mask_bool = mask > 0
+
+    colored_mask[mask_bool] = color
+
+    # Blend the colored mask with the original image
+    # result = alpha * colored_mask + (1 - alpha) * image
+    overlaid_image = cv2.addWeighted(colored_mask, alpha, image, 1 - alpha, 0)
+
+    # Alternatively, you could directly manipulate pixels for non-masked regions:
+    # result = image.copy()
+    # result[mask_bool] = cv2.addWeighted(image[mask_bool], 1 - alpha, colored_mask[mask_bool], alpha, 0)
+
+    return overlaid_image
+
+# --- Example Usage ---
+if __name__ == "__main__":
+    # 1. Create a dummy original image (e.g., a simple gradient or random colors)
+    # This simulates your (512, 512, 3) image
+    image_height, image_width = 512, 512
+    original_image = np.zeros((image_height, image_width, 3), dtype=np.uint8)
+
+    # Fill with a simple gradient to make it visible
+    for i in range(image_height):
+        original_image[i, :, 0] = int(i / image_height * 255)  # Red gradient
+        original_image[i, :, 1] = int((image_height - i) / image_height * 255) # Green gradient
+    original_image[:, :, 2] = 100 # Blue constant
+
+    # You would load your actual image like this:
+    # original_image = cv2.imread('your_image.jpg')
+    # original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB) # OpenCV loads as BGR, convert to RGB
+
+    # 2. Create a dummy prediction mask
+    # This simulates your (512, 512, 1) prediction mask
+    # Let's make a circular mask for demonstration
+    prediction_mask = np.zeros((image_height, image_width, 1), dtype=np.uint8)
+    center_y, center_x = image_height // 2, image_width // 2
+    radius = 100
+    for y in range(image_height):
+        for x in range(image_width):
+            if (x - center_x)**2 + (y - center_y)**2 < radius**2:
+                prediction_mask[y, x, 0] = 1 # Mark as foreground
+
+    # You would load your actual prediction mask from your model output:
+    # prediction_mask = model.predict(input_image)
+    # Ensure it's binary (0 or 1) and the correct data type (np.uint8 or bool)
+
+    # --- Perform the overlay ---
+    # Example 1: Green overlay with 50% transparency
+    overlaid_img_green = overlay_mask_on_image(original_image, prediction_mask, color=(0, 255, 0), alpha=0.5)
+
+    # Example 2: Blue overlay with 30% transparency
+    overlaid_img_blue = overlay_mask_on_image(original_image, prediction_mask, color=(0, 0, 255), alpha=0.3)
+
+    # Example 3: Red overlay with high transparency (more subtle)
+    overlaid_img_red_subtle = overlay_mask_on_image(original_image, prediction_mask, color=(255, 0, 0), alpha=0.2)
+
+    # --- Display results using Matplotlib ---
+    plt.figure(figsize=(15, 5))
+
+    plt.subplot(1, 4, 1)
+    plt.imshow(original_image)
+    plt.title('Original Image')
+    plt.axis('off')
+
+    plt.subplot(1, 4, 2)
+    # For a (512,512,1) mask, imshow can handle it but it's good practice to squeeze
+    plt.imshow(prediction_mask.squeeze(), cmap='gray')
+    plt.title('Prediction Mask')
+    plt.axis('off')
+
+    plt.subplot(1, 4, 3)
+    plt.imshow(overlaid_img_green)
+    plt.title('Overlay (Green, Alpha 0.5)')
+    plt.axis('off')
+
+    plt.subplot(1, 4, 4)
+    plt.imshow(overlaid_img_blue)
+    plt.title('Overlay (Blue, Alpha 0.3)')
+    plt.axis('off')
+
+    plt.tight_layout()
+    plt.show()
+
+    # You can also save the overlaid image
+    # cv2.imwrite('overlaid_image_green.png', cv2.cvtColor(overlaid_img_green, cv2.COLOR_RGB2BGR))

@@ -338,7 +338,7 @@ def calculate_symmetric_hausdorff_distance(y_true, y_pred):
 
 if __name__=="__main__":
     path = "../input/updated_samples/segnet_512/images"
-    image_count = 1
+    image_count = 25
     (images, masks) = load_dataset(path,
                                    size=(512, 512),
                                    file_extension="jpg",
