@@ -525,6 +525,8 @@ def calculate_matrices(y_true, y_pred):
     print(f'precision_recall_updated|iou:{iou}')
     print(f'precision_recall_updated|pixel_accuracy:{pixel_accuracy}')
 
+    return precision, recall, dice, iou, pixel_accuracy
+
 
 def calculate_symmetric_hausdorff_distance(y_true, y_pred):
     y_true = y_true.squeeze()
@@ -574,6 +576,7 @@ def calculate_symmetric_hausdorff_distance(y_true, y_pred):
     # Symmetric Hausdorff Distance is the maximum of the two directed distances
     symmetric_hd = max(d_ab, d_ba)
     print(f'calculate_symmetric_hausdorff_distance|symmetric_hd:{symmetric_hd}')
+    return symmetric_hd
 
 
 if __name__=="__main__":
