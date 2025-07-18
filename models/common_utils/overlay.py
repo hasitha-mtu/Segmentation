@@ -156,6 +156,9 @@ def overlay_mask_on_image(image, mask, alpha = 0.5, gamma = 0):
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+from keras.utils import load_img, img_to_array
+
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output\\18_07_2025\\0"
 
 def overlay_mask_on_image(image, mask, color=(0, 255, 0), alpha=0.5):
     """
@@ -203,22 +206,31 @@ if __name__ == "__main__":
     # 1. Create a dummy original image (e.g., a simple gradient or random colors)
     # This simulates your (512, 512, 3) image
     image_height, image_width = 512, 512
-    original_image = np.zeros((image_height, image_width, 3), dtype=np.uint8)
+    # original_image = np.zeros((image_height, image_width, 3), dtype=np.uint8)
+    #
+    # # Fill with a simple gradient to make it visible
+    # for i in range(image_height):
+    #     original_image[i, :, 0] = int(i / image_height * 255)  # Red gradient
+    #     original_image[i, :, 1] = int((image_height - i) / image_height * 255) # Green gradient
+    # original_image[:, :, 2] = 100 # Blue constant
 
-    # Fill with a simple gradient to make it visible
-    for i in range(image_height):
-        original_image[i, :, 0] = int(i / image_height * 255)  # Red gradient
-        original_image[i, :, 1] = int((image_height - i) / image_height * 255) # Green gradient
-    original_image[:, :, 2] = 100 # Blue constant
+    image_path = f'{OUTPUT_DIR}/image_0.png'
+    mask_path = f'{OUTPUT_DIR}/UNET_0.png'
 
     # You would load your actual image like this:
-    # original_image = cv2.imread('your_image.jpg')
+    # original_image = cv2.imread(image_path)
     # original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB) # OpenCV loads as BGR, convert to RGB
+    original_image = img_to_array(load_img(image_path, color_mode='rgb'))
 
-    # 2. Create a dummy prediction mask
-    # This simulates your (512, 512, 1) prediction mask
-    # Let's make a circular mask for demonstration
-    prediction_mask = np.zeros((image_height, image_width, 1), dtype=np.uint8)
+    print(f'original_image shape:{original_image.shape}')
+    print(f'original_image type:{type(original_image)}')
+
+    # prediction_mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+    prediction_mask = img_to_array(load_img(mask_path, color_mode='grayscale'))
+
+    print(f'prediction_mask shape:{prediction_mask.shape}')
+    print(f'prediction_mask type:{type(prediction_mask)}')
+
     center_y, center_x = image_height // 2, image_width // 2
     radius = 100
     for y in range(image_height):
