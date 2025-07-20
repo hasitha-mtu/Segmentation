@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output\\18_07_2025\\0"
 
 
-def overlay_mask(image, predicted_mask, alpha=0.2):
+def overlay_mask(image, predicted_mask, alpha=0.2, gamma=0.1):
     """
     Overlays a predicted binary mask on an image.
 
@@ -51,7 +51,7 @@ def overlay_mask(image, predicted_mask, alpha=0.2):
     print(f'overlay_mask_on_image|mask_colored data type is {mask_colored.dtype}')
 
     # Blend images
-    blended = cv2.addWeighted(image, 1 - alpha, mask_colored, alpha, 0)
+    blended = cv2.addWeighted(image, 1 - alpha, mask_colored, alpha, gamma)
 
     return blended
 
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     print(f'prediction_mask shape:{prediction_mask.shape}')
     print(f'prediction_mask type:{type(prediction_mask)}')
 
-    overlaid_image = overlay_mask(original_image, prediction_mask, alpha=0.2)
+    overlaid_image = overlay_mask(original_image, prediction_mask, alpha=0.2, gamma=1)
 
     # --- Display results using Matplotlib ---
     plt.figure(figsize=(15, 5))
