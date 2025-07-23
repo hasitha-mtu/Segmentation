@@ -22,10 +22,11 @@ from models.common_utils.images import save_image
 from models.common_utils.data import load_dataset
 
 from train import train_all_models
+from models.common_utils.overlay import overlay_mask
 
 from gradcam_keras import gradcam,gradcam_plus_plus
 
-OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output\\18_07_2025"
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output\\19_07_2025"
 # OUTPUT_DIR = "C:\\Users\AdikariAdikari\OneDrive - Munster Technological University\ModelResults\Segmentation\output4"
 
 # Dice Coefficient
@@ -379,6 +380,8 @@ def evaluate_model(model_name, model, image, mask, index, output_path):
     print(f'y_pred shape:{y_pred.shape}')
 
     save_image(output_path, y_pred.squeeze(), f'{model_name}_{index}')
+    overlaid_image = overlay_mask(image, y_pred)
+    save_image(output_path, overlaid_image, f'overlaid_{model_name}_{index}')
 
     return evaluate_segmentation(y_true, y_pred[0], model=model, sample=image)
 
@@ -577,6 +580,24 @@ def calculate_symmetric_hausdorff_distance(y_true, y_pred):
     symmetric_hd = max(d_ab, d_ba)
     print(f'calculate_symmetric_hausdorff_distance|symmetric_hd:{symmetric_hd}')
     return symmetric_hd
+
+
+if __name__ == "__main__":
+    path = "../input/updated_samples/segnet_512/images"
+    image_count = 1
+    (images, masks) = load_dataset(path,
+                                   size=(512, 512),
+                                   file_extension="jpg",
+                                   channels=['RED', 'GREEN', 'BLUE'],
+                                   image_count=image_count)
+    print(f'images shape:{images.shape}')
+    print(f'masks shape:{masks.shape}')
+    image = images[0]
+    mask = masks[0]
+    print(f'image shape:{image.shape}')
+    print(f'mask shape:{mask.shape}')
+
+    make_prediction(image, mask, index=0)
 
 
 if __name__=="__main__":

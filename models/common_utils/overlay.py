@@ -6,6 +6,8 @@ OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output\\18_0
 
 
 def overlay_mask(image, predicted_mask, alpha=0.2, gamma=0.1):
+    print(f'overlay_mask|image shape:{image.shape}')
+    print(f'overlay_mask|predicted_mask shape:{predicted_mask.shape}')
     """
     Overlays a predicted binary mask on an image.
 

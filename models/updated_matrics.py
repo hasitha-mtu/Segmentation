@@ -20,6 +20,7 @@ from models.train import load_saved_deeplabv3_plus_model
 
 from models.common_utils.images import save_image
 from models.common_utils.data import load_dataset
+from models.common_utils.overlay import overlay_mask
 
 from gradcam_keras import gradcam,gradcam_plus_plus
 
@@ -199,6 +200,9 @@ def evaluate_model(model_name, model, image, mask, index, output_path):
     print(f'y_pred shape:{y_pred.shape}')
 
     save_image(output_path, y_pred.squeeze(), f'{model_name}_{index}')
+
+    overlaid_image = overlay_mask(image, y_pred)
+    save_image(output_path, overlaid_image, f'overlaid_{model_name}_{index}')
 
     return evaluate_segmentation(y_true, y_pred[0], model=model, sample=image)
 
