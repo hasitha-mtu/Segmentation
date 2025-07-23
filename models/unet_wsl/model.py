@@ -57,7 +57,7 @@ def unet_model(image_width, image_height, image_channels):
     u6 = decoding_block(u5, c1, 16)
 
     outputs = tf.keras.layers.Conv2D(ModelConfig.MODEL_OUTPUT_CHANNELS,
-                                     kernel_size=3,
+                                     kernel_size=1,
                                      activation='sigmoid',
                                      padding='same',
                                      name="segmentation_output")(u6)
