@@ -201,7 +201,7 @@ def evaluate_model(model_name, model, image, mask, index, output_path):
 
     save_image(output_path, y_pred.squeeze(), f'{model_name}_{index}')
 
-    overlaid_image = overlay_mask(image, y_pred)
+    overlaid_image = overlay_mask(image[0], y_pred[0])
     save_image(output_path, overlaid_image, f'overlaid_{model_name}_{index}')
 
     return evaluate_segmentation(y_true, y_pred[0], model=model, sample=image)
