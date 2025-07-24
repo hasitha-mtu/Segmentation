@@ -7,6 +7,9 @@ from skimage.feature import local_binary_pattern
 import tensorflow as tf
 from keras.utils import load_img, img_to_array
 
+from models.common_utils.dataset import compute_shadow_mask
+
+
 def load_image(path: str, size=(512,512), color_mode = "rgb"):
     img = load_img(path, color_mode=color_mode)
     img_array = img_to_array(img)
@@ -416,35 +419,140 @@ def create_confidence_mask(annotation, threshold=0.0):
     return mask[..., np.newaxis]
 
 if __name__ == "__main__":
-    annotation_dir = "../../data/dataset/masks"
-    formatted_annotation_dir = "../../input/updated_samples/segnet_512/test/masks"
-    formatted_image_dir = "../../input/updated_samples/segnet_512/test/images"
+    base_dir = "../../input/updated_samples/segnet_512"
+    image_dir = "../../input/updated_samples/segnet_512/images"
 
-    os.makedirs(formatted_annotation_dir, exist_ok=True)
-    os.makedirs(formatted_image_dir, exist_ok=True)
+    os.makedirs(base_dir, exist_ok=True)
 
-    for filename in os.listdir(annotation_dir):
-        mask_path = os.path.join(annotation_dir, filename)
-        ann = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)  # shape: (H, W)
-        ann = cv2.resize(ann, (512, 512))
+    for filename in os.listdir(image_dir):
+        image_path = os.path.join(image_dir, filename)
+        rgb = cv2.imread(image_path, cv2.COLOR_BGR2RGB)  # shape: (H, W)
 
-        mask = create_confidence_mask(ann)
+        # Generate NDWI dataset
+        ndwi_dir = f"{base_dir}/ndwi"
+        os.makedirs(ndwi_dir, exist_ok=True)
+        ndwi_path = os.path.join(ndwi_dir, filename)
+        ndwi_data = compute_ndwi(rgb)
+        ndwi_data = cv2.resize(ndwi_data, (512, 512))
+        cv2.imwrite(ndwi_path, ndwi_data)
 
-        # Save mask as 8-bit single-channel image
-        # updated_mask_path = os.path.join(formatted_annotation_dir, f'mask_{filename}')
-        updated_mask_path = os.path.join(formatted_annotation_dir, filename)
-        print(f"Resized mask path: {updated_mask_path}")
-        cv2.imwrite(updated_mask_path, (mask * 255).astype(np.uint8))
+        # Generate Canny Edge dataset
+        canny_dir = f"{base_dir}/canny"
+        os.makedirs(canny_dir, exist_ok=True)
+        canny_path = os.path.join(canny_dir, filename)
+        canny_data = compute_edges(rgb)
+        canny_data = cv2.resize(canny_data, (512, 512))
+        cv2.imwrite(canny_path, canny_data)
 
-        image_path = mask_path.replace("masks", "images")
-        image_path = image_path.replace(".png", ".jpg")
+        hsv_saturation_dir = f"{base_dir}/hsv_saturation"
+        os.makedirs(hsv_saturation_dir, exist_ok=True)
+        hsv_saturation_path = os.path.join(hsv_saturation_dir, filename)
+        hsv_saturation_data = compute_edges(rgb)
+        hsv_saturation_data, _hsv_value_data = compute_hsv(rgb)
+        hsv_saturation_data = cv2.resize(hsv_saturation_data, (512, 512))
+        cv2.imwrite(hsv_saturation_path, hsv_saturation_data)
 
-        image = cv2.imread(image_path)
-        resized_image = cv2.resize(image, (512, 512))
+        hsv_value_dir = f"{base_dir}/hsv_value"
+        os.makedirs(hsv_value_dir, exist_ok=True)
+        hsv_value_path = os.path.join(hsv_value_dir, filename)
+        _hsv_saturation, hsv_value_data = compute_hsv(rgb)
+        hsv_value_data = cv2.resize(hsv_value_data, (512, 512))
+        cv2.imwrite(hsv_value_path, hsv_value_data)
 
-        updated_image_path = os.path.join(formatted_image_dir, filename)
-        print(f"Resized image path: {updated_image_path}")
-        cv2.imwrite(updated_image_path, resized_image)
+        grad_mag_dir = f"{base_dir}/grad_mag"
+        os.makedirs(grad_mag_dir, exist_ok=True)
+        grad_mag_path = os.path.join(grad_mag_dir, filename)
+        grad_mag_data = compute_morphological_edge(rgb)
+        grad_mag_data = cv2.resize(grad_mag_data, (512, 512))
+        cv2.imwrite(grad_mag_path, grad_mag_data)
+
+        shadow_mask_dir = f"{base_dir}/shadow_mask"
+        os.makedirs(shadow_mask_dir, exist_ok=True)
+        shadow_mask_path = os.path.join(shadow_mask_dir, filename)
+        shadow_mask_data = compute_shadow_mask(rgb)
+        shadow_mask_data = cv2.resize(shadow_mask_data, (512, 512))
+        cv2.imwrite(shadow_mask_path, shadow_mask_data)
+
+        lightness_dir = f"{base_dir}/lightness"
+        os.makedirs(lightness_dir, exist_ok=True)
+        lightness_path = os.path.join(lightness_dir, filename)
+        lab = compute_lab(rgb)
+        lightness_data = lab[:, :, 0]
+        lightness_data = cv2.resize(lightness_data, (512, 512))
+        cv2.imwrite(lightness_path, lightness_data)
+
+        green_red_dir = f"{base_dir}/green_red"
+        os.makedirs(green_red_dir, exist_ok=True)
+        green_red_path = os.path.join(green_red_dir, filename)
+        lab = compute_lab(rgb)
+        green_red_data = lab[:, :, 1]
+        green_red_data = cv2.resize(green_red_data, (512, 512))
+        cv2.imwrite(green_red_path, green_red_data)
+
+        blue_yellow_dir = f"{base_dir}/blue_yellow"
+        os.makedirs(blue_yellow_dir, exist_ok=True)
+        blue_yellow_path = os.path.join(blue_yellow_dir, filename)
+        lab = compute_lab(rgb)
+        blue_yellow_data = lab[:, :, 2]
+        blue_yellow_data = cv2.resize(blue_yellow_data, (512, 512))
+        cv2.imwrite(blue_yellow_path, blue_yellow_data)
+
+        x_dir = f"{base_dir}/x"
+        os.makedirs(x_dir, exist_ok=True)
+        x_path = os.path.join(x_dir, filename)
+        xyz = compute_xyz(rgb)
+        x_data = xyz[:, :, 0]
+        x_data = cv2.resize(x_data, (512, 512))
+        cv2.imwrite(x_path, x_data)
+
+        y_dir = f"{base_dir}/y"
+        os.makedirs(y_dir, exist_ok=True)
+        y_path = os.path.join(y_dir, filename)
+        xyz = compute_xyz(rgb)
+        y_data = xyz[:, :, 1]
+        y_data = cv2.resize(y_data, (512, 512))
+        cv2.imwrite(y_path, y_data)
+
+        z_dir = f"{base_dir}/z"
+        os.makedirs(z_dir, exist_ok=True)
+        z_path = os.path.join(z_dir, filename)
+        xyz = compute_xyz(rgb)
+        z_data = xyz[:, :, 2]
+        z_data = cv2.resize(z_data, (512, 512))
+        cv2.imwrite(z_path, z_data)
+
+
+
+# if __name__ == "__main__":
+#     annotation_dir = "../../data/dataset/masks"
+#     formatted_annotation_dir = "../../input/updated_samples/segnet_512/test/masks"
+#     formatted_image_dir = "../../input/updated_samples/segnet_512/test/images"
+#
+#     os.makedirs(formatted_annotation_dir, exist_ok=True)
+#     os.makedirs(formatted_image_dir, exist_ok=True)
+#
+#     for filename in os.listdir(annotation_dir):
+#         mask_path = os.path.join(annotation_dir, filename)
+#         ann = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)  # shape: (H, W)
+#         ann = cv2.resize(ann, (512, 512))
+#
+#         mask = create_confidence_mask(ann)
+#
+#         # Save mask as 8-bit single-channel image
+#         # updated_mask_path = os.path.join(formatted_annotation_dir, f'mask_{filename}')
+#         updated_mask_path = os.path.join(formatted_annotation_dir, filename)
+#         print(f"Resized mask path: {updated_mask_path}")
+#         cv2.imwrite(updated_mask_path, (mask * 255).astype(np.uint8))
+#
+#         image_path = mask_path.replace("masks", "images")
+#         image_path = image_path.replace(".png", ".jpg")
+#
+#         image = cv2.imread(image_path)
+#         resized_image = cv2.resize(image, (512, 512))
+#
+#         updated_image_path = os.path.join(formatted_image_dir, filename)
+#         print(f"Resized image path: {updated_image_path}")
+#         cv2.imwrite(updated_image_path, resized_image)
 
 
 
