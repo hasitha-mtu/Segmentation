@@ -80,4 +80,4 @@ def unet_plus_plus(width, height, num_channels, batch_size=4):
 if __name__ == '__main__':
     config_file = 'config.yaml'
     load_config(config_file)
-    build_model(4, input_shape=(512, 512, 16), num_classes=1)
+    build_model(4, input_shape=(ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH, ModelConfig.MODEL_INPUT_CHANNELS), num_classes=1)

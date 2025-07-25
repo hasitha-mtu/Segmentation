@@ -80,4 +80,4 @@ def segnet_vgg16(width, height, input_channels):
 if __name__=='__main__':
     config_file = 'config.yaml'
     load_config(config_file)
-    segnet_vgg16(512, 512, 3)
+    segnet_vgg16(ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH, ModelConfig.MODEL_INPUT_CHANNELS)

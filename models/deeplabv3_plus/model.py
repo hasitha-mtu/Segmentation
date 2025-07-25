@@ -123,5 +123,5 @@ def deeplab_v3_plus(width, height, input_channels):
 if __name__ == '__main__':
     config_file = 'config.yaml'
     load_config(config_file)
-    input_shape = (256, 256, 3)
+    input_shape = (ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH, ModelConfig.MODEL_INPUT_CHANNELS)
     DeepLabV3Plus(input_shape)

@@ -164,5 +164,5 @@ def res_unet_plus_plus(width, height, input_channels):
 if __name__=='__main__':
     config_file = 'config.yaml'
     load_config(config_file)
-    res_unet_plus_plus(512, 512, 3)
+    res_unet_plus_plus(ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH, ModelConfig.MODEL_INPUT_CHANNELS)
 

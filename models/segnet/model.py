@@ -95,4 +95,4 @@ def segnet(width, height, input_channels):
 if __name__=='__main__':
     config_file = 'config.yaml'
     load_config(config_file)
-    segnet(512, 512, 3)
+    segnet(ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH, ModelConfig.MODEL_INPUT_CHANNELS)

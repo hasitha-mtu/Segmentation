@@ -79,4 +79,4 @@ def unet_model(width, height, num_channels):
 if __name__ == '__main__':
     config_file = 'config.yaml'
     load_config(config_file)
-    unet_with_resnet50(input_shape=(512, 512, 3))
+    unet_with_resnet50(input_shape=(ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH, ModelConfig.MODEL_INPUT_CHANNELS))
