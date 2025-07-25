@@ -77,6 +77,8 @@ def load_with_trained_model(load_saved_model, dataset, config_file, num_display=
         predicted_masks = model.predict(images)
         for i in range(min(num_display, ModelConfig.BATCH_SIZE)):
             actual_image = images[i] # EagerTensor
+            actual_image = tf.gather(actual_image, tf.constant([0, 1, 2], dtype=tf.int32), axis=-1) # Use only RGB channels
+            print(f'load_with_trained_model|actual_image shape:{actual_image.shape}')
             actual_mask = true_masks[i] # EagerTensor
             predicted_mask = predicted_masks[i] # nd array
             plot_prediction(i, actual_image.numpy(),
