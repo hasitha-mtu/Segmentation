@@ -1,12 +1,7 @@
 import tensorflow as tf
-import numpy as np
 import os
-import random
-from glob import glob
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-import cv2
-from skimage.feature import local_binary_pattern
 from models.common_utils.config import load_config, ModelConfig
 
 def augment_data(image, mask):

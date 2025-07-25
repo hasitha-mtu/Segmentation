@@ -418,8 +418,10 @@ def create_confidence_mask(annotation, threshold=0.0):
 
 if __name__ == "__main__":
     base_dir = "../../input/updated_samples/multi_channel_segnet_512"
-    image_dir = "../../input/updated_samples/segnet_512/images"
-    mask_dir = "../../input/updated_samples/segnet_512/masks"
+    mask_dir = "../../input/updated_samples/segnet_512/test/masks"
+    image_dir = "../../input/updated_samples/segnet_512/test/images"
+    # image_dir = "../../input/updated_samples/segnet_512/images"
+    # mask_dir = "../../input/updated_samples/segnet_512/masks"
 
     os.makedirs(base_dir, exist_ok=True)
 
@@ -428,6 +430,21 @@ if __name__ == "__main__":
         image_path = os.path.join(image_dir, filename)
         print(f'image_path : {image_path}')
         rgb = cv2.imread(image_path, cv2.COLOR_BGR2RGB)  # shape: (H, W)
+
+        new_mask_dir = f"{base_dir}/mask"
+        os.makedirs(new_mask_dir, exist_ok=True)
+        mask_path = os.path.join(mask_dir, filename)
+        new_mask_path = os.path.join(new_mask_dir, filename)
+        mask_data = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)  # shape: (H, W)
+        mask_data = cv2.resize(mask_data, (512, 512))
+        mask_data = create_confidence_mask(mask_data)
+        cv2.imwrite(new_mask_path, (mask_data * 255).astype(np.uint8))
+
+        rgb_dir = f"{base_dir}/image"
+        os.makedirs(rgb_dir, exist_ok=True)
+        rgb_path = os.path.join(rgb_dir, filename)
+        rgb_data = cv2.resize(rgb, (512, 512))
+        cv2.imwrite(rgb_path, rgb)
 
         # Generate NDWI dataset
         ndwi_dir = f"{base_dir}/ndwi"
@@ -529,7 +546,6 @@ if __name__ == "__main__":
         z_data = xyz[:, :, 2]
         z_data = cv2.resize(z_data, (512, 512))
         cv2.imwrite(z_path, z_data)
-
 
 
 # if __name__ == "__main__":
