@@ -7,8 +7,6 @@ from skimage.feature import local_binary_pattern
 import tensorflow as tf
 from keras.utils import load_img, img_to_array
 
-from models.common_utils.dataset import compute_shadow_mask
-
 
 def load_image(path: str, size=(512,512), color_mode = "rgb"):
     img = load_img(path, color_mode=color_mode)
@@ -419,13 +417,16 @@ def create_confidence_mask(annotation, threshold=0.0):
     return mask[..., np.newaxis]
 
 if __name__ == "__main__":
-    base_dir = "../../input/updated_samples/segnet_512"
+    base_dir = "../../input/updated_samples/multi_channel_segnet_512"
     image_dir = "../../input/updated_samples/segnet_512/images"
+    mask_dir = "../../input/updated_samples/segnet_512/masks"
 
     os.makedirs(base_dir, exist_ok=True)
 
-    for filename in os.listdir(image_dir):
+    for filename in os.listdir(mask_dir):
+        print(f'filename : {filename}')
         image_path = os.path.join(image_dir, filename)
+        print(f'image_path : {image_path}')
         rgb = cv2.imread(image_path, cv2.COLOR_BGR2RGB)  # shape: (H, W)
 
         # Generate NDWI dataset
@@ -443,6 +444,14 @@ if __name__ == "__main__":
         canny_data = compute_edges(rgb)
         canny_data = cv2.resize(canny_data, (512, 512))
         cv2.imwrite(canny_path, canny_data)
+
+        # Generate Canny LBP dataset
+        lbp_dir = f"{base_dir}/lbp"
+        os.makedirs(lbp_dir, exist_ok=True)
+        lbp_path = os.path.join(lbp_dir, filename)
+        lbp_data = compute_lbp(rgb)
+        lbp_data = cv2.resize(lbp_data, (512, 512))
+        cv2.imwrite(lbp_path, lbp_data)
 
         hsv_saturation_dir = f"{base_dir}/hsv_saturation"
         os.makedirs(hsv_saturation_dir, exist_ok=True)

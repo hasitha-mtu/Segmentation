@@ -11,7 +11,8 @@ data:
   image_size:
     height: 512
     width: 512
-  channels: ["RED", "GREEN", "BLUE"]
+#  channels: ["RED", "GREEN", "BLUE"]
+  channels: ["RED", "GREEN", "BLUE", "NDWI", "Canny", "LBP", "HSV Saturation", "HSV Value", "GradMag", "Shadow Mask"]
   batch_size: 4
   buffer_size: 100
   seed: 42
