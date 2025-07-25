@@ -2,7 +2,7 @@
 
 model:
   name: "UNET"
-  input_channels: 3
+  input_channels: 6
   output_channels: 1
   model_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/unet_wsl"
 
@@ -13,7 +13,7 @@ data:
     width: 512
 #  channels: ["RED", "GREEN", "BLUE"]
 #  channels: ["RED", "GREEN", "BLUE", "NDWI", "Canny", "LBP", "HSV Saturation", "HSV Value", "GradMag", "Shadow Mask", "Lightness", "Blue Yellow", "Green Red", "X", "Y", "Z"]
-  channels: [0, 1, 2, 4, 5]
+  channels: [0, 1, 2, 3, 4, 5]
   batch_size: 4
   buffer_size: 100
   seed: 42
@@ -47,4 +47,4 @@ paths:
   model_save_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/unet_wsl/ckpt"
   log_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/unet_wsl/logs"
   output_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/unet_wsl/output"
-  saved_file_name: "model.h5"
+  saved_file_name: "model_6_channels.h5"

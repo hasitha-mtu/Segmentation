@@ -38,6 +38,7 @@ def decoding_block(inputs, conv, filters, batch_normalization=True, kernel_size=
     return c
 
 def unet_model(image_width, image_height, image_channels):
+    assert image_channels == len(ModelConfig.CHANNELS)
     inputs = tf.keras.Input(shape=(image_height, image_width, image_channels))  # 8-channel input
     # x, attention_weights = channel_attention_block(inputs, reduction_ratio = image_channels)  # Apply attention
     # Encoding
