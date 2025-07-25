@@ -7,12 +7,13 @@ model:
   model_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/unet_wsl"
 
 data:
-  dataset_path: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/input/updated_samples/segnet_512"
+  dataset_path: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/input/updated_samples/multi_channel_segnet_512"
   image_size:
     height: 512
     width: 512
 #  channels: ["RED", "GREEN", "BLUE"]
-  channels: ["RED", "GREEN", "BLUE", "NDWI", "Canny", "LBP", "HSV Saturation", "HSV Value", "GradMag", "Shadow Mask"]
+#  channels: ["RED", "GREEN", "BLUE", "NDWI", "Canny", "LBP", "HSV Saturation", "HSV Value", "GradMag", "Shadow Mask", "Lightness", "Blue Yellow", "Green Red", "X", "Y", "Z"]
+  channels: [0, 1, 2, 4, 5]
   batch_size: 4
   buffer_size: 100
   seed: 42

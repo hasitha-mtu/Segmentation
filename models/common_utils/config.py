@@ -62,7 +62,7 @@ def load_config(config_file):
 # --- Usage ---
 if __name__ == "__main__":
     try:
-        load_config('../unet_ResNet50/config.yaml')
+        load_config('../unet_wsl/config.yaml')
 
         print(f"MODEL_NAME (YAML): {ModelConfig.MODEL_NAME}")
         print(f"DATASET_PATH (YAML): {ModelConfig.DATASET_PATH}")

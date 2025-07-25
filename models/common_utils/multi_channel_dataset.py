@@ -280,21 +280,48 @@ def load_and_preprocess_image(rgb_image_path, ndwi_image_path, canny_image_path,
                                 blue_yellow_image, green_red_image, x_image, y_image, z_image], axis=-1)
     return combined_input, mask
 
+def select_channels(input_tensor, output_mask):
+    """
+    Selects specific channels from the input tensor.
+
+    Args:
+        input_tensor: A tensor of shape (height, width, 16).
+        output_mask: The corresponding segmentation mask (height, width, 1).
+
+    Returns:
+        A tuple (selected_input_tensor, output_mask) where selected_input_tensor
+        has shape (height, width, 6).
+    """
+    # Use tf.gather to select channels along the last axis (axis=2)
+    # The batch dimension (None) is handled automatically.
+    selected_channel_indices = ModelConfig.CHANNELS
+    selected_channel_indices_tf = tf.constant(selected_channel_indices, dtype=tf.int32)
+    selected_input = tf.gather(input_tensor, selected_channel_indices_tf, axis=-1)
+    return selected_input, output_mask
+
+def filter_dataset(original_dataset):
+    filtered_dataset = original_dataset.map(select_channels, num_parallel_calls=tf.data.AUTOTUNE)
+    print("\nFiltered Dataset Element Spec:", filtered_dataset.element_spec)
+    return filtered_dataset
+
+# Channel Name List ["RED", "GREEN", "BLUE", "NDWI", "Canny", "LBP", "HSV Saturation", "HSV Value", "GradMag", "Shadow Mask", "Lightness", "Blue Yellow", "Green Red", "X", "Y", "Z"]
+# Define index list in config.yaml based on above order
 if __name__ == '__main__':
     config_path = '../unet_wsl/config.yaml'
 
     train_dataset, validation_dataset = load_datasets(config_path)
 
-    # Take a batch from the training dataset and display
-    print("\nDisplaying a sample batch from the training dataset (with augmentation):")
-    for image_batch, mask_batch in train_dataset.take(1):
-        for i in range(min(3, 4)):  # Display first 3 samples from the batch
-            display_sample(image_batch[i].numpy(), mask_batch[i].numpy())
+    filter_training_dataset = filter_dataset(train_dataset)
+    filter_validation_dataset = filter_dataset(validation_dataset)
 
-    # Take a batch from the validation dataset and display
-    print("\nDisplaying a sample batch from the validation dataset (without augmentation):")
-    for image_batch, mask_batch in validation_dataset.take(1):
-        for i in range(min(3, 4)):  # Display first 3 samples from the batch
-            display_sample(image_batch[i].numpy(), mask_batch[i].numpy())
+    print("For training dataset")
+    for inputs, masks in filter_training_dataset.take(1):
+        print("\nShape of inputs after channel selection:", inputs.shape)
+        print("Shape of masks (unchanged):", masks.shape)
+
+    print("For validation dataset")
+    for inputs, masks in filter_training_dataset.take(1):
+        print("\nShape of inputs after channel selection:", inputs.shape)
+        print("Shape of masks (unchanged):", masks.shape)
 
 
