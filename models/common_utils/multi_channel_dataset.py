@@ -53,7 +53,7 @@ def display_sample(image, mask):
 def load_datasets(config_file, config_loaded=False):
     if not config_loaded:
         load_config(config_file)
-    rgb_dir = f'{ModelConfig.DATASET_PATH}/images'
+    rgb_dir = f'{ModelConfig.DATASET_PATH}/image'
     ndwi_dir = f'{ModelConfig.DATASET_PATH}/ndwi'
     canny_dir = f'{ModelConfig.DATASET_PATH}/canny'
     lbp_dir = f'{ModelConfig.DATASET_PATH}/lbp'
@@ -68,7 +68,7 @@ def load_datasets(config_file, config_loaded=False):
     y_dir = f'{ModelConfig.DATASET_PATH}/y'
     z_dir = f'{ModelConfig.DATASET_PATH}/z'
 
-    masks_dir = f'{ModelConfig.DATASET_PATH}/masks'
+    masks_dir = f'{ModelConfig.DATASET_PATH}/mask'
 
     rgb_image_paths = sorted([os.path.join(rgb_dir, fname) for fname in os.listdir(rgb_dir)])
     ndwi_image_paths = sorted([os.path.join(ndwi_dir, fname) for fname in os.listdir(ndwi_dir)])
@@ -164,7 +164,7 @@ def load_datasets(config_file, config_loaded=False):
     )
 
     train_dataset = train_dataset.map(load_and_preprocess_image, num_parallel_calls=tf.data.AUTOTUNE)
-    train_dataset = train_dataset.map(augment_data, num_parallel_calls=tf.data.AUTOTUNE)
+    # train_dataset = train_dataset.map(augment_data, num_parallel_calls=tf.data.AUTOTUNE)
 
     train_dataset = train_dataset.cache()  # Cache training data
     train_dataset = train_dataset.shuffle(buffer_size=len(train_paths), seed=ModelConfig.SEED)  # Shuffle the entire training set
@@ -201,77 +201,77 @@ def load_and_preprocess_image(rgb_image_path, ndwi_image_path, canny_image_path,
                               mask_path):
     rgb_image = tf.io.read_file(rgb_image_path)
     rgb_image = tf.image.decode_image(rgb_image, channels=3, expand_animations=False)
-    rgb_image = tf.image.resize(rgb_image, [ModelConfig.IMG_HEIGHT, ModelConfig.IMG_WIDTH])
+    rgb_image = tf.image.resize(rgb_image, [ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH])
     rgb_image = tf.cast(rgb_image, tf.float32) / 255.0
 
     ndwi_image = tf.io.read_file(ndwi_image_path)
     ndwi_image = tf.image.decode_image(ndwi_image, channels=1, expand_animations=False)
-    ndwi_image = tf.image.resize(ndwi_image, [ModelConfig.IMG_HEIGHT, ModelConfig.IMG_WIDTH])
+    ndwi_image = tf.image.resize(ndwi_image, [ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH])
     ndwi_image = tf.cast(ndwi_image, tf.float32) / 255.0
 
     canny_image = tf.io.read_file(canny_image_path)
     canny_image = tf.image.decode_image(canny_image, channels=1, expand_animations=False)
-    canny_image = tf.image.resize(canny_image, [ModelConfig.IMG_HEIGHT, ModelConfig.IMG_WIDTH])
+    canny_image = tf.image.resize(canny_image, [ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH])
     canny_image = tf.cast(canny_image, tf.float32) / 255.0
 
     lbp_image = tf.io.read_file(lbp_image_path)
     lbp_image = tf.image.decode_image(lbp_image, channels=1, expand_animations=False)
-    lbp_image = tf.image.resize(lbp_image, [ModelConfig.IMG_HEIGHT, ModelConfig.IMG_WIDTH])
+    lbp_image = tf.image.resize(lbp_image, [ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH])
     lbp_image = tf.cast(lbp_image, tf.float32) / 255.0
 
     hsv_saturation_image = tf.io.read_file(hsv_saturation_image_path)
     hsv_saturation_image = tf.image.decode_image(hsv_saturation_image, channels=1, expand_animations=False)
-    hsv_saturation_image = tf.image.resize(hsv_saturation_image, [ModelConfig.IMG_HEIGHT, ModelConfig.IMG_WIDTH])
+    hsv_saturation_image = tf.image.resize(hsv_saturation_image, [ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH])
     hsv_saturation_image = tf.cast(hsv_saturation_image, tf.float32) / 255.0
 
     hsv_value_image = tf.io.read_file(hsv_value_image_path)
     hsv_value_image = tf.image.decode_image(hsv_value_image, channels=1, expand_animations=False)
-    hsv_value_image = tf.image.resize(hsv_value_image, [ModelConfig.IMG_HEIGHT, ModelConfig.IMG_WIDTH])
+    hsv_value_image = tf.image.resize(hsv_value_image, [ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH])
     hsv_value_image = tf.cast(hsv_value_image, tf.float32) / 255.0
 
     grad_mag_image = tf.io.read_file(grad_mag_image_path)
     grad_mag_image = tf.image.decode_image(grad_mag_image, channels=1, expand_animations=False)
-    grad_mag_image = tf.image.resize(grad_mag_image, [ModelConfig.IMG_HEIGHT, ModelConfig.IMG_WIDTH])
+    grad_mag_image = tf.image.resize(grad_mag_image, [ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH])
     grad_mag_image = tf.cast(grad_mag_image, tf.float32) / 255.0
 
     shadow_mask_image = tf.io.read_file(shadow_mask_image_path)
     shadow_mask_image = tf.image.decode_image(shadow_mask_image, channels=1, expand_animations=False)
-    shadow_mask_image = tf.image.resize(shadow_mask_image, [ModelConfig.IMG_HEIGHT, ModelConfig.IMG_WIDTH])
+    shadow_mask_image = tf.image.resize(shadow_mask_image, [ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH])
     shadow_mask_image = tf.cast(shadow_mask_image, tf.float32) / 255.0
 
     lightness_image = tf.io.read_file(lightness_image_path)
     lightness_image = tf.image.decode_image(lightness_image, channels=1, expand_animations=False)
-    lightness_image = tf.image.resize(lightness_image, [ModelConfig.IMG_HEIGHT, ModelConfig.IMG_WIDTH])
+    lightness_image = tf.image.resize(lightness_image, [ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH])
     lightness_image = tf.cast(lightness_image, tf.float32) / 255.0
 
     blue_yellow_image = tf.io.read_file(blue_yellow_image_path)
     blue_yellow_image = tf.image.decode_image(blue_yellow_image, channels=1, expand_animations=False)
-    blue_yellow_image = tf.image.resize(blue_yellow_image, [ModelConfig.IMG_HEIGHT, ModelConfig.IMG_WIDTH])
+    blue_yellow_image = tf.image.resize(blue_yellow_image, [ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH])
     blue_yellow_image = tf.cast(blue_yellow_image, tf.float32) / 255.0
 
     green_red_image = tf.io.read_file(green_red_image_path)
     green_red_image = tf.image.decode_image(green_red_image, channels=1, expand_animations=False)
-    green_red_image = tf.image.resize(green_red_image, [ModelConfig.IMG_HEIGHT, ModelConfig.IMG_WIDTH])
+    green_red_image = tf.image.resize(green_red_image, [ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH])
     green_red_image = tf.cast(green_red_image, tf.float32) / 255.0
 
     x_image = tf.io.read_file(x_image_path)
     x_image = tf.image.decode_image(x_image, channels=1, expand_animations=False)
-    x_image = tf.image.resize(x_image, [ModelConfig.IMG_HEIGHT, ModelConfig.IMG_WIDTH])
+    x_image = tf.image.resize(x_image, [ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH])
     x_image = tf.cast(x_image, tf.float32) / 255.0
 
     y_image = tf.io.read_file(y_image_path)
     y_image = tf.image.decode_image(y_image, channels=1, expand_animations=False)
-    y_image = tf.image.resize(y_image, [ModelConfig.IMG_HEIGHT, ModelConfig.IMG_WIDTH])
+    y_image = tf.image.resize(y_image, [ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH])
     y_image = tf.cast(y_image, tf.float32) / 255.0
 
     z_image = tf.io.read_file(z_image_path)
     z_image = tf.image.decode_image(z_image, channels=1, expand_animations=False)
-    z_image = tf.image.resize(z_image, [ModelConfig.IMG_HEIGHT, ModelConfig.IMG_WIDTH])
+    z_image = tf.image.resize(z_image, [ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH])
     z_image = tf.cast(z_image, tf.float32) / 255.0
 
     mask = tf.io.read_file(mask_path)
     mask = tf.image.decode_image(mask, channels=1, expand_animations=False)
-    mask = tf.image.resize(mask, [ModelConfig.IMG_HEIGHT, ModelConfig.IMG_WIDTH],
+    mask = tf.image.resize(mask, [ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH],
                            method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
     mask = tf.cast(mask, tf.int32)
 
