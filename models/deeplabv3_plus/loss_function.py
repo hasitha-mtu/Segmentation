@@ -14,6 +14,9 @@ def masked_dice_loss(y_true, y_pred, mask = None):
     return 1 - (2.0 * intersection + smooth) / (union + smooth)
 
 def combined_masked_dice_bce_loss(y_true, y_pred, mask=None):
+    y_true = tf.cast(y_true, tf.float32)
+    y_pred = tf.cast(y_pred, tf.float32)
+
     if mask is None:
         mask = tf.where(tf.math.is_nan(y_true), 0.0, 1.0)
 

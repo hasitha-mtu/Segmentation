@@ -1,6 +1,7 @@
 import os
 import keras
-from models.deeplabv3_plus.model import deeplab_v3_plus
+# from models.deeplabv3_plus.model import deeplab_v3_plus
+from models.deeplabv3_plus.model_test import deeplab_v3_plus
 from models.deeplabv3_plus.loss_function import combined_masked_dice_bce_loss
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
 
