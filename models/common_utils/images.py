@@ -339,14 +339,14 @@ def plot_details(image_path):
 
     ndwi = compute_ndwi(rgb)
     canny_edge = compute_edges(rgb)
-    shadow_mask = compute_shadow_mask(rgb, threshold=0.8)
+    shadow_mask = compute_shadow_mask(rgb, threshold=0.5)
     sobel_edge = compute_edges(rgb, edge_type='sobel')
 
     red = rgb[:, :, 0].astype(float)
     green = rgb[:, :, 1].astype(float)
     blue = rgb[:, :, 2].astype(float)
 
-    plt.figure(figsize=(20, 18))
+    plt.figure(figsize=(16, 8))
 
     plt.subplot(1, 4, 1)
     plt.imshow(rgb)
@@ -423,11 +423,7 @@ def resize_normalize_scale(data):
     scaled = (normalized * 255).astype(np.uint8)
     return scaled
 
-if __name__ == "__main__":
-    base_dir = "../../input/updated_samples/multi_channel_segnet_512"
-    mask_dir = "../../input/updated_samples/segnet_512/masks"
-    image_dir = "../../input/updated_samples/segnet_512/images"
-
+def create_multi_channel_dataset(base_dir, mask_dir, image_dir):
     os.makedirs(base_dir, exist_ok=True)
 
     for filename in os.listdir(mask_dir):
@@ -540,10 +536,16 @@ if __name__ == "__main__":
         cv2.imwrite(z_path, resize_normalize_scale(z_data))
 
 # if __name__ == "__main__":
-#     image_dir = "../../input/updated_samples/segnet_512/test/images"
-#     for filename in os.listdir(image_dir):
-#         path = os.path.join(image_dir, filename)
-#         plot_details(path)
+#     base_dir = "../../input/updated_samples/multi_channel_segnet_512"
+#     mask_dir = "../../input/updated_samples/segnet_512/masks"
+#     image_dir = "../../input/updated_samples/segnet_512/images"
+#     create_multi_channel_dataset(base_dir, mask_dir, image_dir)
+
+if __name__ == "__main__":
+    image_dir = "../../input/updated_samples/segnet_512/images"
+    for filename in os.listdir(image_dir):
+        path = os.path.join(image_dir, filename)
+        plot_details(path)
 
 # if __name__ == "__main__":
 #     annotation_dir = "../../input/updated_samples/segnet_512/masks"
