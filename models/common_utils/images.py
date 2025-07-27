@@ -333,7 +333,7 @@ def plot_colors(image_path):
     plt.show()
 
 
-def plot_details(image_path):
+def plot_details1(image_path):
     rgb = cv2.imread(image_path)
     rgb = cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB)
 
@@ -346,7 +346,7 @@ def plot_details(image_path):
     green = rgb[:, :, 1].astype(float)
     blue = rgb[:, :, 2].astype(float)
 
-    plt.figure(figsize=(16, 8))
+    plt.figure(figsize=(24, 8))
 
     plt.subplot(1, 4, 1)
     plt.imshow(rgb)
@@ -384,6 +384,63 @@ def plot_details(image_path):
     plt.axis('off')
 
     plt.subplot(2, 4, 4)
+    plt.imshow(sobel_edge)
+    plt.title('Sobel')
+    plt.axis('off')
+
+    plt.show()
+
+def plot_details(image_path):
+    rgb = cv2.imread(image_path)
+    rgb = cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB)
+
+    ndwi = compute_ndwi(rgb)
+    canny_edge = compute_edges(rgb)
+    shadow_mask = compute_shadow_mask(rgb, threshold=0.5)
+    sobel_edge = compute_edges(rgb, edge_type='sobel')
+
+    red = rgb[:, :, 0].astype(float)
+    green = rgb[:, :, 1].astype(float)
+    blue = rgb[:, :, 2].astype(float)
+
+    # plt.figure(figsize=(10, 8))
+
+    plt.subplot( 2, 4, 1)
+    plt.imshow(rgb)
+    plt.title('RGB')
+    plt.axis('off')
+
+    plt.subplot(2, 4, 2)
+    plt.imshow(red, cmap='Reds')
+    plt.title('Red')
+    plt.axis('off')
+
+    plt.subplot(2, 4, 3)
+    plt.imshow(green, cmap='Greens')
+    plt.title('Green')
+    plt.axis('off')
+
+    plt.subplot(2, 4, 4)
+    plt.imshow(blue, cmap='Blues')
+    plt.title('Blue')
+    plt.axis('off')
+
+    plt.subplot(2, 4, 5)
+    plt.imshow(shadow_mask)
+    plt.title('Shadow Mask')
+    plt.axis('off')
+
+    plt.subplot(2, 4, 6)
+    plt.imshow(ndwi)
+    plt.title('NDWI')
+    plt.axis('off')
+
+    plt.subplot(2, 4, 7)
+    plt.imshow(canny_edge)
+    plt.title('Canny')
+    plt.axis('off')
+
+    plt.subplot(2, 4, 8)
     plt.imshow(sobel_edge)
     plt.title('Sobel')
     plt.axis('off')
@@ -445,7 +502,7 @@ def create_multi_channel_dataset(base_dir, mask_dir, image_dir):
         os.makedirs(rgb_dir, exist_ok=True)
         rgb_path = os.path.join(rgb_dir, filename)
         rgb_data = cv2.resize(rgb, (512, 512))
-        cv2.imwrite(rgb_path, rgb)
+        cv2.imwrite(rgb_path, rgb_data)
 
         # Generate NDWI dataset
         ndwi_dir = f"{base_dir}/ndwi"
