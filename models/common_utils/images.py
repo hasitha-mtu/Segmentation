@@ -6,6 +6,8 @@ import os
 from skimage.feature import local_binary_pattern
 import tensorflow as tf
 from keras.utils import load_img, img_to_array
+from random import shuffle
+from glob import glob
 
 
 def load_image(path: str, size=(512,512), color_mode = "rgb"):
@@ -403,46 +405,102 @@ def plot_details(image_path):
     green = rgb[:, :, 1].astype(float)
     blue = rgb[:, :, 2].astype(float)
 
-    # plt.figure(figsize=(10, 8))
+    lab = compute_lab(rgb)
+    lightness = lab[:, :, 0]
+    green_red = lab[:, :, 1]
+    blue_yellow = lab[:, :, 2]
 
-    plt.subplot( 2, 4, 1)
+    xyz = compute_xyz(rgb)
+    x = xyz[:, :, 0]
+    y = xyz[:, :, 1]
+    z = xyz[:, :, 2]
+
+    hsv_saturation, hsv_value = compute_hsv(rgb)
+    gradient_mag = compute_morphological_edge(rgb)
+
+    plt.subplot( 3, 6, 1)
     plt.imshow(rgb)
     plt.title('RGB')
     plt.axis('off')
 
-    plt.subplot(2, 4, 2)
+    plt.subplot(3, 6, 2)
     plt.imshow(red, cmap='Reds')
     plt.title('Red')
     plt.axis('off')
 
-    plt.subplot(2, 4, 3)
+    plt.subplot(3, 6, 3)
     plt.imshow(green, cmap='Greens')
     plt.title('Green')
     plt.axis('off')
 
-    plt.subplot(2, 4, 4)
+    plt.subplot(3, 6, 4)
     plt.imshow(blue, cmap='Blues')
     plt.title('Blue')
     plt.axis('off')
 
-    plt.subplot(2, 4, 5)
+    plt.subplot(3, 6, 5)
     plt.imshow(shadow_mask)
     plt.title('Shadow Mask')
     plt.axis('off')
 
-    plt.subplot(2, 4, 6)
+    plt.subplot(3, 6, 6)
     plt.imshow(ndwi)
     plt.title('NDWI')
     plt.axis('off')
 
-    plt.subplot(2, 4, 7)
+    plt.subplot(3, 6, 7)
     plt.imshow(canny_edge)
     plt.title('Canny')
     plt.axis('off')
 
-    plt.subplot(2, 4, 8)
+    plt.subplot(3, 6, 8)
     plt.imshow(sobel_edge)
     plt.title('Sobel')
+    plt.axis('off')
+
+    plt.subplot(3, 6, 9)
+    plt.imshow(lightness)
+    plt.title('Lightness')
+    plt.axis('off')
+
+    plt.subplot(3, 6, 10)
+    plt.imshow(blue_yellow)
+    plt.title('Blue-Yellow')
+    plt.axis('off')
+
+    plt.subplot(3, 6, 11)
+    plt.imshow(green_red)
+    plt.title('Green-Red')
+    plt.axis('off')
+
+    plt.subplot(3, 6, 12)
+    plt.imshow(x)
+    plt.title('X')
+    plt.axis('off')
+
+    plt.subplot(3, 6, 13)
+    plt.imshow(y)
+    plt.title('Y')
+    plt.axis('off')
+
+    plt.subplot(3, 6, 14)
+    plt.imshow(z)
+    plt.title('Z')
+    plt.axis('off')
+
+    plt.subplot(3, 6, 15)
+    plt.imshow(hsv_saturation)
+    plt.title('HSV Saturation')
+    plt.axis('off')
+
+    plt.subplot(3, 6, 16)
+    plt.imshow(hsv_value)
+    plt.title('HSV Value')
+    plt.axis('off')
+
+    plt.subplot(3, 6, 17)
+    plt.imshow(gradient_mag)
+    plt.title('Gradient Mag')
     plt.axis('off')
 
     plt.show()
@@ -598,11 +656,17 @@ def create_multi_channel_dataset(base_dir, mask_dir, image_dir):
 #     image_dir = "../../input/updated_samples/segnet_512/images"
 #     create_multi_channel_dataset(base_dir, mask_dir, image_dir)
 
+# if __name__ == "__main__":
+#     image_dir = "../../input/updated_samples/segnet_512/images"
+#     for filename in os.listdir(image_dir):
+#         path = os.path.join(image_dir, filename)
+#         plot_details(path)
+
 if __name__ == "__main__":
-    image_dir = "../../input/updated_samples/segnet_512/images"
-    for filename in os.listdir(image_dir):
-        path = os.path.join(image_dir, filename)
-        plot_details(path)
+    files = glob("../../input/updated_samples/segnet_512/images/*.png")
+    shuffle(files)
+    for file in files:
+        plot_details(file)
 
 # if __name__ == "__main__":
 #     annotation_dir = "../../input/updated_samples/segnet_512/masks"
