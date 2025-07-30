@@ -255,6 +255,7 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     config_path = '../unet_wsl/config.yaml'
+    output_path = '../../output'
 
     train_dataset, validation_dataset = load_datasets(config_path)
 
@@ -270,7 +271,7 @@ if __name__ == '__main__':
         for i in range(min(3, 4)):  # Display first 3 samples from the batch
             mask_data = mask_batch[i].numpy().squeeze()
             print(mask_data.shape)
-            np.savetxt(f"matrix_{i}.txt", mask_data, fmt='%d', delimiter=' ')
+            np.savetxt(f"{output_path}/matrix_{i}.txt", mask_data, fmt='%d', delimiter=' ')
             display_sample(image_batch[i].numpy(), mask_data)
 
 
