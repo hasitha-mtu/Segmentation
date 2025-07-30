@@ -45,4 +45,4 @@ paths:
   model_save_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/unet_MobileNetV2/ckpt"
   log_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/unet_MobileNetV2/logs"
   output_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/unet_MobileNetV2/output"
-  saved_file_name: "model.h5"
+  saved_file_name: "model_3_channels.h5"

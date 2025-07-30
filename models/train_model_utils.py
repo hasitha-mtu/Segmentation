@@ -8,8 +8,8 @@ from keras.callbacks import (Callback,
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from models.common_utils.plot import plot_model_history, plot_prediction
 
-from models.common_utils.dataset import set_seed
-from models.common_utils.multi_channel_dataset import load_datasets, filter_dataset
+from models.common_utils.dataset import set_seed, load_datasets
+# from models.common_utils.multi_channel_dataset import load_datasets, filter_dataset
 from models.common_utils.config import load_config, ModelConfig
 
 def train_model(epoch_count, batch_size, train_dataset, validation_dataset, num_channels,
@@ -103,11 +103,11 @@ def execute_model(config_file, make_or_restore_model, load_saved_model):
         print(f'train_dataset: {train_dataset}')
         print(f'validation_dataset: {validation_dataset}')
 
-        train_dataset = filter_dataset(train_dataset)
-        validation_dataset = filter_dataset(validation_dataset)
-
-        print(f'filtered train_dataset: {train_dataset}')
-        print(f'filtered validation_dataset: {validation_dataset}')
+        # train_dataset = filter_dataset(train_dataset)
+        # validation_dataset = filter_dataset(validation_dataset)
+        #
+        # print(f'filtered train_dataset: {train_dataset}')
+        # print(f'filtered validation_dataset: {validation_dataset}')
 
         train_model(ModelConfig.TRAINING_EPOCHS,
                     ModelConfig.BATCH_SIZE,

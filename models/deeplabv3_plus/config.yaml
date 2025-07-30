@@ -2,7 +2,7 @@
 
 model:
   name: "DeepLabV3-Plus"
-  input_channels: 5
+  input_channels: 3
   output_channels: 1
   model_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/deeplabv3_plus"
 
@@ -11,7 +11,8 @@ data:
   image_size:
     height: 512
     width: 512
-  channels: [0, 1, 2, 4, 5]
+#  channels: [0, 1, 2, 4, 5]
+  channels: ["RED", "GREEN", "BLUE"]
   batch_size: 4
   buffer_size: 100
   seed: 42
@@ -45,4 +46,4 @@ paths:
   model_save_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/deeplabv3_plus/ckpt"
   log_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/deeplabv3_plus/logs"
   output_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/deeplabv3_plus/output"
-  saved_file_name: "model_6_channels.h5"
+  saved_file_name: "model_3_channels.h5"
