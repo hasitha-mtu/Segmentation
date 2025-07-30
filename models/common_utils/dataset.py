@@ -5,6 +5,8 @@ import random
 from glob import glob
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from collections import Counter
+
 from models.common_utils.config import load_config, ModelConfig
 
 
@@ -19,7 +21,7 @@ def set_seed(seed_value, enable_op_determinism=True):
 
 # formatted_annotation_dir = "../../input/updated_samples/segnet_512/masks"
 def get_image_mask_paths(image_dir, mask_dir):
-    image_paths = sorted(glob(os.path.join(image_dir, '*.jpg')))  # Assuming .jpg for images
+    image_paths = sorted(glob(os.path.join(image_dir, '*.png')))  # Assuming .jpg for images
     mask_paths = sorted(glob(os.path.join(mask_dir, '*.png')))  # Assuming .png for masks
 
     # Ensure masks match images (by filename prefix)
@@ -62,6 +64,8 @@ def load_image_mask(image_path, mask_path):
     return image, mask
 
 def augment_data(image, mask):
+    mask = tf.where(mask > 0.0, 1.0, 0.0)
+
     # Random horizontal flip
     if tf.random.uniform(()) > 0.5:
         image = tf.image.flip_left_right(image)
@@ -154,6 +158,101 @@ def load_datasets(config_file, config_loaded=False):
                                            shuffle=False)  # No augmentation/shuffle for validation
     return train_dataset, validation_dataset
 
+def check_class_imbalance1(train_ds, num_classes):
+    # Collect all labels
+    all_labels = []
+    for _, labels_batch in train_ds:
+        # If label_mode='categorical', convert one-hot to integer labels
+        # (This check is still good to keep for general robustness)
+        if len(labels_batch.shape) > 1 and labels_batch.shape[1] > 1:
+            labels_batch = tf.argmax(labels_batch, axis=1)
+
+        # Key change: Flatten the NumPy array before extending
+        # This will convert [[0], [235], ...] into [0, 235, ...]
+        all_labels.extend(labels_batch.numpy().flatten().tolist())
+
+    print(f'all_labels: {all_labels}')
+    class_counts = Counter(all_labels)
+    print(f'class_counts: {class_counts}')
+
+    print("Class Counts:")
+    # Assuming you know the class names if label_mode='int'
+    # class_names = train_ds.class_names # If using image_dataset_from_directory
+    class_names_map = {i: f'Class_{i}' for i in range(num_classes)}  # Dummy map
+
+    for class_id, count in class_counts.items():
+        print(f"  {class_names_map.get(class_id, class_id)}: {count} images")
+
+    total_images = len(all_labels)
+    print("\nClass Distribution (Percentages):")
+    for class_id, count in class_counts.items():
+        percentage = (count / total_images) * 100
+        print(f"  {class_names_map.get(class_id, class_id)}: {percentage:.2f}%")
+
+    # Visualize
+    class_ids = list(class_counts.keys())
+    counts = list(class_counts.values())
+    class_labels_for_plot = [class_names_map.get(i, str(i)) for i in class_ids]
+
+    plt.figure(figsize=(10, 7))
+    plt.bar(class_labels_for_plot, counts, color='lightgreen')
+    plt.title('Image Class Distribution (from tf.data.Dataset)')
+    plt.xlabel('Class')
+    plt.ylabel('Number of Images')
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    plt.show()
+
+def check_class_imbalance(train_ds):
+    all_labels = []
+    for _, labels_batch in train_ds:
+        # labels_batch is now expected to be a tensor of 0s and 1s (int32)
+        # It's a batch of masks, so it's likely (batch_size, height, width, channels)
+
+        # Flatten the entire batch of masks into a 1D array of pixel labels
+        all_labels.extend(labels_batch.numpy().flatten().tolist())
+
+    class_counts = Counter(all_labels)
+
+    print("Class Counts (after binarization):")
+    # You should now only see counts for 0 and 1
+    # Adjusting for potential num_classes (binary = 2)
+    class_names_map = {0: 'Non-Water', 1: 'Water'}
+
+    for class_id, count in class_counts.items():
+        print(f"  {class_names_map.get(class_id, class_id)}: {count} pixels")
+
+    total_labels_counted = sum(class_counts.values())
+    print(f"\nTotal pixels counted across all batches: {total_labels_counted}")
+
+    print("\nPixel Class Distribution (Percentages):")
+    for class_id, count in class_counts.items():
+        percentage = (count / total_labels_counted) * 100
+        print(f"  {class_names_map.get(class_id, class_id)}: {percentage:.2f}%")
+
+    # Visualize (only two bars now)
+    class_ids = list(class_counts.keys())
+    counts = list(class_counts.values())
+    class_labels_for_plot = [class_names_map.get(i, str(i)) for i in class_ids]
+
+    # Sort if desired (e.g., 0 then 1)
+    class_labels_for_plot, counts = zip(*sorted(zip(class_labels_for_plot, counts)))
+
+    plt.figure(figsize=(6, 5))
+    plt.bar(class_labels_for_plot, counts, color=['grey', 'blue'])  # Specific colors for non-water/water
+    plt.title('Pixel Class Distribution (Water vs. Non-Water)')
+    plt.xlabel('Class')
+    plt.ylabel('Number of Pixels')
+    plt.xticks(rotation=0)
+    plt.tight_layout()
+    plt.show()
+
+if __name__ == '__main__':
+    config_path = '../unet_wsl/config.yaml'
+
+    train_dataset, _validation_dataset = load_datasets(config_path)
+    check_class_imbalance(train_dataset)
+
 if __name__ == '__main__':
     config_path = '../unet_wsl/config.yaml'
 
@@ -169,6 +268,9 @@ if __name__ == '__main__':
     print("\nDisplaying a sample batch from the validation dataset (without augmentation):")
     for image_batch, mask_batch in validation_dataset.take(1):
         for i in range(min(3, 4)):  # Display first 3 samples from the batch
-            display_sample(image_batch[i].numpy(), mask_batch[i].numpy())
+            mask_data = mask_batch[i].numpy().squeeze()
+            print(mask_data.shape)
+            np.savetxt(f"matrix_{i}.txt", mask_data, fmt='%d', delimiter=' ')
+            display_sample(image_batch[i].numpy(), mask_data)
 
 

@@ -7,7 +7,7 @@ model:
   model_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/unet_wsl"
 
 data:
-  dataset_path: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/input/updated_samples/multi_channel_segnet_512"
+  dataset_path: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/input/updated_samples/segnet_512"
   image_size:
     height: 512
     width: 512
