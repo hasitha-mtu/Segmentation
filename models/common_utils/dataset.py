@@ -6,6 +6,8 @@ from glob import glob
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from collections import Counter
+from random import shuffle
+from tensorflow.keras.utils import save_img
 
 from models.common_utils.config import load_config, ModelConfig
 
@@ -203,34 +205,116 @@ def check_class_imbalance(train_ds):
     plt.tight_layout()
     plt.show()
 
+# if __name__ == '__main__':
+#     config_path = '../unet_wsl/config.yaml'
+#
+#     train_dataset, _validation_dataset = load_datasets(config_path)
+#     check_class_imbalance(train_dataset)
+#
+# if __name__ == '__main__':
+#     config_path = '../unet_wsl/config.yaml'
+#     output_path = '../../output'
+#
+#     train_dataset, validation_dataset = load_datasets(config_path)
+#
+#     # Take a batch from the training dataset and display
+#     print("\nDisplaying a sample batch from the training dataset (with augmentation):")
+#     for image_batch, mask_batch in train_dataset.take(1):
+#         for i in range(min(3, 4)):  # Display first 3 samples from the batch
+#             display_sample(image_batch[i].numpy(), mask_batch[i].numpy())
+#
+#     # Take a batch from the validation dataset and display
+#     print("\nDisplaying a sample batch from the validation dataset (without augmentation):")
+#     for image_batch, mask_batch in validation_dataset.take(1):
+#         for i in range(min(3, 4)):  # Display first 3 samples from the batch
+#             mask_data = mask_batch[i].numpy().squeeze()
+#             print(mask_data.shape)
+#             np.savetxt(f"{output_path}/matrix_{i}.txt", mask_data, fmt='%d', delimiter=' ')
+#             display_sample(image_batch[i].numpy(), mask_data)
+
+
 if __name__ == '__main__':
-    config_path = '../unet_wsl/config.yaml'
+    config_file = '../unet_wsl/config.yaml'
+    load_config(config_file)
+    base_path = '../../output/augmentation'
+    files = glob("../../input/updated_samples/segnet_512/images/*.png")
+    shuffle(files)
+    os.makedirs(base_path, exist_ok=True)
+    for i in range(20):
+        output_path = f'{base_path}/{i}'
+        os.makedirs(output_path, exist_ok=True)
 
-    train_dataset, _validation_dataset = load_datasets(config_path)
-    check_class_imbalance(train_dataset)
+        image = load_image(files[i])
 
-if __name__ == '__main__':
-    config_path = '../unet_wsl/config.yaml'
-    output_path = '../../output'
+        save_img(f'{output_path}/image.jpg', image)
 
-    train_dataset, validation_dataset = load_datasets(config_path)
+        flip_left_right = tf.image.flip_left_right(image)
+        save_img(f'{output_path}/flip_left_right.jpg', flip_left_right)
 
-    # Take a batch from the training dataset and display
-    print("\nDisplaying a sample batch from the training dataset (with augmentation):")
-    for image_batch, mask_batch in train_dataset.take(1):
-        for i in range(min(3, 4)):  # Display first 3 samples from the batch
-            display_sample(image_batch[i].numpy(), mask_batch[i].numpy())
+        flip_up_down = tf.image.flip_up_down(image)
+        save_img(f'{output_path}/flip_up_down.jpg', flip_up_down)
 
-    # Take a batch from the validation dataset and display
-    print("\nDisplaying a sample batch from the validation dataset (without augmentation):")
-    for image_batch, mask_batch in validation_dataset.take(1):
-        for i in range(min(3, 4)):  # Display first 3 samples from the batch
-            mask_data = mask_batch[i].numpy().squeeze()
-            print(mask_data.shape)
-            np.savetxt(f"{output_path}/matrix_{i}.txt", mask_data, fmt='%d', delimiter=' ')
-            display_sample(image_batch[i].numpy(), mask_data)
+        # Random rotation (by 90, 180, 270 degrees)
+        # tf.image.rot90 is deterministic, random_uniform decides how many times
+        k = tf.random.uniform(shape=[], minval=0, maxval=4, dtype=tf.int32)
+        rot90 = tf.image.rot90(image, k=k)
+        save_img(f'{output_path}/rot90.jpg', rot90)
+
+        # Image-specific augmentations (don't apply to mask)
+        random_brightness = tf.image.random_brightness(image, max_delta=0.4)  # Adjust brightness by up to 40%
+        save_img(f'{output_path}/random_brightness.jpg', random_brightness)
+        random_contrast = tf.image.random_contrast(image, lower=1, upper=2)  # Adjust contrast by +/- 20%
+        save_img(f'{output_path}/random_contrast.jpg', random_contrast)
+        random_saturation = tf.image.random_saturation(image, lower=1, upper=2)  # Only for RGB images
+        save_img(f'{output_path}/random_saturation.jpg', random_saturation)
+        random_hue = tf.image.random_hue(image, max_delta=0.4)  # Only for RGB images
+        save_img(f'{output_path}/random_hue.jpg', random_hue)
+
+        # Clip values to ensure they stay within [0, 1] after augmentation
+        augmented = tf.clip_by_value(image, 0.0, 1.0)
+        save_img(f'{output_path}/augmented.jpg', augmented)
+
+        plt.subplot(2, 4, 1)
+        plt.imshow(image)
+        plt.title('Original Image')
+        plt.axis('off')
+
+        plt.subplot(2, 4, 2)
+        plt.imshow(flip_left_right)
+        plt.title('Flip Left Right')
+        plt.axis('off')
+
+        plt.subplot(2, 4, 3)
+        plt.imshow(flip_up_down)
+        plt.title('Flip Up Down')
+        plt.axis('off')
+
+        plt.subplot(2, 4, 4)
+        plt.imshow(rot90)
+        plt.title('Rotation(90 degrees)')
+        plt.axis('off')
+
+        plt.subplot(2, 4, 5)
+        plt.imshow(random_brightness)
+        plt.title('Brightness')
+        plt.axis('off')
+
+        plt.subplot(2, 4, 6)
+        plt.imshow(random_contrast)
+        plt.title('Contrast')
+        plt.axis('off')
+
+        plt.subplot(2, 4, 7)
+        plt.imshow(random_saturation)
+        plt.title('Saturation')
+        plt.axis('off')
+
+        plt.subplot(2, 4, 8)
+        plt.imshow(random_hue)
+        plt.title('Hue')
+        plt.axis('off')
+
+        plt.show()
 
 
-if __name__ == '__main__':
-    config_path = '../unet_wsl/config.yaml'
-    output_path = '../../output'
+
