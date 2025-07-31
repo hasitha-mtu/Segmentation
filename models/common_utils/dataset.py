@@ -85,8 +85,8 @@ def augment_data(image, mask):
     # Image-specific augmentations (don't apply to mask)
     image = tf.image.random_brightness(image, max_delta=0.2) # Adjust brightness by up to 20%
     image = tf.image.random_contrast(image, lower=0.8, upper=1.2) # Adjust contrast by +/- 20%
-    # image = tf.image.random_saturation(image, lower=0.8, upper=1.2) # Only for RGB images
-    # image = tf.image.random_hue(image, max_delta=0.1) # Only for RGB images
+    image = tf.image.random_saturation(image, lower=0.8, upper=1.2) # Only for RGB images
+    image = tf.image.random_hue(image, max_delta=0.1) # Only for RGB images
 
     # Clip values to ensure they stay within [0, 1] after augmentation
     image = tf.clip_by_value(image, 0.0, 1.0)
@@ -158,50 +158,6 @@ def load_datasets(config_file, config_loaded=False):
                                            shuffle=False)  # No augmentation/shuffle for validation
     return train_dataset, validation_dataset
 
-def check_class_imbalance1(train_ds, num_classes):
-    # Collect all labels
-    all_labels = []
-    for _, labels_batch in train_ds:
-        # If label_mode='categorical', convert one-hot to integer labels
-        # (This check is still good to keep for general robustness)
-        if len(labels_batch.shape) > 1 and labels_batch.shape[1] > 1:
-            labels_batch = tf.argmax(labels_batch, axis=1)
-
-        # Key change: Flatten the NumPy array before extending
-        # This will convert [[0], [235], ...] into [0, 235, ...]
-        all_labels.extend(labels_batch.numpy().flatten().tolist())
-
-    print(f'all_labels: {all_labels}')
-    class_counts = Counter(all_labels)
-    print(f'class_counts: {class_counts}')
-
-    print("Class Counts:")
-    # Assuming you know the class names if label_mode='int'
-    # class_names = train_ds.class_names # If using image_dataset_from_directory
-    class_names_map = {i: f'Class_{i}' for i in range(num_classes)}  # Dummy map
-
-    for class_id, count in class_counts.items():
-        print(f"  {class_names_map.get(class_id, class_id)}: {count} images")
-
-    total_images = len(all_labels)
-    print("\nClass Distribution (Percentages):")
-    for class_id, count in class_counts.items():
-        percentage = (count / total_images) * 100
-        print(f"  {class_names_map.get(class_id, class_id)}: {percentage:.2f}%")
-
-    # Visualize
-    class_ids = list(class_counts.keys())
-    counts = list(class_counts.values())
-    class_labels_for_plot = [class_names_map.get(i, str(i)) for i in class_ids]
-
-    plt.figure(figsize=(10, 7))
-    plt.bar(class_labels_for_plot, counts, color='lightgreen')
-    plt.title('Image Class Distribution (from tf.data.Dataset)')
-    plt.xlabel('Class')
-    plt.ylabel('Number of Images')
-    plt.xticks(rotation=45, ha='right')
-    plt.tight_layout()
-    plt.show()
 
 def check_class_imbalance(train_ds):
     all_labels = []
@@ -275,3 +231,6 @@ if __name__ == '__main__':
             display_sample(image_batch[i].numpy(), mask_data)
 
 
+if __name__ == '__main__':
+    config_path = '../unet_wsl/config.yaml'
+    output_path = '../../output'
