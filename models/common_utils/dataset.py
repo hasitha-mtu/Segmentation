@@ -205,36 +205,7 @@ def check_class_imbalance(train_ds):
     plt.tight_layout()
     plt.show()
 
-# if __name__ == '__main__':
-#     config_path = '../unet_wsl/config.yaml'
-#
-#     train_dataset, _validation_dataset = load_datasets(config_path)
-#     check_class_imbalance(train_dataset)
-#
-# if __name__ == '__main__':
-#     config_path = '../unet_wsl/config.yaml'
-#     output_path = '../../output'
-#
-#     train_dataset, validation_dataset = load_datasets(config_path)
-#
-#     # Take a batch from the training dataset and display
-#     print("\nDisplaying a sample batch from the training dataset (with augmentation):")
-#     for image_batch, mask_batch in train_dataset.take(1):
-#         for i in range(min(3, 4)):  # Display first 3 samples from the batch
-#             display_sample(image_batch[i].numpy(), mask_batch[i].numpy())
-#
-#     # Take a batch from the validation dataset and display
-#     print("\nDisplaying a sample batch from the validation dataset (without augmentation):")
-#     for image_batch, mask_batch in validation_dataset.take(1):
-#         for i in range(min(3, 4)):  # Display first 3 samples from the batch
-#             mask_data = mask_batch[i].numpy().squeeze()
-#             print(mask_data.shape)
-#             np.savetxt(f"{output_path}/matrix_{i}.txt", mask_data, fmt='%d', delimiter=' ')
-#             display_sample(image_batch[i].numpy(), mask_data)
-
-
-if __name__ == '__main__':
-    config_file = '../unet_wsl/config.yaml'
+def plot_augmented_images(config_file):
     load_config(config_file)
     base_path = '../../output/augmentation'
     files = glob("../../input/updated_samples/segnet_512/images/*.png")
@@ -315,6 +286,39 @@ if __name__ == '__main__':
         plt.axis('off')
 
         plt.show()
+
+if __name__ == '__main__':
+    config_path = '../unet_wsl/config.yaml'
+
+    train_dataset, _validation_dataset = load_datasets(config_path)
+    check_class_imbalance(train_dataset)
+#
+# if __name__ == '__main__':
+#     config_path = '../unet_wsl/config.yaml'
+#     output_path = '../../output'
+#
+#     train_dataset, validation_dataset = load_datasets(config_path)
+#
+#     # Take a batch from the training dataset and display
+#     print("\nDisplaying a sample batch from the training dataset (with augmentation):")
+#     for image_batch, mask_batch in train_dataset.take(1):
+#         for i in range(min(3, 4)):  # Display first 3 samples from the batch
+#             display_sample(image_batch[i].numpy(), mask_batch[i].numpy())
+#
+#     # Take a batch from the validation dataset and display
+#     print("\nDisplaying a sample batch from the validation dataset (without augmentation):")
+#     for image_batch, mask_batch in validation_dataset.take(1):
+#         for i in range(min(3, 4)):  # Display first 3 samples from the batch
+#             mask_data = mask_batch[i].numpy().squeeze()
+#             print(mask_data.shape)
+#             np.savetxt(f"{output_path}/matrix_{i}.txt", mask_data, fmt='%d', delimiter=' ')
+#             display_sample(image_batch[i].numpy(), mask_data)
+
+
+# if __name__ == '__main__':
+#     config_file = '../unet_wsl/config.yaml'
+#     plot_augmented_images(config_file)
+
 
 
 
