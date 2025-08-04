@@ -9,7 +9,6 @@ from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from models.common_utils.plot import plot_model_history, plot_prediction
 
 from models.common_utils.dataset import set_seed, load_datasets
-# from models.common_utils.multi_channel_dataset import load_datasets, filter_dataset
 from models.common_utils.config import load_config, ModelConfig
 
 def train_model(epoch_count, batch_size, train_dataset, validation_dataset, num_channels,
@@ -46,10 +45,19 @@ def train_model(epoch_count, batch_size, train_dataset, validation_dataset, num_
         verbose=1
     )
 
+    reduce_lr_on_plateau = tf.keras.callbacks.ReduceLROnPlateau(
+        monitor='val_loss',
+        factor=0.5,
+        patience=5,
+        min_lr=1e-7,
+        verbose=1
+    )
+
     cbs = [
         CSVLogger(ModelConfig.LOG_DIR+'/model_logs.csv', separator=',', append=False),
         checkpoint_cb,
         early_stopping_cb,
+        reduce_lr_on_plateau,
         tensorboard
     ]
     # Create a MirroredStrategy.
