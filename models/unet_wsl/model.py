@@ -2,10 +2,10 @@ import os.path
 
 import keras
 import tensorflow as tf
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, masked_dice_loss
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_loss_function
 from models.memory_usage import estimate_model_memory_usage
 from models.common_utils.config import load_config, ModelConfig
-import tensorflow_addons as tfa
+from models.common_utils.model_utils import get_optimizer
 
 def encoding_block(inputs, filters, dropout, batch_normalization=True, pooling=True, kernel_size=(3,3), activation="relu",
                    kernel_initializer="he_normal", padding="same"):
@@ -68,19 +68,15 @@ def unet_model(image_width, image_height, image_channels):
                            outputs=[outputs],
                            name=ModelConfig.MODEL_NAME)
 
+
     model.compile(
-        optimizer=ModelConfig.TRAINING_OPTIMIZER,
-        # optimizer=tfa.optimizers.AdamW(
-        #     weight_decay=0.01,
-        #     learning_rate=1e-3
-        # ),
-        loss=masked_dice_loss,
+        optimizer=get_optimizer(ModelConfig.TRAINING_OPTIMIZER),
+        loss=combined_loss_function,
         metrics=['accuracy', f1_score, precision_m, recall_m] # Metrics only for the segmentation output
     )
 
     print("Model output shape:", model.output_shape)
 
-    # print(f"Model summary : {model.summary()}")
     model.summary()
 
     estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)

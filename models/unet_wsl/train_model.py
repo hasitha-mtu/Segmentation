@@ -1,8 +1,7 @@
 import os
 import keras.callbacks_v1
 from models.unet_wsl.model import unet_model
-from models.common_utils.loss_functions import recall_m, precision_m, f1_score, masked_dice_loss
-
+from models.common_utils.loss_functions import recall_m, precision_m, f1_score, combined_loss_function
 from models.common_utils.config import ModelConfig, load_config
 from models.train_model_utils import execute_model
 
@@ -22,7 +21,7 @@ def loading_model(saved_model_path):
     custom_objects = {'recall_m': recall_m,
                       'precision_m': precision_m,
                       'f1_score': f1_score,
-                      'masked_dice_loss': masked_dice_loss}
+                      'combined_loss_function': combined_loss_function}
     return keras.models.load_model(saved_model_path,
                                    custom_objects=custom_objects,
                                    compile=True)
