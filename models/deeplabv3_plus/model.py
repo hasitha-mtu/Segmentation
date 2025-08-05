@@ -5,10 +5,11 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.applications import ResNet50
 import keras
 import os
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_loss_function
 from models.deeplabv3_plus.loss_function import combined_masked_dice_bce_loss
 from models.memory_usage import estimate_model_memory_usage
 from models.common_utils.config import load_config, ModelConfig
+from models.common_utils.model_utils import get_optimizer
 
 def ASPP(inputs):
     shape = inputs.shape
@@ -114,8 +115,8 @@ def deeplab_v3_plus(width, height, input_channels):
     input_shape = (width, height, input_channels)
     model = DeepLabV3Plus(input_shape)
     model.compile(
-        optimizer=ModelConfig.TRAINING_OPTIMIZER,
-        loss=combined_masked_dice_bce_loss,
+        optimizer=get_optimizer(),
+        loss=combined_loss_function,
         metrics=['accuracy', f1_score, precision_m, recall_m]
     )
     return model

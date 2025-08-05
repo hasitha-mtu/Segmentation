@@ -5,11 +5,10 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.applications import VGG16
 import os
 
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
-from models.unet_VGG16.loss_function import combined_masked_dice_bce_loss
-
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_loss_function
 from models.memory_usage import estimate_model_memory_usage
 from models.common_utils.config import load_config, ModelConfig
+from models.common_utils.model_utils import get_optimizer
 
 def conv_block(inputs, num_filters):
     x = Conv2D(num_filters, 3, padding='same')(inputs)
@@ -79,8 +78,8 @@ def unet_vgg16(width, height, input_channels):
     input_shape = (width, height, input_channels)
     model = UnetVGG16(input_shape)
     model.compile(
-        optimizer=ModelConfig.TRAINING_OPTIMIZER,
-        loss=combined_masked_dice_bce_loss,
+        optimizer=get_optimizer(),
+        loss=combined_loss_function,
         metrics=['accuracy', f1_score, precision_m, recall_m]
     )
     return model

@@ -1,4 +1,4 @@
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_loss_function
 from models.segnet_VGG16.loss_function import combined_masked_dice_bce_loss
 from tensorflow.keras.layers import Input, Conv2D, UpSampling2D, BatchNormalization, Activation
 from tensorflow.keras.models import Model
@@ -7,6 +7,7 @@ import keras
 import os
 from models.memory_usage import estimate_model_memory_usage
 from models.common_utils.config import load_config, ModelConfig
+from models.common_utils.model_utils import get_optimizer
 
 def SegNetVGG16(input_shape):
     inputs = Input(shape=input_shape)
@@ -71,8 +72,8 @@ def segnet_vgg16(width, height, input_channels):
     input_shape = (width, height, input_channels)
     model = SegNetVGG16(input_shape)
     model.compile(
-        optimizer=ModelConfig.TRAINING_OPTIMIZER,
-        loss=combined_masked_dice_bce_loss,
+        optimizer=get_optimizer(),
+        loss=combined_loss_function,
         metrics=['accuracy', f1_score, precision_m, recall_m]
     )
     return model

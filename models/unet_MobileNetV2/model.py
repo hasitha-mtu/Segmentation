@@ -5,10 +5,11 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.applications import MobileNetV2
 import os
 
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_loss_function
 from models.unet_MobileNetV2.loss_function import combined_masked_dice_bce_loss
 from models.memory_usage import estimate_model_memory_usage
 from models.common_utils.config import load_config, ModelConfig
+from models.common_utils.model_utils import get_optimizer
 
 def UnetMobileNetV2(shape):
     inputs = Input(shape=shape, name='input_image')
@@ -55,8 +56,8 @@ def unet_mobilenet_v2(width, height, input_channels):
     input_shape = (width, height, input_channels)
     model = UnetMobileNetV2(input_shape)
     model.compile(
-        optimizer=ModelConfig.TRAINING_OPTIMIZER,
-        loss=combined_masked_dice_bce_loss,
+        optimizer=get_optimizer(),
+        loss=combined_loss_function,
         metrics=['accuracy', f1_score, precision_m, recall_m]
     )
     return model

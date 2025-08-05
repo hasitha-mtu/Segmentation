@@ -3,9 +3,10 @@ from tensorflow.keras import layers, models
 from tensorflow.keras.applications import ResNet50
 import keras
 import os
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, unet_resnet50_loss_function
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_loss_function
 from models.memory_usage import estimate_model_memory_usage
 from models.common_utils.config import load_config, ModelConfig
+from models.common_utils.model_utils import get_optimizer
 
 def unet_with_resnet50(input_shape=(512, 512, 16), num_classes=1):
     # Step 1: Define 16-channel input
@@ -60,8 +61,8 @@ def unet_with_resnet50(input_shape=(512, 512, 16), num_classes=1):
                            name=ModelConfig.MODEL_NAME)
 
     model.compile(
-        optimizer=ModelConfig.TRAINING_OPTIMIZER,
-        loss=unet_resnet50_loss_function,
+        optimizer=get_optimizer(),
+        loss=combined_loss_function,
         metrics=['accuracy', f1_score, precision_m, recall_m]  # Metrics only for the segmentation output
     )
 

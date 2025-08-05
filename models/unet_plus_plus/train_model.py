@@ -1,15 +1,16 @@
 import os
 import keras.callbacks_v1
 from models.unet_plus_plus.model import unet_plus_plus
-from models.common_utils.loss_functions import  recall_m, precision_m, f1_score
+from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_loss_function
 from models.unet_plus_plus.loss_functions import BCEDiceLoss
 
 from models.common_utils.config import ModelConfig, load_config
 from models.train_model_utils import execute_model
+from models.common_utils.model_utils import get_model_save_file_name
 
 def load_saved_model(config_file):
     load_config(config_file)
-    saved_model_path = os.path.join(ModelConfig.MODEL_SAVE_DIR, ModelConfig.SAVED_FILE_NAME)
+    saved_model_path = get_model_save_file_name()
     if os.path.exists(saved_model_path):
         return loading_model(saved_model_path)
     else:
@@ -23,7 +24,7 @@ def loading_model(saved_model_path):
                                    custom_objects={'recall_m': recall_m,
                                                    'precision_m': precision_m,
                                                    'f1_score': f1_score,
-                                                   'BCEDiceLoss': BCEDiceLoss},
+                                                   'combined_loss_function': combined_loss_function},
                                    compile=True)
 
 def make_or_restore_model(restore, num_channels, size, config_file):
@@ -41,6 +42,7 @@ def model_execution(config_file):
 
 if __name__ == "__main__":
     config_file = 'config.yaml'
+    load_config(config_file)
     execute_model(config_file, make_or_restore_model, load_saved_model)
 
 # def plot_attention_weights(channels, weight_lists):
