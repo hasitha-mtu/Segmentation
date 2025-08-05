@@ -26,7 +26,7 @@ from gradcam_keras import gradcam,gradcam_plus_plus
 
 from models.train import  train_all_models
 
-OUTPUT_DIR = "C:\\Users\AdikariAdikari\OneDrive - Munster Technological University\ModelResults\Segmentation\\30_07_2025"
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\OneDrive - Munster Technological University\ModelResults\Segmentation\\05_08_2025"
 
 
 # Measure Inference Time (optional)
@@ -344,7 +344,7 @@ def calculate_symmetric_hausdorff_distance(y_true, y_pred):
 
 if __name__=="__main__":
     train_all_models()
-    path = "../input/updated_samples/segnet_512/images"
+    path = "../input/dataset/validation/images"
     image_count = 25
     (images, masks) = load_dataset(path,
                                    size=(512, 512),

@@ -37,6 +37,7 @@ def load_config(config_file):
 
     ModelConfig.TRAINING_EPOCHS = config_data.get('training', {}).get('epochs', 100)
     ModelConfig.TRAINING_LR = config_data.get('training', {}).get('learning_rate', 0.0001)
+    ModelConfig.ADAPTIVE_LR = config_data.get('training', {}).get('adaptive_learning_rate', True)
     ModelConfig.TRAINING_OPTIMIZER = config_data.get('training', {}).get('optimizer', 'Adam')
     ModelConfig.TRAINING_SPLIT = config_data.get('training', {}).get('training_split', 0.2)
 
@@ -69,6 +70,7 @@ if __name__ == "__main__":
         print(f"IMAGE_HEIGHT (YAML): {ModelConfig.IMAGE_HEIGHT}")
         print(f"CHANNELS (YAML): {ModelConfig.CHANNELS}")
         print(f"BATCH_SIZE (YAML): {ModelConfig.BATCH_SIZE}")
+        print(f"ADAPTIVE_LR (YAML): {ModelConfig.ADAPTIVE_LR}")
         print(f"AUGMENTATION_ROTATE (YAML): {ModelConfig.AUGMENTATION_ROTATE}")
         print(f"TRAINING_EPOCHS (YAML): {ModelConfig.TRAINING_EPOCHS}")
         print(f"MODEL_SAVE_DIR (YAML): {ModelConfig.MODEL_SAVE_DIR}")

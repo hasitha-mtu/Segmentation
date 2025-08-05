@@ -15,7 +15,12 @@ def get_optimizer():
         return tf.optimizers.Adam()
 
 def get_model_save_file_name():
-    saved_model_path = os.path.join(ModelConfig.MODEL_SAVE_DIR,
-                                    f'{ModelConfig.SAVED_FILE_NAME}_{ModelConfig.TRAINING_OPTIMIZER}.h5')
+    if ModelConfig.ADAPTIVE_LR == True:
+        saved_model_path = os.path.join(ModelConfig.MODEL_SAVE_DIR,
+                                        f'{ModelConfig.SAVED_FILE_NAME}_{ModelConfig.TRAINING_OPTIMIZER}_with_adaptive_LR.h5')
+    else:
+        saved_model_path = os.path.join(ModelConfig.MODEL_SAVE_DIR,
+                                        f'{ModelConfig.SAVED_FILE_NAME}_{ModelConfig.TRAINING_OPTIMIZER}_with_static_LR.h5')
+
     return saved_model_path
 

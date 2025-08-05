@@ -46,21 +46,24 @@ def train_model(epoch_count, batch_size, train_dataset, validation_dataset, num_
         verbose=1
     )
 
-    reduce_lr_on_plateau = tf.keras.callbacks.ReduceLROnPlateau(
-        monitor='val_loss',
-        factor=0.5,
-        patience=5,
-        min_lr=1e-7,
-        verbose=1
-    )
-
     cbs = [
-        CSVLogger(ModelConfig.LOG_DIR+'/model_logs.csv', separator=',', append=False),
+        CSVLogger(ModelConfig.LOG_DIR + '/model_logs.csv', separator=',', append=False),
         checkpoint_cb,
         early_stopping_cb,
-        reduce_lr_on_plateau,
         tensorboard
     ]
+
+    if ModelConfig.ADAPTIVE_LR == True:
+        reduce_lr_on_plateau = tf.keras.callbacks.ReduceLROnPlateau(
+            monitor='val_loss',
+            factor=0.5,
+            patience=5,
+            min_lr=1e-7,
+            verbose=1
+        )
+        cbs.append(reduce_lr_on_plateau)
+
+
     # Create a MirroredStrategy.
     strategy = tf.distribute.MirroredStrategy(cross_device_ops = tf.distribute.HierarchicalCopyAllReduce())
     print("Number of devices: {}".format(strategy.num_replicas_in_sync))
