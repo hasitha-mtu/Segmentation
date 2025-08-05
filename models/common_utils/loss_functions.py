@@ -186,5 +186,5 @@ def combined_masked_dice_bce_loss(y_true, y_pred, mask=None):
     return 0.5 * dice + 0.5 * masked_bce
 
 def combined_loss_function(y_true, y_pred):
-    combined_masked_dice_bce_loss(y_true, y_pred)
+    return combined_masked_dice_bce_loss(y_true, y_pred)
 
