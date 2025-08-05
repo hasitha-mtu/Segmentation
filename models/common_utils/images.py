@@ -662,39 +662,39 @@ def create_multi_channel_dataset(base_dir, mask_dir, image_dir):
 #         path = os.path.join(image_dir, filename)
 #         plot_details(path)
 
-if __name__ == "__main__":
-    files = glob("../../input/updated_samples/segnet_512/images/*.png")
-    shuffle(files)
-    for file in files:
-        plot_details(file)
-
 # if __name__ == "__main__":
-#     annotation_dir = "../../input/updated_samples/segnet_512/masks"
-#     formatted_annotation_dir = "../../input/updated_samples/segnet_512/test/masks"
-#     formatted_image_dir = "../../input/updated_samples/segnet_512/test/images"
-#
-#     os.makedirs(formatted_annotation_dir, exist_ok=True)
-#     os.makedirs(formatted_image_dir, exist_ok=True)
-#
-#     for filename in os.listdir(annotation_dir):
-#         mask_path = os.path.join(annotation_dir, filename)
-#         ann = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)  # shape: (H, W)
-#         ann = cv2.resize(ann, (512, 512))
-#
-#         mask = create_confidence_mask(ann)
-#
-#         # Save mask as 8-bit single-channel image
-#         # updated_mask_path = os.path.join(formatted_annotation_dir, f'mask_{filename}')
-#         updated_mask_path = os.path.join(formatted_annotation_dir, filename)
-#         print(f"Resized mask path: {updated_mask_path}")
-#         cv2.imwrite(updated_mask_path, (mask * 255).astype(np.uint8))
-#
-#         image_path = mask_path.replace("masks", "images")
-#         image_path = image_path.replace(".png", ".jpg")
-#
-#         image = cv2.imread(image_path)
-#         resized_image = cv2.resize(image, (512, 512))
-#
-#         updated_image_path = os.path.join(formatted_image_dir, filename)
-#         print(f"Resized image path: {updated_image_path}")
-#         cv2.imwrite(updated_image_path, resized_image)
+#     files = glob("../../input/updated_samples/segnet_512/images/*.png")
+#     shuffle(files)
+#     for file in files:
+#         plot_details(file)
+
+if __name__ == "__main__":
+    annotation_dir = "../../input/dataset/masks"
+    formatted_annotation_dir = "../../input/dataset/test/masks"
+    formatted_image_dir = "../../input/dataset/test/images"
+
+    os.makedirs(formatted_annotation_dir, exist_ok=True)
+    os.makedirs(formatted_image_dir, exist_ok=True)
+
+    for filename in os.listdir(annotation_dir):
+        mask_path = os.path.join(annotation_dir, filename)
+        ann = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)  # shape: (H, W)
+        ann = cv2.resize(ann, (512, 512))
+
+        mask = create_confidence_mask(ann)
+
+        # Save mask as 8-bit single-channel image
+        # updated_mask_path = os.path.join(formatted_annotation_dir, f'mask_{filename}')
+        updated_mask_path = os.path.join(formatted_annotation_dir, filename)
+        print(f"Resized mask path: {updated_mask_path}")
+        cv2.imwrite(updated_mask_path, (mask * 255).astype(np.uint8))
+
+        image_path = mask_path.replace("masks", "images")
+        image_path = image_path.replace(".png", ".jpg")
+
+        image = cv2.imread(image_path)
+        resized_image = cv2.resize(image, (512, 512))
+
+        updated_image_path = os.path.join(formatted_image_dir, filename)
+        print(f"Resized image path: {updated_image_path}")
+        cv2.imwrite(updated_image_path, resized_image)
