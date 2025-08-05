@@ -27,7 +27,7 @@ data:
 training:
   epochs: 100
   learning_rate: 0.0001
-  optimizer: "Adam"
+  optimizer: "AdamW"
   training_split: 0.2
   checkpoint_callback:
     monitor: "val_accuracy"
@@ -47,4 +47,4 @@ paths:
   model_save_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/unet_wsl/ckpt"
   log_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/unet_wsl/logs"
   output_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/unet_wsl/output"
-  saved_file_name: "model_3_channels_Adam.h5"
+  saved_file_name: "model_3_channels"

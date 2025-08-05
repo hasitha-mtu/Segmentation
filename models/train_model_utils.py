@@ -10,6 +10,7 @@ from models.common_utils.plot import plot_model_history, plot_prediction
 
 from models.common_utils.dataset import set_seed, load_datasets
 from models.common_utils.config import load_config, ModelConfig
+from models.common_utils.model_utils import get_model_save_file_name
 
 def train_model(epoch_count, batch_size, train_dataset, validation_dataset, num_channels,
                 make_or_restore_model,
@@ -27,7 +28,7 @@ def train_model(epoch_count, batch_size, train_dataset, validation_dataset, num_
     os.makedirs(ModelConfig.MODEL_SAVE_DIR, exist_ok=True)
 
     checkpoint_cb = ModelCheckpoint(
-        f"{ModelConfig.MODEL_SAVE_DIR}/{ModelConfig.SAVED_FILE_NAME}",  # or "best_model.keras"
+        get_model_save_file_name(),  # or "best_model.keras"
         monitor=ModelConfig.CHECKPOINT_CALLBACK_MONITOR,
         save_best_only=ModelConfig.CHECKPOINT_CALLBACK_SAVE_BEST_ONLY,
         save_weights_only=ModelConfig.CHECKPOINT_CALLBACK_SAVE_WEIGHTS_ONLY,  # set to True if you want only weights

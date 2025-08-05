@@ -70,7 +70,7 @@ def unet_model(image_width, image_height, image_channels):
 
 
     model.compile(
-        optimizer=get_optimizer(ModelConfig.TRAINING_OPTIMIZER),
+        optimizer=get_optimizer(),
         loss=combined_loss_function,
         metrics=['accuracy', f1_score, precision_m, recall_m] # Metrics only for the segmentation output
     )
