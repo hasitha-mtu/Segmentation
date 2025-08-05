@@ -7,7 +7,7 @@ model:
   model_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/res_unet_plus_plus"
 
 data:
-  dataset_path: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/input/updated_samples/segnet_512"
+  dataset_path: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/input/dataset"
   image_size:
     height: 512
     width: 512
@@ -45,5 +45,5 @@ paths:
   model_save_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/res_unet_plus_plus/ckpt"
   log_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/res_unet_plus_plus/logs"
   output_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/res_unet_plus_plus/output"
-  saved_file_name: "model_3_channels.h5"
+  saved_file_name: "model_3_channels"
 
