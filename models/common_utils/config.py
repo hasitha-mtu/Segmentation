@@ -37,7 +37,7 @@ def load_config(config_file):
 
     ModelConfig.TRAINING_EPOCHS = config_data.get('training', {}).get('epochs', 100)
     ModelConfig.TRAINING_LR = config_data.get('training', {}).get('learning_rate', 0.0001)
-    ModelConfig.ENABLE_REDUCE_ON_PLATEAU = config_data.get('training', {}).get('enable_reduce_on_plateau', True)
+    ModelConfig.ENABLE_CLRS = config_data.get('training', {}).get('enable_clrs', True)
     ModelConfig.TRAINING_OPTIMIZER = config_data.get('training', {}).get('optimizer', 'Adam')
     ModelConfig.TRAINING_SPLIT = config_data.get('training', {}).get('training_split', 0.2)
 
@@ -70,7 +70,7 @@ if __name__ == "__main__":
         print(f"IMAGE_HEIGHT (YAML): {ModelConfig.IMAGE_HEIGHT}")
         print(f"CHANNELS (YAML): {ModelConfig.CHANNELS}")
         print(f"BATCH_SIZE (YAML): {ModelConfig.BATCH_SIZE}")
-        print(f"ENABLE_REDUCE_ON_PLATEAU (YAML): {ModelConfig.ENABLE_REDUCE_ON_PLATEAU}")
+        print(f"ENABLE_CLRS (YAML): {ModelConfig.ENABLE_CLRS}")
         print(f"AUGMENTATION_ROTATE (YAML): {ModelConfig.AUGMENTATION_ROTATE}")
         print(f"TRAINING_EPOCHS (YAML): {ModelConfig.TRAINING_EPOCHS}")
         print(f"MODEL_SAVE_DIR (YAML): {ModelConfig.MODEL_SAVE_DIR}")

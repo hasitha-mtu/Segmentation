@@ -15,12 +15,12 @@ def get_optimizer():
         return tf.optimizers.Adam()
 
 def get_model_save_file_name():
-    if ModelConfig.ENABLE_REDUCE_ON_PLATEAU == True:
+    if ModelConfig.ENABLE_CLRS == True:
         saved_model_path = os.path.join(ModelConfig.MODEL_SAVE_DIR,
-                                        f'{ModelConfig.SAVED_FILE_NAME}_{ModelConfig.TRAINING_OPTIMIZER}_with_ReduceLROnPlateau.h5')
+                                        f'{ModelConfig.SAVED_FILE_NAME}_{ModelConfig.TRAINING_OPTIMIZER}_with_CLRS.h5')
     else:
         saved_model_path = os.path.join(ModelConfig.MODEL_SAVE_DIR,
-                                        f'{ModelConfig.SAVED_FILE_NAME}_{ModelConfig.TRAINING_OPTIMIZER}_without_ReduceLROnPlateau.h5')
+                                        f'{ModelConfig.SAVED_FILE_NAME}_{ModelConfig.TRAINING_OPTIMIZER}_without_CLRS.h5')
 
     return saved_model_path
 
