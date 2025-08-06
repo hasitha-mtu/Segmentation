@@ -53,7 +53,7 @@ def train_model(epoch_count, batch_size, train_dataset, validation_dataset, num_
         tensorboard
     ]
 
-    if ModelConfig.ADAPTIVE_LR == True:
+    if ModelConfig.ENABLE_CLRS == True:
         reduce_lr_on_plateau = tf.keras.callbacks.ReduceLROnPlateau(
             monitor='val_loss',
             factor=0.5,
