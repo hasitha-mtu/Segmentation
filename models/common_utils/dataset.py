@@ -25,6 +25,8 @@ def set_seed(seed_value, enable_op_determinism=True):
 def get_image_mask_paths(image_dir, mask_dir):
     image_paths = sorted(glob(os.path.join(image_dir, '*.png')))  # Assuming .jpg for images
     mask_paths = sorted(glob(os.path.join(mask_dir, '*.png')))  # Assuming .png for masks
+    print(f'image_paths count: {len(image_paths)}')
+    print(f'mask_paths count: {len(mask_paths)}')
 
     # Ensure masks match images (by filename prefix)
     # This is a critical step for segmentation datasets
@@ -34,6 +36,8 @@ def get_image_mask_paths(image_dir, mask_dir):
         mask_name_prefix = os.path.basename(mask_path).split('.')[0]
         if mask_name_prefix in image_names:
             paired_paths.append((image_names[mask_name_prefix], mask_path))
+        else:
+            print(f'Missing {mask_name_prefix} in images')
 
     if not paired_paths:
         raise ValueError(
