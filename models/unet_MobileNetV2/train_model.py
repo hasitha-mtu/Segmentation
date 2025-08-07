@@ -9,9 +9,9 @@ from models.train_model_utils import execute_model
 from models.common_utils.model_utils import get_model_save_file_name
 
 
-def load_saved_model(config_file):
+def load_saved_model(config_file, optimizer=None, enable_clrs=None):
     load_config(config_file)
-    saved_model_path = get_model_save_file_name()
+    saved_model_path = get_model_save_file_name(optimizer, enable_clrs)
     if os.path.exists(saved_model_path):
         return loading_model(saved_model_path)
     else:
