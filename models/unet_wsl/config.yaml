@@ -27,8 +27,8 @@ data:
 training:
   epochs: 100
   learning_rate: 0.0001
-  enable_clrs: false
-  optimizer: "Adam"
+  enable_clrs: true
+  optimizer: "AdamW"
   training_split: 0.2
   checkpoint_callback:
     monitor: "val_accuracy"
