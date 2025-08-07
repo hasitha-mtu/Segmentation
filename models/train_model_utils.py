@@ -28,7 +28,7 @@ def train_model(epoch_count, batch_size, train_dataset, validation_dataset, num_
     os.makedirs(ModelConfig.MODEL_SAVE_DIR, exist_ok=True)
 
     checkpoint_cb = ModelCheckpoint(
-        get_model_save_file_name(),  # or "best_model.keras"
+        get_model_save_file_name(None, None),  # or "best_model.keras"
         monitor=ModelConfig.CHECKPOINT_CALLBACK_MONITOR,
         save_best_only=ModelConfig.CHECKPOINT_CALLBACK_SAVE_BEST_ONLY,
         save_weights_only=ModelConfig.CHECKPOINT_CALLBACK_SAVE_WEIGHTS_ONLY,  # set to True if you want only weights

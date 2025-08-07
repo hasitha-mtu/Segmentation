@@ -14,7 +14,7 @@ def get_optimizer():
     else:
         return tf.optimizers.Adam()
 
-def get_model_save_file_name():
+def get_model_save_file_name1():
     if ModelConfig.ENABLE_CLRS == True:
         saved_model_path = os.path.join(ModelConfig.MODEL_SAVE_DIR,
                                         f'{ModelConfig.SAVED_FILE_NAME}_{ModelConfig.TRAINING_OPTIMIZER}_with_CLRS.h5')
@@ -24,3 +24,16 @@ def get_model_save_file_name():
 
     return saved_model_path
 
+def get_model_save_file_name(optimizer, enable_clrs):
+    if optimizer is None:
+        optimizer = ModelConfig.TRAINING_OPTIMIZER
+    if enable_clrs is None:
+        enable_clrs = ModelConfig.ENABLE_CLRS
+    if enable_clrs == True:
+        saved_model_path = os.path.join(ModelConfig.MODEL_SAVE_DIR,
+                                        f'{ModelConfig.SAVED_FILE_NAME}_{optimizer}_with_CLRS.h5')
+    else:
+        saved_model_path = os.path.join(ModelConfig.MODEL_SAVE_DIR,
+                                        f'{ModelConfig.SAVED_FILE_NAME}_{optimizer}_without_CLRS.h5')
+
+    return saved_model_path
