@@ -26,7 +26,8 @@ from gradcam_keras import gradcam,gradcam_plus_plus
 
 from models.train import  train_all_models
 
-OUTPUT_DIR = "C:\\Users\AdikariAdikari\OneDrive - Munster Technological University\ModelResults\Segmentation\\05_08_2025"
+# OUTPUT_DIR = "C:\\Users\AdikariAdikari\OneDrive - Munster Technological University\ModelResults\Segmentation\\05_08_2025"
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output\\07_08_2025"
 
 
 # Measure Inference Time (optional)
@@ -87,96 +88,237 @@ def make_prediction(image, mask, index=0):
     os.makedirs(output_path, exist_ok=True)
     save_image(output_path, image, f'image_{index}')
     save_image(output_path, mask.squeeze(), f'actual_mask_{index}')
-    result_metrics = {}
-    unet = load_saved_unet_model()
+
     print('UNET')
-    result_metrics['UNET'] = evaluate_model('UNET', unet, image, mask, index, output_path)
-    unet_gradcam = gradcam(image, unet, 'conv2d_176')
-    save_image(output_path, unet_gradcam, f'UNET_gradcam_{index}')
-    unet_gradcam_plus_plus = gradcam_plus_plus(image, unet, 'conv2d_176')
-    save_image(output_path, unet_gradcam_plus_plus, f'UNET_gradcam_plus_plus_{index}')
+    unet_metrics = {}
+    unet_output_path = f'{output_path}/unet'
+    unet_metrics[f'UNET_Adam_{True}'] = make_prediction_model('UNET', 'Adam', True,
+                                                              unet_output_path, 'conv2d_23', image,
+                                                              mask, index)
+    unet_metrics[f'UNET_Adam_{False}'] = make_prediction_model('UNET', 'Adam', False,
+                                                               unet_output_path, 'conv2d_23', image,
+                                                               mask, index)
+    unet_metrics[f'UNET_AdamW_{True}'] = make_prediction_model('UNET', 'AdamW', True,
+                                                               unet_output_path, 'conv2d_23', image,
+                                                               mask, index)
+    unet_metrics[f'UNET_AdamW_{False}'] = make_prediction_model('UNET', 'AdamW', False,
+                                                                unet_output_path, 'conv2d_23', image,
+                                                                mask, index)
+    save_matrics(unet_output_path, unet_metrics, index)
 
     print('==================================================================================================')
-    unet_fcc = load_saved_unet_ffc_model()
     print('UNET-FFC')
-    result_metrics['UNET-FFC'] = evaluate_model('UNET-FFC', unet_fcc, image, mask, index, output_path)
-    unet_fcc_gradcam = gradcam(image, unet_fcc, 'conv2d_15')
-    save_image(output_path, unet_fcc_gradcam, f'UNET-FFC_gradcam_{index}')
-    unet_fcc_gradcam_plus_plus = gradcam_plus_plus(image, unet_fcc, 'conv2d_15')
-    save_image(output_path, unet_fcc_gradcam_plus_plus, f'UNET-FFC_gradcam_plus_plus_{index}')
+    unet_ffc_metrics = {}
+    unet_ffc_output_path = f'{output_path}/unet_ffc'
+    unet_ffc_metrics[f'UNET-FFC_Adam_{True}'] = make_prediction_model('UNET-FFC', 'Adam', True,
+                                                              unet_ffc_output_path, 'conv2d_15', image,
+                                                                      mask, index)
+    unet_ffc_metrics[f'UNET-FFC_Adam_{False}'] = make_prediction_model('UNET-FFC', 'Adam', False,
+                                                               unet_ffc_output_path, 'conv2d_15', image,
+                                                                       mask, index)
+    unet_ffc_metrics[f'UNET-FFC_AdamW_{True}'] = make_prediction_model('UNET-FFC', 'AdamW', True,
+                                                               unet_ffc_output_path, 'conv2d_15', image,
+                                                                       mask, index)
+    unet_ffc_metrics[f'UNET-FFC_AdamW_{False}'] = make_prediction_model('UNET-FFC', 'AdamW', False,
+                                                                unet_ffc_output_path, 'conv2d_15', image,
+                                                                        mask, index)
+    save_matrics(unet_ffc_output_path, unet_ffc_metrics, index)
 
     print('==================================================================================================')
-    unet_vgg16 = load_saved_unet_VGG16_model()
     print('UNET-VGG16')
-    result_metrics['UNET-VGG16'] = evaluate_model('UNET-VGG16', unet_vgg16, image, mask, index, output_path)
-    unet_vgg16_gradcam = gradcam(image, unet_vgg16, 'conv2d_33')
-    save_image(output_path, unet_vgg16_gradcam, f'UNET-VGG16_gradcam_{index}')
-    unet_vgg16_gradcam_plus_plus = gradcam_plus_plus(image, unet_vgg16, 'conv2d_33')
-    save_image(output_path, unet_vgg16_gradcam_plus_plus, f'UNET-VGG16_gradcam_plus_plus_{index}')
+    unet_vgg16_metrics = {}
+    unet_vgg16_output_path = f'{output_path}/unet_vgg16'
+    unet_vgg16_metrics[f'UNET-VGG16_Adam_{True}'] = make_prediction_model('UNET-VGG16', 'Adam', True,
+                                                                      unet_vgg16_output_path, 'conv2d_33',
+                                                                      image, mask, index)
+    unet_vgg16_metrics[f'UNET-VGG16_Adam_{False}'] = make_prediction_model('UNET-VGG16', 'Adam', False,
+                                                                       unet_vgg16_output_path, 'conv2d_33',
+                                                                       image, mask, index)
+    unet_vgg16_metrics[f'UNET-VGG16_AdamW_{True}'] = make_prediction_model('UNET-VGG16', 'AdamW', True,
+                                                                       unet_vgg16_output_path, 'conv2d_33',
+                                                                       image, mask, index)
+    unet_vgg16_metrics[f'UNET-VGG16_AdamW_{False}'] = make_prediction_model('UNET-VGG16', 'AdamW', False,
+                                                                        unet_vgg16_output_path, 'conv2d_33',
+                                                                        image, mask, index)
+    save_matrics(unet_vgg16_output_path, unet_vgg16_metrics, index)
 
     print('==================================================================================================')
-    unet_resnet50 = load_saved_unet_ResNet50_model()
     print('UNET-ResNet50')
-    result_metrics['UNET-ResNet50'] = evaluate_model('UNET-ResNet50', unet_resnet50, image, mask, index, output_path)
-    unet_resnet50_gradcam = gradcam(image, unet_resnet50, 'conv2d_42')
-    save_image(output_path, unet_resnet50_gradcam, f'UNET-ResNet50_gradcam_{index}')
-    unet_resnet50_gradcam_plus_plus = gradcam_plus_plus(image, unet_resnet50, 'conv2d_42')
-    save_image(output_path, unet_resnet50_gradcam_plus_plus, f'UNET-ResNet50_gradcam_plus_plus_{index}')
+    unet_resnet50_metrics = {}
+    unet_resnet50_output_path = f'{output_path}/unet_resnet50'
+    unet_resnet50_metrics[f'UNET-ResNet50_Adam_{True}'] = make_prediction_model('UNET-ResNet50', 'Adam', True,
+                                                                          unet_resnet50_output_path, 'conv2d_42',
+                                                                          image, mask, index)
+    unet_resnet50_metrics[f'UNET-ResNet50_Adam_{False}'] = make_prediction_model('UNET-ResNet50', 'Adam', False,
+                                                                           unet_resnet50_output_path, 'conv2d_42',
+                                                                           image, mask, index)
+    unet_resnet50_metrics[f'UNET-ResNet50_AdamW_{True}'] = make_prediction_model('UNET-ResNet50', 'AdamW', True,
+                                                                           unet_resnet50_output_path, 'conv2d_42',
+                                                                           image, mask, index)
+    unet_resnet50_metrics[f'UNET-ResNet50_AdamW_{False}'] = make_prediction_model('UNET-ResNet50', 'AdamW', False,
+                                                                            unet_resnet50_output_path, 'conv2d_42',
+                                                                            image, mask, index)
+    save_matrics(unet_resnet50_output_path, unet_resnet50_metrics, index)
 
     print('==================================================================================================')
-    unet_mobilenetv2 = load_saved_unet_MobileNetV2_model()
     print('UNET-MobileNetV2')
-    result_metrics['UNET-MobileNetV2'] = evaluate_model('UNET-MobileNetV2', unet_mobilenetv2, image, mask, index, output_path)
-    unet_mobilenetv2_gradcam = gradcam(image, unet_mobilenetv2, 'conv2d_10')
-    save_image(output_path, unet_mobilenetv2_gradcam, f'UNET-MobileNetV2_gradcam_{index}')
-    unet_mobilenetv2_gradcam_plus_plus = gradcam_plus_plus(image, unet_mobilenetv2, 'conv2d_10')
-    save_image(output_path, unet_mobilenetv2_gradcam_plus_plus, f'UNET-MobileNetV2_gradcam_plus_plus_{index}')
+    unet_mobilenetv2_metrics = {}
+    unet_mobilenetv2_output_path = f'{output_path}/unet_mobilenetv2'
+    unet_mobilenetv2_metrics[f'UNET-MobileNetV2_Adam_{True}'] = make_prediction_model('UNET-MobileNetV2', 'Adam', True,
+                                                                             unet_mobilenetv2_output_path, 'conv2d_10',
+                                                                             image, mask, index)
+    unet_mobilenetv2_metrics[f'UNET-MobileNetV2_Adam_{False}'] = make_prediction_model('UNET-MobileNetV2', 'Adam', False,
+                                                                              unet_mobilenetv2_output_path, 'conv2d_10',
+                                                                              image, mask, index)
+    unet_mobilenetv2_metrics[f'UNET-MobileNetV2_AdamW_{True}'] = make_prediction_model('UNET-MobileNetV2', 'AdamW', True,
+                                                                              unet_mobilenetv2_output_path, 'conv2d_10',
+                                                                              image, mask, index)
+    unet_mobilenetv2_metrics[f'UNET-MobileNetV2_AdamW_{False}'] = make_prediction_model('UNET-MobileNetV2', 'AdamW', False,
+                                                                               unet_mobilenetv2_output_path, 'conv2d_10',
+                                                                               image, mask, index)
+    save_matrics(unet_mobilenetv2_output_path, unet_mobilenetv2_metrics, index)
 
     print('==================================================================================================')
-    unet_plus_plus = load_saved_unet_plus_plus_model()
     print('UNET++')
-    result_metrics['UNET++'] = evaluate_model('UNET++', unet_plus_plus, image, mask, index, output_path)
-    unet_plus_plus_gradcam = gradcam(image, unet_plus_plus, 'conv2d_29')
-    save_image(output_path, unet_plus_plus_gradcam, f'UNET++_gradcam_{index}')
-    unet_plus_plus_gradcam_plus_plus = gradcam_plus_plus(image, unet_plus_plus, 'conv2d_29')
-    save_image(output_path, unet_plus_plus_gradcam_plus_plus, f'UNET++_gradcam_plus_plus_{index}')
+    unet_plus_plus_metrics = {}
+    unet_plus_plus_output_path = f'{output_path}/unet_plus_plus'
+    unet_plus_plus_metrics[f'UNET++_Adam_{True}'] = make_prediction_model('UNET++', 'Adam', True,
+                                                                                unet_plus_plus_output_path,
+                                                                                'conv2d_29',
+                                                                                image, mask, index)
+    unet_plus_plus_metrics[f'UNET++_Adam_{False}'] = make_prediction_model('UNET++', 'Adam', False,
+                                                                                 unet_plus_plus_output_path,
+                                                                                 'conv2d_29',
+                                                                                 image, mask, index)
+    unet_plus_plus_metrics[f'UNET++_AdamW_{True}'] = make_prediction_model('UNET++', 'AdamW', True,
+                                                                                 unet_plus_plus_output_path,
+                                                                                 'conv2d_29',
+                                                                                 image, mask, index)
+    unet_plus_plus_metrics[f'UNET++_AdamW_{False}'] = make_prediction_model('UNET++', 'AdamW', False,
+                                                                                  unet_plus_plus_output_path,
+                                                                                  'conv2d_29',
+                                                                                  image, mask, index)
+    save_matrics(unet_plus_plus_output_path, unet_plus_plus_metrics, index)
 
     print('==================================================================================================')
-    segnet = load_saved_segnet_model()
     print('SegNet')
-    result_metrics['SegNet'] = evaluate_model('SegNet', segnet, image, mask, index, output_path)
-    segnet_gradcam = gradcam(image, segnet, 'conv2d_14')
-    save_image(output_path, segnet_gradcam, f'SegNet_gradcam_{index}')
-    segnet_gradcam_plus_plus = gradcam_plus_plus(image, segnet, 'conv2d_14')
-    save_image(output_path, segnet_gradcam_plus_plus, f'SegNet_gradcam_plus_plus_{index}')
+    segnet_metrics = {}
+    segnet_output_path = f'{output_path}/segnet'
+    segnet_metrics[f'SegNet_Adam_{True}'] = make_prediction_model('SegNet', 'Adam', True,
+                                                                                      segnet_output_path,
+                                                                                      'conv2d_14',
+                                                                                      image, mask, index)
+    segnet_metrics[f'SegNet_Adam_{False}'] = make_prediction_model('SegNet', 'Adam',
+                                                                                       False,
+                                                                                       segnet_output_path,
+                                                                                       'conv2d_14',
+                                                                                       image, mask, index)
+    segnet_metrics[f'SegNet_AdamW_{True}'] = make_prediction_model('SegNet', 'AdamW',
+                                                                                       True,
+                                                                                       segnet_output_path,
+                                                                                       'conv2d_14',
+                                                                                       image, mask, index)
+    segnet_metrics[f'SegNet_AdamW_{False}'] = make_prediction_model('SegNet', 'AdamW',
+                                                                                        False,
+                                                                                        segnet_output_path,
+                                                                                        'conv2d_14',
+                                                                                        image, mask, index)
+    save_matrics(segnet_output_path, segnet_metrics, index)
 
     print('==================================================================================================')
-    segnet_vgg16 = load_saved_segnet_VGG16_model()
     print('SegNet-Vgg16')
-    result_metrics['SegNet-Vgg16'] = evaluate_model('SegNet-Vgg16', segnet_vgg16, image, mask, index, output_path)
-    segnet_vgg16_gradcam = gradcam(image, segnet_vgg16, 'conv2d_9')
-    save_image(output_path, segnet_vgg16_gradcam, f'SegNet-Vgg16_gradcam_{index}')
-    segnet_vgg16_gradcam_plus_plus = gradcam_plus_plus(image, segnet_vgg16, 'conv2d_9')
-    save_image(output_path, segnet_vgg16_gradcam_plus_plus, f'SegNet-Vgg16_gradcam_plus_plus_{index}')
+    segnet_vgg16_metrics = {}
+    segnet_vgg16_output_path = f'{output_path}/segnet_vgg16'
+    segnet_vgg16_metrics[f'SegNet-Vgg16_Adam_{True}'] = make_prediction_model('SegNet-Vgg16', 'Adam',
+                                                                  True,
+                                                                  segnet_vgg16_output_path,
+                                                                  'conv2d_9',
+                                                                  image, mask, index)
+    segnet_vgg16_metrics[f'SegNet-Vgg16_Adam_{False}'] = make_prediction_model('SegNet-Vgg16', 'Adam',
+                                                                   False,
+                                                                   segnet_vgg16_output_path,
+                                                                   'conv2d_9',
+                                                                   image, mask, index)
+    segnet_vgg16_metrics[f'SegNet-Vgg16_AdamW_{True}'] = make_prediction_model('SegNet-Vgg16', 'AdamW',
+                                                                   True,
+                                                                   segnet_vgg16_output_path,
+                                                                   'conv2d_9',
+                                                                   image, mask, index)
+    segnet_vgg16_metrics[f'SegNet-Vgg16_AdamW_{False}'] = make_prediction_model('SegNet-Vgg16', 'AdamW',
+                                                                    False,
+                                                                    segnet_vgg16_output_path,
+                                                                    'conv2d_9',
+                                                                    image, mask, index)
+    save_matrics(segnet_vgg16_output_path, segnet_vgg16_metrics, index)
 
     print('==================================================================================================')
-    res_unet_plus_plus = load_saved_res_unet_plus_plus_model()
     print('ResUNET++')
-    result_metrics['ResUNET++'] = evaluate_model('ResUNET++', res_unet_plus_plus, image, mask, index, output_path)
-    res_unet_plus_plus_gradcam = gradcam(image, res_unet_plus_plus, 'conv2d_40')
-    save_image(output_path,res_unet_plus_plus_gradcam, f'ResUNET++_gradcam_{index}')
-    res_unet_plus_plus_gradcam_plus_plus = gradcam_plus_plus(image, res_unet_plus_plus, 'conv2d_40')
-    save_image(output_path, res_unet_plus_plus_gradcam_plus_plus, f'ResUNET++_gradcam_plus_plus_{index}')
+    res_unet_plus_plus_metrics = {}
+    res_unet_plus_plus_output_path = f'{output_path}/res_unet_plus_plus'
+    res_unet_plus_plus_metrics[f'ResUNET++_Adam_{True}'] = make_prediction_model('ResUNET++', 'Adam',
+                                                                  True,
+                                                                  res_unet_plus_plus_output_path,
+                                                                  'conv2d_40',
+                                                                  image, mask, index)
+    res_unet_plus_plus_metrics[f'ResUNET++_Adam_{False}'] = make_prediction_model('ResUNET++', 'Adam',
+                                                                   False,
+                                                                   res_unet_plus_plus_output_path,
+                                                                   'conv2d_40',
+                                                                   image, mask, index)
+    res_unet_plus_plus_metrics[f'ResUNET++_AdamW_{True}'] = make_prediction_model('ResUNET++', 'AdamW',
+                                                                   True,
+                                                                   res_unet_plus_plus_output_path,
+                                                                   'conv2d_40',
+                                                                   image, mask, index)
+    res_unet_plus_plus_metrics[f'ResUNET++_AdamW_{False}'] = make_prediction_model('ResUNET++', 'AdamW',
+                                                                    False,
+                                                                    res_unet_plus_plus_output_path,
+                                                                    'conv2d_40',
+                                                                    image, mask, index)
+    save_matrics(res_unet_plus_plus_output_path, res_unet_plus_plus_metrics, index)
 
     print('==================================================================================================')
-    deeplabv3_plus = load_saved_deeplabv3_plus_model()
     print('DeepLabV3+')
-    result_metrics['DeepLabV3+'] = evaluate_model('DeepLabV3+', deeplabv3_plus, image, mask, index, output_path)
-    deeplabv3_plus_gradcam = gradcam(image, deeplabv3_plus, 'conv2d_49')
-    save_image(output_path, deeplabv3_plus_gradcam, f'DeepLabV3+_gradcam_{index}')
-    deeplabv3_plus_gradcam_plus_plus = gradcam_plus_plus(image, deeplabv3_plus, 'conv2d_49')
-    save_image(output_path, deeplabv3_plus_gradcam_plus_plus, f'DeepLabV3+_gradcam_plus_plus_{index}')
+    deeplabv3_plus_metrics = {}
+    deeplabv3_plus_output_path = f'{output_path}/deeplabv3_plus'
+    deeplabv3_plus_metrics[f'DeepLabV3+_Adam_{True}'] = make_prediction_model('DeepLabV3+', 'Adam',
+                                                                  True,
+                                                                  deeplabv3_plus_output_path,
+                                                                  'conv2d_49',
+                                                                  image, mask, index)
+    deeplabv3_plus_metrics[f'DeepLabV3+_Adam_{False}'] = make_prediction_model('DeepLabV3+', 'Adam',
+                                                                   False,
+                                                                   deeplabv3_plus_output_path,
+                                                                   'conv2d_49',
+                                                                   image, mask, index)
+    deeplabv3_plus_metrics[f'DeepLabV3+_AdamW_{True}'] = make_prediction_model('DeepLabV3+', 'AdamW',
+                                                                   True,
+                                                                   deeplabv3_plus_output_path,
+                                                                   'conv2d_49',
+                                                                   image, mask, index)
+    deeplabv3_plus_metrics[f'DeepLabV3+_AdamW_{False}'] = make_prediction_model('DeepLabV3+', 'AdamW',
+                                                                    False,
+                                                                    deeplabv3_plus_output_path,
+                                                                    'conv2d_49',
+                                                                    image, mask, index)
+    save_matrics(deeplabv3_plus_output_path, deeplabv3_plus_metrics, index)
 
+def make_prediction_model(name, optimizer, enable_clrs, output_path, layer_name, image, mask, index):
+    print(f'make_prediction_model|name: {name}')
+    print(f'make_prediction_model|optimizer: {optimizer}')
+    print(f'make_prediction_model|enable_clrs: {enable_clrs}')
+    print(f'make_prediction_model|output_path: {output_path}')
+    print(f'make_prediction_model|layer_name: {layer_name}')
+    model_name = f'{name}_{optimizer}_CLRS_{enable_clrs}'
+    model = load_saved_unet_model(optimizer, enable_clrs)
+    metrics = evaluate_model(model_name, model, image, mask, index, output_path)
+    model_gradcam = gradcam(image, model, layer_name)
+    save_image(output_path, model_gradcam, f'{model_name}_gradcam_{index}')
+    model_gradcam_plus_plus = gradcam_plus_plus(image, model, layer_name)
+    save_image(output_path, model_gradcam_plus_plus, f'{model_name}_gradcam_plus_plus_{index}')
+    return metrics
+
+def save_matrics(output_path, result_metrics, index):
     result_file = f'{output_path}/result_metrics_{index}.csv'
     with open(result_file, 'w') as file:
         file.write('Model Name,Dice Coefficient,IoU Score,Pixel Accuracy,Precision,Recall,'
@@ -190,7 +332,6 @@ def make_prediction(image, mask, index=0):
                        f'{metrics["Recall"]},'
                        f'{metrics["Hausdorff Distance"]},'
                        f'{metrics["Inference Time (ms)"]}\n')
-    return result_metrics
 
 def evaluate_model(model_name, model, image, mask, index, output_path):
     image = np.expand_dims(image, 0)
@@ -343,12 +484,11 @@ def calculate_symmetric_hausdorff_distance(y_true, y_pred):
 
 
 if __name__=="__main__":
-    train_all_models()
-    path = "../input/dataset/validation/images"
-    image_count = 25
+    path = "../input/updated_samples/segnet_512/images"
+    image_count = 10
     (images, masks) = load_dataset(path,
                                    size=(512, 512),
-                                   file_extension="jpg",
+                                   file_extension="png",
                                    channels=['RED', 'GREEN', 'BLUE'],
                                    image_count=image_count)
     print(f'images shape:{images.shape}')
