@@ -1,9 +1,5 @@
 import numpy as np
 import tensorflow as tf
-# from tf_keras_vis.gradcam import Gradcam
-# from tf_keras_vis.gradcam_plus_plus import GradcamPlusPlus
-# from tf_keras_vis.scorecam import Scorecam
-from tf_keras_vis.utils.model_modifiers import ReplaceToLinear
 import matplotlib.pyplot as plt
 import cv2
 from sklearn.metrics import auc
@@ -12,11 +8,7 @@ import os
 
 from tf_keras_vis.gradcam import Gradcam
 from tf_keras_vis.gradcam_plus_plus import GradcamPlusPlus
-from tf_keras_vis.utils.scores import CategoricalScore
 from tf_keras_vis.utils.model_modifiers import ReplaceToLinear
-
-from tf_keras_vis.scorecam import ScoreCAM
-from tf_keras_vis.utils.scores import CategoricalScore
 
 from common_utils.images import load_image
 from models.common_utils.images import save_image
@@ -94,36 +86,6 @@ def gradcam_plus_plus(image, model, target_layer_name = 'conv2d_4'):
     overlay = np.uint8(overlay)
     return overlay
 
-# def score_cam(image, model, target_layer_name = 'conv2d_4'):
-#     image_tensor = tf.expand_dims(image, axis=0)
-#
-#     # Create GradCAM++ object
-#     score_cam = Scorecam(model,
-#                                  model_modifier=ReplaceToLinear(),
-#                                  clone=True)
-#
-#     # Generate CAM
-#     cam = score_cam(score,
-#                   seed_input=image_tensor,
-#                   penultimate_layer=target_layer_name)
-#
-#     # Post-process CAM
-#     heatmap = cam[0]  # Shape: (H, W)
-#
-#     image_tensor = image_tensor.numpy().squeeze()
-#
-#     # Resize CAM to image size
-#     heatmap_resized = cv2.resize(heatmap, (image_tensor.shape[1], image_tensor.shape[0]))
-#
-#     # Normalize heatmap
-#     heatmap_resized = (heatmap_resized - heatmap_resized.min()) / (heatmap_resized.max() - heatmap_resized.min())
-#
-#     # Apply colormap
-#     heatmap_color = cv2.applyColorMap(np.uint8(255 * heatmap_resized), cv2.COLORMAP_JET)
-#     overlay = 0.4 * heatmap_color + 0.6 * image_tensor.astype(np.uint8)
-#     overlay = np.uint8(overlay)
-#     return overlay
-
 def execute_gradcam(image, model, output_path, target_layer_name = 'conv2d_4'):
     image_tensor = tf.expand_dims(image, axis=0)
 
@@ -191,7 +153,6 @@ def execute_gradcam_plus_plus(image, model, output_path, target_layer_name = 'co
     save_image(output_path, overlay, 'gradcam_pp')
     return heatmap
 
-
 def visualize(heatmap, image):
     # Plot
     plt.figure(figsize=(10, 5))
@@ -204,7 +165,6 @@ def visualize(heatmap, image):
     plt.imshow(heatmap)
     plt.axis('off')
     plt.show()
-
 
 def segmentation_score1(output, target_class_index):
     """
@@ -226,7 +186,6 @@ def segmentation_score1(output, target_class_index):
 
 def segmentation_score(output):
     return tf.reduce_mean(output[..., 0])
-
 
 def calculate_deletion_metric(model, images, heatmaps, num_steps=100):
     """
@@ -285,12 +244,9 @@ def calculate_deletion_metric(model, images, heatmaps, num_steps=100):
 
     return avg_scores
 
-def calculate_gradcam_auc_score(image_path):
+def calculate_gradcam_auc_score(model, image_path, output_path, penultimate_layer_name):
     image = load_image(image_path)
     print(f'image shape: {image.shape}')
-    # print(f'image_tensor shape: {image_tensor.shape}')
-    penultimate_layer_name = 'conv2d_23'
-    output_path = "../output/gradcam"
 
     cam_gradcam = execute_gradcam(image, model, output_path, penultimate_layer_name)
     cam_gradcam_plus_plus = execute_gradcam_plus_plus(image, model, output_path, penultimate_layer_name)
@@ -301,15 +257,6 @@ def calculate_gradcam_auc_score(image_path):
 
     # 6. Plot the results
     x_axis = np.arange(100) / 100
-    plt.figure(figsize=(10, 6))
-    plt.plot(x_axis, gradcam_scores, label='Grad-CAM')
-    plt.plot(x_axis, gradcam_plus_plus_scores, label='Grad-CAM++')
-    plt.xlabel('Fraction of Pixels Deleted')
-    plt.ylabel('Prediction Score Drop')
-    plt.title('Quantitative Evaluation: Deletion Metric for River Water')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
 
     # 7. Calculate and print a single quantitative value (Area Over the Curve)
     aoc_gradcam = auc(x_axis, gradcam_scores)
@@ -317,47 +264,135 @@ def calculate_gradcam_auc_score(image_path):
 
     print(f"Area Over the Curve (Grad-CAM): {aoc_gradcam:.4f}")
     print(f"Area Over the Curve (Grad-CAM++): {aoc_gradcam_plus_plus:.4f}")
+    return f'{aoc_gradcam:.4f}', f'{aoc_gradcam_plus_plus:.4f}'
+
+def calculate_scores(index, image_path, output_path, penultimate_layer_name):
+    output_path = f'{output_path}/{index}'
+    os.makedirs(output_path, exist_ok=True)
+
+    unet_metrics = {}
+    unet_model1 = load_saved_unet_model('Adam', True)
+    unet_model1_aoc_gradcam, unet_model1_aoc_gradcam_plus_plus = calculate_gradcam_auc_score(unet_model1,
+                                                                                             image_path,
+                                                                                             output_path,
+                                                                                             penultimate_layer_name)
+    unet_metrics[f'UNET_Adam_{True}']['Grad-CAM'] = unet_model1_aoc_gradcam,
+    unet_metrics[f'UNET_Adam_{True}']['Grad-CAM++'] = unet_model1_aoc_gradcam_plus_plus,
+
+    unet_model2 = load_saved_unet_model('Adam', False)
+    unet_model2_aoc_gradcam, unet_model2_aoc_gradcam_plus_plus = calculate_gradcam_auc_score(unet_model2,
+                                                                                             image_path,
+                                                                                             output_path,
+                                                                                             penultimate_layer_name)
+    unet_metrics[f'UNET_Adam_{False}']['Grad-CAM'] = unet_model2_aoc_gradcam,
+    unet_metrics[f'UNET_Adam_{False}']['Grad-CAM++'] = unet_model2_aoc_gradcam_plus_plus,
+
+    unet_model3 = load_saved_unet_model('AdamW', True)
+    unet_model3_aoc_gradcam, unet_model3_aoc_gradcam_plus_plus = calculate_gradcam_auc_score(unet_model3,
+                                                                                             image_path,
+                                                                                             output_path,
+                                                                                             penultimate_layer_name)
+    unet_metrics[f'UNET_AdamW_{True}']['Grad-CAM'] = unet_model3_aoc_gradcam,
+    unet_metrics[f'UNET_AdamW_{True}']['Grad-CAM++'] = unet_model3_aoc_gradcam_plus_plus,
+
+    unet_model4 = load_saved_unet_model('AdamW', False)
+    unet_model4_aoc_gradcam, unet_model4_aoc_gradcam_plus_plus = calculate_gradcam_auc_score(unet_model4,
+                                                                                             image_path,
+                                                                                             output_path,
+                                                                                             penultimate_layer_name)
+    unet_metrics[f'UNET_AdamW_{False}']['Grad-CAM'] = unet_model4_aoc_gradcam,
+    unet_metrics[f'UNET_AdamW_{False}']['Grad-CAM++'] = unet_model4_aoc_gradcam_plus_plus,
+
+    unet_ffc_model1 = load_saved_unet_ffc_model('Adam', True)
+    unet_ffc_model2 = load_saved_unet_ffc_model('Adam', False)
+    unet_ffc_model3 = load_saved_unet_ffc_model('AdamW', True)
+    unet_ffc_model4 = load_saved_unet_ffc_model('AdamW', False)
+
+    unet_VGG16_model1 = load_saved_unet_VGG16_model('Adam', True)
+    unet_VGG16_model2 = load_saved_unet_VGG16_model('Adam', False)
+    unet_VGG16_model3 = load_saved_unet_VGG16_model('AdamW', True)
+    unet_VGG16_model4 = load_saved_unet_VGG16_model('AdamW', False)
+
+    unet_ResNet50_model1 = load_saved_unet_ResNet50_model('Adam', True)
+    unet_ResNet50_model2 = load_saved_unet_ResNet50_model('Adam', False)
+    unet_ResNet50_model3 = load_saved_unet_ResNet50_model('AdamW', True)
+    unet_ResNet50_model4 = load_saved_unet_ResNet50_model('AdamW', False)
+
+    unet_MobileNetV2_model1 = load_saved_unet_MobileNetV2_model('Adam', True)
+    unet_MobileNetV2_model2 = load_saved_unet_MobileNetV2_model('Adam', False)
+    unet_MobileNetV2_model3 = load_saved_unet_MobileNetV2_model('AdamW', True)
+    unet_MobileNetV2_model4 = load_saved_unet_MobileNetV2_model('AdamW', False)
+
+    unet_plus_plus_model1 = load_saved_unet_plus_plus_model('Adam', True)
+    unet_plus_plus_model2 = load_saved_unet_plus_plus_model('Adam', False)
+    unet_plus_plus_model3 = load_saved_unet_plus_plus_model('AdamW', True)
+    unet_plus_plus_model4 = load_saved_unet_plus_plus_model('AdamW', False)
+
+    segnet_model1 = load_saved_segnet_model('Adam', True)
+    segnet_model2 = load_saved_segnet_model('Adam', False)
+    segnet_model3 = load_saved_segnet_model('AdamW', True)
+    segnet_model4 = load_saved_segnet_model('AdamW', False)
+
+    segnet_VGG16_model1 = load_saved_segnet_VGG16_model('Adam', True)
+    segnet_VGG16_model2 = load_saved_segnet_VGG16_model('Adam', False)
+    segnet_VGG16_model3 = load_saved_segnet_VGG16_model('AdamW', True)
+    segnet_VGG16_model4 = load_saved_segnet_VGG16_model('AdamW', False)
+
+    res_unet_plus_plus_model1 = load_saved_res_unet_plus_plus_model('Adam', True)
+    res_unet_plus_plus_model2 = load_saved_res_unet_plus_plus_model('Adam', False)
+    res_unet_plus_plus_model3 = load_saved_res_unet_plus_plus_model('AdamW', True)
+    res_unet_plus_plus_model4 = load_saved_res_unet_plus_plus_model('AdamW', False)
+
+    deeplabv3_plus_model1 = load_saved_deeplabv3_plus_model('Adam', True)
+    deeplabv3_plus_model2 = load_saved_deeplabv3_plus_model('Adam', False)
+    deeplabv3_plus_model3 = load_saved_deeplabv3_plus_model('AdamW', True)
+    deeplabv3_plus_model4 = load_saved_deeplabv3_plus_model('AdamW', False)
+
 
 if __name__=="__main__":
     image_dir = "../input/dataset/validation/images"
-    image_paths = sorted(glob(os.path.join(image_dir, '*.png')))  # Assuming .jpg for images
-    for image_path in image_paths:
-        calculate_gradcam_auc_score(image_path)
-
-if __name__=="__main__":
-    model = load_saved_unet_model('Adam', True)
-    print(f"model summary : {model.summary()}")
-
-    image_path = '../input/samples/segnet_512/images/DJI_20250324092953_0009_V.jpg'
-
-    image = load_image(image_path)
-    print(f'image shape: {image.shape}')
-    # print(f'image_tensor shape: {image_tensor.shape}')
     penultimate_layer_name = 'conv2d_23'
     output_path = "../output/gradcam"
+    image_paths = sorted(glob(os.path.join(image_dir, '*.png')))  # Assuming .jpg for images
+    model = load_saved_unet_model('Adam', True)
+    for i in range(image_paths):
+        print("==================================================================================================")
+        calculate_gradcam_auc_score(i, model, image_paths[i], output_path, penultimate_layer_name)
 
-    cam_gradcam = execute_gradcam(image, model, output_path, penultimate_layer_name)
-    cam_gradcam_plus_plus = execute_gradcam_plus_plus(image, model, output_path, penultimate_layer_name)
-
-    image_tensor = tf.expand_dims(image, axis=0)
-    gradcam_scores = calculate_deletion_metric(model, image_tensor, cam_gradcam, num_steps=100)
-    gradcam_plus_plus_scores = calculate_deletion_metric(model, image_tensor, cam_gradcam_plus_plus, num_steps=100)
-
-    # 6. Plot the results
-    x_axis = np.arange(100) / 100
-    plt.figure(figsize=(10, 6))
-    plt.plot(x_axis, gradcam_scores, label='Grad-CAM')
-    plt.plot(x_axis, gradcam_plus_plus_scores, label='Grad-CAM++')
-    plt.xlabel('Fraction of Pixels Deleted')
-    plt.ylabel('Prediction Score Drop')
-    plt.title('Quantitative Evaluation: Deletion Metric for River Water')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-
-    # 7. Calculate and print a single quantitative value (Area Over the Curve)
-    aoc_gradcam = auc(x_axis, gradcam_scores)
-    aoc_gradcam_plus_plus = auc(x_axis, gradcam_plus_plus_scores)
-
-    print(f"Area Over the Curve (Grad-CAM): {aoc_gradcam:.4f}")
-    print(f"Area Over the Curve (Grad-CAM++): {aoc_gradcam_plus_plus:.4f}")
+# if __name__=="__main__":
+#     model = load_saved_unet_model('Adam', True)
+#     print(f"model summary : {model.summary()}")
+#
+#     image_path = '../input/samples/segnet_512/images/DJI_20250324092953_0009_V.jpg'
+#
+#     image = load_image(image_path)
+#     print(f'image shape: {image.shape}')
+#     # print(f'image_tensor shape: {image_tensor.shape}')
+#     penultimate_layer_name = 'conv2d_23'
+#     output_path = "../output/gradcam"
+#
+#     cam_gradcam = execute_gradcam(image, model, output_path, penultimate_layer_name)
+#     cam_gradcam_plus_plus = execute_gradcam_plus_plus(image, model, output_path, penultimate_layer_name)
+#
+#     image_tensor = tf.expand_dims(image, axis=0)
+#     gradcam_scores = calculate_deletion_metric(model, image_tensor, cam_gradcam, num_steps=100)
+#     gradcam_plus_plus_scores = calculate_deletion_metric(model, image_tensor, cam_gradcam_plus_plus, num_steps=100)
+#
+#     # 6. Plot the results
+#     x_axis = np.arange(100) / 100
+#     plt.figure(figsize=(10, 6))
+#     plt.plot(x_axis, gradcam_scores, label='Grad-CAM')
+#     plt.plot(x_axis, gradcam_plus_plus_scores, label='Grad-CAM++')
+#     plt.xlabel('Fraction of Pixels Deleted')
+#     plt.ylabel('Prediction Score Drop')
+#     plt.title('Quantitative Evaluation: Deletion Metric for River Water')
+#     plt.legend()
+#     plt.grid(True)
+#     plt.show()
+#
+#     # 7. Calculate and print a single quantitative value (Area Over the Curve)
+#     aoc_gradcam = auc(x_axis, gradcam_scores)
+#     aoc_gradcam_plus_plus = auc(x_axis, gradcam_plus_plus_scores)
+#
+#     print(f"Area Over the Curve (Grad-CAM): {aoc_gradcam:.4f}")
+#     print(f"Area Over the Curve (Grad-CAM++): {aoc_gradcam_plus_plus:.4f}")
