@@ -133,8 +133,12 @@ def execute_gradcam(image, model, output_path, target_layer_name = 'conv2d_4'):
                   seed_input=image_tensor,
                   penultimate_layer=target_layer_name)
 
+    print(f'execute_gradcam|cam shape: {cam.shape}')
+
     # Post-process CAM
     heatmap = cam[0]  # Shape: (H, W)
+    print(f'execute_gradcam|heatmap shape: {heatmap.shape}')
+
     image_tensor = image_tensor.numpy().squeeze()
 
     # Resize CAM to image size
@@ -148,7 +152,7 @@ def execute_gradcam(image, model, output_path, target_layer_name = 'conv2d_4'):
     overlay = 0.4 * heatmap_color + 0.6 * image_tensor.astype(np.uint8)
     overlay = np.uint8(overlay)
     save_image(output_path, overlay, 'gradcam')
-    return overlay
+    return heatmap
 
 def execute_gradcam_plus_plus(image, model, output_path, target_layer_name = 'conv2d_4'):
     image_tensor = tf.expand_dims(image, axis=0)
@@ -163,8 +167,11 @@ def execute_gradcam_plus_plus(image, model, output_path, target_layer_name = 'co
                   seed_input=image_tensor,
                   penultimate_layer=target_layer_name)
 
+    print(f'execute_gradcam_plus_plus|cam shape: {cam.shape}')
+
     # Post-process CAM
     heatmap = cam[0]  # Shape: (H, W)
+    print(f'execute_gradcam_plus_plus|heatmap shape: {heatmap.shape}')
 
     image_tensor = image_tensor.numpy().squeeze()
 
@@ -179,7 +186,7 @@ def execute_gradcam_plus_plus(image, model, output_path, target_layer_name = 'co
     overlay = 0.4 * heatmap_color + 0.6 * image_tensor.astype(np.uint8)
     overlay = np.uint8(overlay)
     save_image(output_path, overlay, 'gradcam_pp')
-    return overlay
+    return heatmap
 
 
 def visualize(heatmap, image):
@@ -196,7 +203,7 @@ def visualize(heatmap, image):
     plt.show()
 
 
-def segmentation_score(output, target_class_index):
+def segmentation_score1(output, target_class_index):
     """
     Custom score function for segmentation models. It returns the
     average confidence of the pixels classified as the target class.
@@ -214,8 +221,11 @@ def segmentation_score(output, target_class_index):
     class_probabilities = output[0, :, :, target_class_index]
     return tf.reduce_mean(class_probabilities)
 
+def segmentation_score(output):
+    return tf.reduce_mean(output[..., 0])
 
-def calculate_deletion_metric(model, images, heatmaps, target_class_index, num_steps=100):
+
+def calculate_deletion_metric(model, images, heatmaps, num_steps=100):
     """
     Calculates the deletion metric for a set of heatmaps.
 
@@ -262,7 +272,8 @@ def calculate_deletion_metric(model, images, heatmaps, target_class_index, num_s
 
             # Get the model's prediction score for the target class
             prediction_mask = model.predict(perturbed_image, verbose=0)
-            score = segmentation_score(prediction_mask, target_class_index).numpy()
+            # score = segmentation_score(prediction_mask, target_class_index).numpy()
+            score = segmentation_score(prediction_mask).numpy()
             scores_for_image.append(score)
 
         all_scores.append(scores_for_image)
@@ -271,6 +282,8 @@ def calculate_deletion_metric(model, images, heatmaps, target_class_index, num_s
 
     return avg_scores
 
+from sklearn.metrics import auc
+
 if __name__=="__main__":
     model = load_saved_unet_model('Adam', True)
     print(f"model summary : {model.summary()}")
@@ -278,124 +291,33 @@ if __name__=="__main__":
     image_path = '../input/samples/segnet_512/images/DJI_20250324092953_0009_V.jpg'
 
     image = load_image(image_path)
-    image = tf.expand_dims(image, axis=0)
     print(f'image shape: {image.shape}')
     # print(f'image_tensor shape: {image_tensor.shape}')
     penultimate_layer_name = 'conv2d_23'
     output_path = "../output/gradcam"
 
-    target_class_index = 1
+    cam_gradcam = execute_gradcam(image, model, output_path, penultimate_layer_name)
+    cam_gradcam_plus_plus = execute_gradcam_plus_plus(image, model, output_path, penultimate_layer_name)
 
     image_tensor = tf.expand_dims(image, axis=0)
+    gradcam_scores = calculate_deletion_metric(model, image_tensor, cam_gradcam, num_steps=100)
+    gradcam_plus_plus_scores = calculate_deletion_metric(model, image_tensor, cam_gradcam_plus_plus, num_steps=100)
 
-    # Create GradCAM object
-    gradcam = Gradcam(model,
-                      model_modifier=ReplaceToLinear(),
-                      clone=True)
-    # Generate CAM
-    cam = gradcam(score,
-                  seed_input=image_tensor,
-                  penultimate_layer=penultimate_layer_name)
+    # 6. Plot the results
+    x_axis = np.arange(100) / 100
+    plt.figure(figsize=(10, 6))
+    plt.plot(x_axis, gradcam_scores, label='Grad-CAM')
+    plt.plot(x_axis, gradcam_plus_plus_scores, label='Grad-CAM++')
+    plt.xlabel('Fraction of Pixels Deleted')
+    plt.ylabel('Prediction Score Drop')
+    plt.title('Quantitative Evaluation: Deletion Metric for River Water')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
+    # 7. Calculate and print a single quantitative value (Area Over the Curve)
+    aoc_gradcam = auc(x_axis, gradcam_scores)
+    aoc_gradcam_plus_plus = auc(x_axis, gradcam_plus_plus_scores)
 
-    # preds = model.predict(image_tensor)
-    # target_class_index = np.argmax(preds[0])
-    # print(f'target_class_index: {target_class_index}')
-    #
-    # cam_gradcam = execute_gradcam(image, model, output_path, target_layer_name)
-    # cam_gradcam_plus_plus = execute_gradcam_plus_plus(image, model, output_path, target_layer_name)
-    #
-    # cam_gradcam = np.expand_dims(cam_gradcam, axis=-1)
-    # cam_gradcam_plus_plus = np.expand_dims(cam_gradcam_plus_plus, axis=-1)
-
-    # # preds = model.predict(image)
-    # target_class_index = 1
-    #
-    # # 5. Generate heatmaps for Grad-CAM and Grad-CAM++
-    # gradcam = Gradcam(model, model_modifier=ReplaceToLinear(), clone=True)
-    # gradcam_plus_plus = GradcamPlusPlus(model, model_modifier=ReplaceToLinear(), clone=True)
-    #
-    # # The 'score' argument is crucial; it tells the library which class to evaluate
-    # # score = CategoricalScore(target_class_index)
-    #
-    #
-    # cam_gradcam = gradcam(lambda output: segmentation_score(output, target_class_index), image, penultimate_layer=penultimate_layer_name)
-    # cam_gradcam_plus_plus = gradcam_plus_plus(lambda output: segmentation_score(output, target_class_index), image, penultimate_layer=penultimate_layer_name)
-    #
-    # # 6. Normalize and resize heatmaps for consistency
-    # cam_gradcam = np.expand_dims(cam_gradcam, axis=-1)
-    # cam_gradcam_plus_plus = np.expand_dims(cam_gradcam_plus_plus, axis=-1)
-    #
-    #
-    # # 7. Calculate the deletion metric for both methods
-    # gradcam_scores = calculate_deletion_metric(model, image, cam_gradcam, target_class_index, num_steps=100)
-    # gradcam_plus_plus_scores = calculate_deletion_metric(model, image, cam_gradcam_plus_plus, target_class_index,
-    #                                                      num_steps=100)
-    #
-    # # 8. Plot the results
-    # x_axis = np.arange(100) / 100
-    # plt.figure(figsize=(10, 6))
-    # plt.plot(x_axis, gradcam_scores, label='Grad-CAM')
-    # plt.plot(x_axis, gradcam_plus_plus_scores, label='Grad-CAM++')
-    # plt.xlabel('Fraction of Pixels Deleted')
-    # plt.ylabel('Prediction Score Drop')
-    # plt.title('Quantitative Evaluation: Deletion Metric')
-    # plt.legend()
-    # plt.grid(True)
-    # plt.show()
-    #
-    # # 9. Calculate the Area Over the Curve (AOC) as a single metric
-    # from sklearn.metrics import auc
-    #
-    # aoc_gradcam = auc(x_axis, gradcam_scores)
-    # aoc_gradcam_plus_plus = auc(x_axis, gradcam_plus_plus_scores)
-    #
-    # print(f"Area Over the Curve (Grad-CAM): {aoc_gradcam:.4f}")
-    # print(f"Area Over the Curve (Grad-CAM++): {aoc_gradcam_plus_plus:.4f}")
-    # # For deletion, a lower AOC indicates a better heatmap.
-    # # A smaller value means the model's score drops faster when important pixels are removed.
-    #
-    # target_class_index = 1
-    #
-    # # 3. Find the name of the penultimate convolutional layer
-    # # This can be tricky. Use model.summary() to find it.
-    # # For MobileNetV2, a good candidate is the final block output.
-    # # penultimate_layer_name = 'block_16_project_BN'
-    #
-    # # 4. Generate heatmaps for Grad-CAM and Grad-CAM++
-    # gradcam = Gradcam(segmentation_model, model_modifier=ReplaceToLinear(), clone=True)
-    # gradcam_plus_plus = GradcamPlusPlus(segmentation_model, model_modifier=ReplaceToLinear(), clone=True)
-    #
-    # # The custom score function is passed using a lambda
-    # score = lambda output: segmentation_score(output, target_class_index)
-    #
-    # cam_gradcam = gradcam(score, image, penultimate_layer=penultimate_layer_name)
-    # cam_gradcam_plus_plus = gradcam_plus_plus(score, image, penultimate_layer=penultimate_layer_name)
-    #
-    # # 5. Calculate the deletion metric for both methods
-    # gradcam_scores = calculate_deletion_metric(segmentation_model, image, cam_gradcam, target_class_index,
-    #                                            num_steps=100)
-    # gradcam_plus_plus_scores = calculate_deletion_metric(segmentation_model, image, cam_gradcam_plus_plus,
-    #                                                      target_class_index, num_steps=100)
-    #
-    # # 6. Plot the results
-    # x_axis = np.arange(100) / 100
-    # plt.figure(figsize=(10, 6))
-    # plt.plot(x_axis, gradcam_scores, label='Grad-CAM')
-    # plt.plot(x_axis, gradcam_plus_plus_scores, label='Grad-CAM++')
-    # plt.xlabel('Fraction of Pixels Deleted')
-    # plt.ylabel('Prediction Score Drop')
-    # plt.title('Quantitative Evaluation: Deletion Metric for River Water')
-    # plt.legend()
-    # plt.grid(True)
-    # plt.show()
-    #
-    # # 7. Calculate and print a single quantitative value (Area Over the Curve)
-    # aoc_gradcam = auc(x_axis, gradcam_scores)
-    # aoc_gradcam_plus_plus = auc(x_axis, gradcam_plus_plus_scores)
-    #
-    # print(f"Area Over the Curve (Grad-CAM): {aoc_gradcam:.4f}")
-    # print(f"Area Over the Curve (Grad-CAM++): {aoc_gradcam_plus_plus:.4f}")
-    #
-    # # For a deletion metric, a lower AOC value indicates that the model's score drops
-    # # faster, meaning the heatmap correctly identified the most important pixels.
+    print(f"Area Over the Curve (Grad-CAM): {aoc_gradcam:.4f}")
+    print(f"Area Over the Curve (Grad-CAM++): {aoc_gradcam_plus_plus:.4f}")
