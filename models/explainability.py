@@ -271,11 +271,9 @@ def calculate_deletion_metric(model, images, heatmaps, target_class_index, num_s
 
     return avg_scores
 
-from sklearn.metrics import auc
-
 if __name__=="__main__":
-    segmentation_model = load_saved_unet_model('Adam', True)
-    print(f"segmentation_model summary : {segmentation_model.summary()}")
+    model = load_saved_unet_model('Adam', True)
+    print(f"model summary : {model.summary()}")
 
     image_path = '../input/samples/segnet_512/images/DJI_20250324092953_0009_V.jpg'
 
@@ -285,6 +283,20 @@ if __name__=="__main__":
     # print(f'image_tensor shape: {image_tensor.shape}')
     penultimate_layer_name = 'conv2d_23'
     output_path = "../output/gradcam"
+
+    target_class_index = 1
+
+    image_tensor = tf.expand_dims(image, axis=0)
+
+    # Create GradCAM object
+    gradcam = Gradcam(model,
+                      model_modifier=ReplaceToLinear(),
+                      clone=True)
+    # Generate CAM
+    cam = gradcam(score,
+                  seed_input=image_tensor,
+                  penultimate_layer=penultimate_layer_name)
+
 
     # preds = model.predict(image_tensor)
     # target_class_index = np.argmax(preds[0])
@@ -342,48 +354,48 @@ if __name__=="__main__":
     # print(f"Area Over the Curve (Grad-CAM++): {aoc_gradcam_plus_plus:.4f}")
     # # For deletion, a lower AOC indicates a better heatmap.
     # # A smaller value means the model's score drops faster when important pixels are removed.
-
-    target_class_index = 1
-
-    # 3. Find the name of the penultimate convolutional layer
-    # This can be tricky. Use model.summary() to find it.
-    # For MobileNetV2, a good candidate is the final block output.
-    # penultimate_layer_name = 'block_16_project_BN'
-
-    # 4. Generate heatmaps for Grad-CAM and Grad-CAM++
-    gradcam = Gradcam(segmentation_model, model_modifier=ReplaceToLinear(), clone=True)
-    gradcam_plus_plus = GradcamPlusPlus(segmentation_model, model_modifier=ReplaceToLinear(), clone=True)
-
-    # The custom score function is passed using a lambda
-    score = lambda output: segmentation_score(output, target_class_index)
-
-    cam_gradcam = gradcam(score, image, penultimate_layer=penultimate_layer_name)
-    cam_gradcam_plus_plus = gradcam_plus_plus(score, image, penultimate_layer=penultimate_layer_name)
-
-    # 5. Calculate the deletion metric for both methods
-    gradcam_scores = calculate_deletion_metric(segmentation_model, image, cam_gradcam, target_class_index,
-                                               num_steps=100)
-    gradcam_plus_plus_scores = calculate_deletion_metric(segmentation_model, image, cam_gradcam_plus_plus,
-                                                         target_class_index, num_steps=100)
-
-    # 6. Plot the results
-    x_axis = np.arange(100) / 100
-    plt.figure(figsize=(10, 6))
-    plt.plot(x_axis, gradcam_scores, label='Grad-CAM')
-    plt.plot(x_axis, gradcam_plus_plus_scores, label='Grad-CAM++')
-    plt.xlabel('Fraction of Pixels Deleted')
-    plt.ylabel('Prediction Score Drop')
-    plt.title('Quantitative Evaluation: Deletion Metric for River Water')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-
-    # 7. Calculate and print a single quantitative value (Area Over the Curve)
-    aoc_gradcam = auc(x_axis, gradcam_scores)
-    aoc_gradcam_plus_plus = auc(x_axis, gradcam_plus_plus_scores)
-
-    print(f"Area Over the Curve (Grad-CAM): {aoc_gradcam:.4f}")
-    print(f"Area Over the Curve (Grad-CAM++): {aoc_gradcam_plus_plus:.4f}")
-
-    # For a deletion metric, a lower AOC value indicates that the model's score drops
-    # faster, meaning the heatmap correctly identified the most important pixels.
+    #
+    # target_class_index = 1
+    #
+    # # 3. Find the name of the penultimate convolutional layer
+    # # This can be tricky. Use model.summary() to find it.
+    # # For MobileNetV2, a good candidate is the final block output.
+    # # penultimate_layer_name = 'block_16_project_BN'
+    #
+    # # 4. Generate heatmaps for Grad-CAM and Grad-CAM++
+    # gradcam = Gradcam(segmentation_model, model_modifier=ReplaceToLinear(), clone=True)
+    # gradcam_plus_plus = GradcamPlusPlus(segmentation_model, model_modifier=ReplaceToLinear(), clone=True)
+    #
+    # # The custom score function is passed using a lambda
+    # score = lambda output: segmentation_score(output, target_class_index)
+    #
+    # cam_gradcam = gradcam(score, image, penultimate_layer=penultimate_layer_name)
+    # cam_gradcam_plus_plus = gradcam_plus_plus(score, image, penultimate_layer=penultimate_layer_name)
+    #
+    # # 5. Calculate the deletion metric for both methods
+    # gradcam_scores = calculate_deletion_metric(segmentation_model, image, cam_gradcam, target_class_index,
+    #                                            num_steps=100)
+    # gradcam_plus_plus_scores = calculate_deletion_metric(segmentation_model, image, cam_gradcam_plus_plus,
+    #                                                      target_class_index, num_steps=100)
+    #
+    # # 6. Plot the results
+    # x_axis = np.arange(100) / 100
+    # plt.figure(figsize=(10, 6))
+    # plt.plot(x_axis, gradcam_scores, label='Grad-CAM')
+    # plt.plot(x_axis, gradcam_plus_plus_scores, label='Grad-CAM++')
+    # plt.xlabel('Fraction of Pixels Deleted')
+    # plt.ylabel('Prediction Score Drop')
+    # plt.title('Quantitative Evaluation: Deletion Metric for River Water')
+    # plt.legend()
+    # plt.grid(True)
+    # plt.show()
+    #
+    # # 7. Calculate and print a single quantitative value (Area Over the Curve)
+    # aoc_gradcam = auc(x_axis, gradcam_scores)
+    # aoc_gradcam_plus_plus = auc(x_axis, gradcam_plus_plus_scores)
+    #
+    # print(f"Area Over the Curve (Grad-CAM): {aoc_gradcam:.4f}")
+    # print(f"Area Over the Curve (Grad-CAM++): {aoc_gradcam_plus_plus:.4f}")
+    #
+    # # For a deletion metric, a lower AOC value indicates that the model's score drops
+    # # faster, meaning the heatmap correctly identified the most important pixels.
