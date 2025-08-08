@@ -6,6 +6,9 @@ import tensorflow as tf
 from tf_keras_vis.utils.model_modifiers import ReplaceToLinear
 import matplotlib.pyplot as plt
 import cv2
+from sklearn.metrics import auc
+from glob import glob
+import os
 
 from tf_keras_vis.gradcam import Gradcam
 from tf_keras_vis.gradcam_plus_plus import GradcamPlusPlus
@@ -282,7 +285,44 @@ def calculate_deletion_metric(model, images, heatmaps, num_steps=100):
 
     return avg_scores
 
-from sklearn.metrics import auc
+def calculate_gradcam_auc_score(image_path):
+    image = load_image(image_path)
+    print(f'image shape: {image.shape}')
+    # print(f'image_tensor shape: {image_tensor.shape}')
+    penultimate_layer_name = 'conv2d_23'
+    output_path = "../output/gradcam"
+
+    cam_gradcam = execute_gradcam(image, model, output_path, penultimate_layer_name)
+    cam_gradcam_plus_plus = execute_gradcam_plus_plus(image, model, output_path, penultimate_layer_name)
+
+    image_tensor = tf.expand_dims(image, axis=0)
+    gradcam_scores = calculate_deletion_metric(model, image_tensor, cam_gradcam, num_steps=100)
+    gradcam_plus_plus_scores = calculate_deletion_metric(model, image_tensor, cam_gradcam_plus_plus, num_steps=100)
+
+    # 6. Plot the results
+    x_axis = np.arange(100) / 100
+    plt.figure(figsize=(10, 6))
+    plt.plot(x_axis, gradcam_scores, label='Grad-CAM')
+    plt.plot(x_axis, gradcam_plus_plus_scores, label='Grad-CAM++')
+    plt.xlabel('Fraction of Pixels Deleted')
+    plt.ylabel('Prediction Score Drop')
+    plt.title('Quantitative Evaluation: Deletion Metric for River Water')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+    # 7. Calculate and print a single quantitative value (Area Over the Curve)
+    aoc_gradcam = auc(x_axis, gradcam_scores)
+    aoc_gradcam_plus_plus = auc(x_axis, gradcam_plus_plus_scores)
+
+    print(f"Area Over the Curve (Grad-CAM): {aoc_gradcam:.4f}")
+    print(f"Area Over the Curve (Grad-CAM++): {aoc_gradcam_plus_plus:.4f}")
+
+if __name__=="__main__":
+    image_dir = "../input/dataset/validation/images"
+    image_paths = sorted(glob(os.path.join(image_dir, '*.png')))  # Assuming .jpg for images
+    for image_path in image_paths:
+        calculate_gradcam_auc_score(image_path)
 
 if __name__=="__main__":
     model = load_saved_unet_model('Adam', True)
