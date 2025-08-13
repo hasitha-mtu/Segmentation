@@ -212,10 +212,11 @@ def check_class_imbalance(train_ds):
 def plot_augmented_images(config_file):
     load_config(config_file)
     base_path = '../../output/augmentation'
-    files = glob("../../input/updated_samples/segnet_512/images/*.png")
+    # files = glob("../../input/updated_samples/segnet_512/images/*.png")
+    files = glob("../../input/dataset/validation/images/*.png")
     shuffle(files)
     os.makedirs(base_path, exist_ok=True)
-    for i in range(20):
+    for i in range(16):
         output_path = f'{base_path}/{i}'
         os.makedirs(output_path, exist_ok=True)
 
@@ -291,11 +292,47 @@ def plot_augmented_images(config_file):
 
         plt.show()
 
-if __name__ == '__main__':
-    config_path = '../unet_wsl/config.yaml'
+def augmented_images(config_file):
+    load_config(config_file)
+    output_path = '../../output/augmentation/images'
+    image_path = '../../output/augmentation/image.jpg'
+    os.makedirs(output_path, exist_ok=True)
 
-    train_dataset, _validation_dataset = load_datasets(config_path)
-    check_class_imbalance(train_dataset)
+    image = load_image(image_path)
+
+    save_img(f'{output_path}/image.jpg', image)
+
+    flip_left_right = tf.image.flip_left_right(image)
+    save_img(f'{output_path}/flip_left_right.jpg', flip_left_right)
+
+    flip_up_down = tf.image.flip_up_down(image)
+    save_img(f'{output_path}/flip_up_down.jpg', flip_up_down)
+
+    # Random rotation (by 90, 180, 270 degrees)
+    # tf.image.rot90 is deterministic, random_uniform decides how many times
+    k = tf.random.uniform(shape=[], minval=0, maxval=4, dtype=tf.int32)
+    rot90 = tf.image.rot90(image, k=k)
+    save_img(f'{output_path}/rot90.jpg', rot90)
+
+    # Image-specific augmentations (don't apply to mask)
+    random_brightness = tf.image.random_brightness(image, max_delta=0.4)  # Adjust brightness by up to 40%
+    save_img(f'{output_path}/random_brightness.jpg', random_brightness)
+    random_contrast = tf.image.random_contrast(image, lower=1, upper=2)  # Adjust contrast by +/- 20%
+    save_img(f'{output_path}/random_contrast.jpg', random_contrast)
+    random_saturation = tf.image.random_saturation(image, lower=1, upper=2)  # Only for RGB images
+    save_img(f'{output_path}/random_saturation.jpg', random_saturation)
+    random_hue = tf.image.random_hue(image, max_delta=0.4)  # Only for RGB images
+    save_img(f'{output_path}/random_hue.jpg', random_hue)
+
+    # Clip values to ensure they stay within [0, 1] after augmentation
+    augmented = tf.clip_by_value(image, 0.0, 1.0)
+    save_img(f'{output_path}/augmented.jpg', augmented)
+
+# if __name__ == '__main__':
+#     config_path = '../unet_wsl/config.yaml'
+#
+#     train_dataset, _validation_dataset = load_datasets(config_path)
+#     check_class_imbalance(train_dataset)
 #
 # if __name__ == '__main__':
 #     config_path = '../unet_wsl/config.yaml'
@@ -323,6 +360,8 @@ if __name__ == '__main__':
 #     config_file = '../unet_wsl/config.yaml'
 #     plot_augmented_images(config_file)
 
-
+if __name__ == '__main__':
+    config_file = '../unet_wsl/config.yaml'
+    augmented_images(config_file)
 
 
