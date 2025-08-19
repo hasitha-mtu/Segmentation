@@ -8,6 +8,7 @@ import tensorflow as tf
 from keras.utils import load_img, img_to_array
 from random import shuffle
 from glob import glob
+from PIL import Image
 
 
 def load_image(path: str, size=(512,512), color_mode = "rgb"):
@@ -650,6 +651,66 @@ def create_multi_channel_dataset(base_dir, mask_dir, image_dir):
         z_data = xyz[:, :, 2]
         cv2.imwrite(z_path, resize_normalize_scale(z_data))
 
+def convert_tif_to_png(tif_path, png_path):
+    """
+    Converts a TIF image to a PNG image.
+
+    Args:
+        tif_path (str): The file path to the input TIF image.
+        png_path (str): The file path for the output PNG image.
+    """
+    Image.MAX_IMAGE_PIXELS = None
+    try:
+        # Open the TIF image
+        with Image.open(tif_path) as img:
+            # Save the image in PNG format
+            img.save(png_path)
+        print(f"Successfully converted '{tif_path}' to '{png_path}'.")
+    except FileNotFoundError:
+        print(f"Error: The file '{tif_path}' was not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
+def resize_and_convert(tif_path, png_path, max_dimension=4096):
+    """
+    Resizes an image and then converts it from TIF to PNG.
+
+    Args:
+        tif_path (str): The file path to the input TIF image.
+        png_path (str): The file path for the output PNG image.
+        max_dimension (int): The maximum width or height the image should have.
+    """
+    Image.MAX_IMAGE_PIXELS = None
+    try:
+        with Image.open(tif_path) as img:
+            original_width, original_height = img.size
+
+            # Calculate new dimensions while maintaining aspect ratio
+            if original_width > max_dimension or original_height > max_dimension:
+                if original_width > original_height:
+                    new_width = max_dimension
+                    new_height = int(max_dimension * original_height / original_width)
+                else:
+                    new_height = max_dimension
+                    new_width = int(max_dimension * original_width / original_height)
+
+                # Resize the image using a high-quality filter
+                img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+
+            # Save the resized image as PNG
+            img.save(png_path)
+        print(f"Successfully resized and converted '{tif_path}' to '{png_path}'.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    # C:\Users\AdikariAdikari\DataCollection\DroneSurvey\Crookstown\WebODM\odm_orthophoto
+    input_file = '../../input/webodm/odm_orthophoto/odm_orthophoto.tif'
+    output_file = '../../output/odm_orthophoto.png'
+    # convert_tif_to_png(input_file, output_file)
+    resize_and_convert(input_file, '../../output/odm_orthophoto_4096.png')
+
 # if __name__ == "__main__":
 #     base_dir = "../../input/updated_samples/multi_channel_segnet_512"
 #     mask_dir = "../../input/updated_samples/segnet_512/masks"
@@ -668,33 +729,33 @@ def create_multi_channel_dataset(base_dir, mask_dir, image_dir):
 #     for file in files:
 #         plot_details(file)
 
-if __name__ == "__main__":
-    annotation_dir = "../../input/dataset/masks"
-    formatted_annotation_dir = "../../input/dataset/test/masks"
-    formatted_image_dir = "../../input/dataset/test/images"
-
-    os.makedirs(formatted_annotation_dir, exist_ok=True)
-    os.makedirs(formatted_image_dir, exist_ok=True)
-
-    for filename in os.listdir(annotation_dir):
-        mask_path = os.path.join(annotation_dir, filename)
-        ann = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)  # shape: (H, W)
-        ann = cv2.resize(ann, (512, 512))
-
-        mask = create_confidence_mask(ann)
-
-        # Save mask as 8-bit single-channel image
-        # updated_mask_path = os.path.join(formatted_annotation_dir, f'mask_{filename}')
-        updated_mask_path = os.path.join(formatted_annotation_dir, filename)
-        print(f"Resized mask path: {updated_mask_path}")
-        cv2.imwrite(updated_mask_path, (mask * 255).astype(np.uint8))
-
-        image_path = mask_path.replace("masks", "images")
-        image_path = image_path.replace(".png", ".jpg")
-
-        image = cv2.imread(image_path)
-        resized_image = cv2.resize(image, (512, 512))
-
-        updated_image_path = os.path.join(formatted_image_dir, filename)
-        print(f"Resized image path: {updated_image_path}")
-        cv2.imwrite(updated_image_path, resized_image)
+# if __name__ == "__main__":
+#     annotation_dir = "../../input/dataset/masks"
+#     formatted_annotation_dir = "../../input/dataset/test/masks"
+#     formatted_image_dir = "../../input/dataset/test/images"
+#
+#     os.makedirs(formatted_annotation_dir, exist_ok=True)
+#     os.makedirs(formatted_image_dir, exist_ok=True)
+#
+#     for filename in os.listdir(annotation_dir):
+#         mask_path = os.path.join(annotation_dir, filename)
+#         ann = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)  # shape: (H, W)
+#         ann = cv2.resize(ann, (512, 512))
+#
+#         mask = create_confidence_mask(ann)
+#
+#         # Save mask as 8-bit single-channel image
+#         # updated_mask_path = os.path.join(formatted_annotation_dir, f'mask_{filename}')
+#         updated_mask_path = os.path.join(formatted_annotation_dir, filename)
+#         print(f"Resized mask path: {updated_mask_path}")
+#         cv2.imwrite(updated_mask_path, (mask * 255).astype(np.uint8))
+#
+#         image_path = mask_path.replace("masks", "images")
+#         image_path = image_path.replace(".png", ".jpg")
+#
+#         image = cv2.imread(image_path)
+#         resized_image = cv2.resize(image, (512, 512))
+#
+#         updated_image_path = os.path.join(formatted_image_dir, filename)
+#         print(f"Resized image path: {updated_image_path}")
+#         cv2.imwrite(updated_image_path, resized_image)
