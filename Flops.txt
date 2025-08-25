@@ -1,0 +1,41 @@
+
+======================UNET==========================
+Model Parameters: 34.62 M
+Estimated FLOPS: 37.75 G
+
+======================UNET-VGG16==========================
+Model Parameters: 25.86 M
+Estimated FLOPS: 407.67 G
+
+======================UNET-ResNet50==========================
+Model Parameters: 43.94 M
+Estimated FLOPS: 142.02 G
+
+======================UNET-MobileNetV2==========================
+Model Parameters: 2.57 M
+Estimated FLOPS: 22.38 G
+
+======================UNET++==========================
+Model Parameters: 36.64 M
+Estimated FLOPS: 1103.44 G
+
+======================UNET-FFC==========================
+Model Parameters: 34.62 M
+Estimated FLOPS: 37.82 G
+
+======================SegNet==========================
+Model Parameters: 4.07 M
+Estimated FLOPS: 271.93 G
+
+======================SegNet-VGG16==========================
+Model Parameters: 17.66 M
+Estimated FLOPS: 223.39 G
+
+======================ResUNET++==========================
+Model Parameters: 4.09 M
+Estimated FLOPS: 127.49 G
+
+======================DeepLabV3+==========================
+Model Parameters: 11.54 M
+Estimated FLOPS: 78.92 G
+
