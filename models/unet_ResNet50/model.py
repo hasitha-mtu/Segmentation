@@ -6,7 +6,7 @@ import os
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_loss_function
 from models.memory_usage import estimate_model_memory_usage
 from models.common_utils.config import load_config, ModelConfig
-from models.common_utils.model_utils import get_optimizer
+from models.common_utils.model_utils import get_optimizer, estimate_flops
 
 def unet_with_resnet50(input_shape=(512, 512, 16), num_classes=1):
     # Step 1: Define 16-channel input
@@ -71,6 +71,8 @@ def unet_with_resnet50(input_shape=(512, 512, 16), num_classes=1):
     estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
     keras.utils.plot_model(model, os.path.join(ModelConfig.MODEL_DIR, "UNET-ResNet50_model.png"), show_shapes=True)
+
+    estimate_flops(model)
 
     return model
 

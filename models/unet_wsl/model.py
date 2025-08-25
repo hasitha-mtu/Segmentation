@@ -5,7 +5,7 @@ import tensorflow as tf
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_loss_function
 from models.memory_usage import estimate_model_memory_usage
 from models.common_utils.config import load_config, ModelConfig
-from models.common_utils.model_utils import get_optimizer
+from models.common_utils.model_utils import get_optimizer, estimate_flops
 
 def encoding_block(inputs, filters, dropout, batch_normalization=True, pooling=True, kernel_size=(3,3), activation="relu",
                    kernel_initializer="he_normal", padding="same"):
@@ -82,6 +82,8 @@ def unet_model(image_width, image_height, image_channels):
     estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
     keras.utils.plot_model(model, os.path.join(ModelConfig.MODEL_DIR, "UNET_model.png"), show_shapes=True)
+
+    estimate_flops(model)
 
     return model
 

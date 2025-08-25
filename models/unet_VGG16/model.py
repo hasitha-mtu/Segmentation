@@ -8,7 +8,7 @@ import os
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_loss_function
 from models.memory_usage import estimate_model_memory_usage
 from models.common_utils.config import load_config, ModelConfig
-from models.common_utils.model_utils import get_optimizer
+from models.common_utils.model_utils import get_optimizer, estimate_flops
 
 def conv_block(inputs, num_filters):
     x = Conv2D(num_filters, 3, padding='same')(inputs)
@@ -70,6 +70,8 @@ def UnetVGG16(input_shape):
     estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
     keras.utils.plot_model(model, os.path.join(ModelConfig.MODEL_DIR, "Unet-VGG16_model.png"), show_shapes=True)
+
+    estimate_flops(model)
 
     return model
 

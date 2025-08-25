@@ -6,7 +6,7 @@ import keras
 import os
 from models.memory_usage import estimate_model_memory_usage
 from models.common_utils.config import load_config, ModelConfig
-from models.common_utils.model_utils import get_optimizer
+from models.common_utils.model_utils import get_optimizer, estimate_flops
 
 def SegNet(input_shape=(256, 256, 3)):
     inputs = Input(shape=input_shape)
@@ -80,6 +80,8 @@ def SegNet(input_shape=(256, 256, 3)):
     estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
     keras.utils.plot_model(model, os.path.join(ModelConfig.MODEL_DIR, "SegNet_model.png"), show_shapes=True)
+
+    estimate_flops(model)
 
     return model
 

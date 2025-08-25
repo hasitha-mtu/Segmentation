@@ -9,7 +9,7 @@ from models.common_utils.loss_functions import  recall_m, precision_m, f1_score,
 # from models.deeplabv3_plus.loss_function import combined_masked_dice_bce_loss
 from models.memory_usage import estimate_model_memory_usage
 from models.common_utils.config import load_config, ModelConfig
-from models.common_utils.model_utils import get_optimizer
+from models.common_utils.model_utils import get_optimizer, estimate_flops
 
 def ASPP(inputs):
     shape = inputs.shape
@@ -108,6 +108,8 @@ def DeepLabV3Plus(shape):
 
     print(f'Model type: {type(model)}')
     print(f'Model output shape: {model.output.shape}')
+
+    estimate_flops(model)
 
     return model
 

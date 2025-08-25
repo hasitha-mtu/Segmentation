@@ -9,7 +9,7 @@ from models.common_utils.loss_functions import  recall_m, precision_m, f1_score,
 from models.unet_MobileNetV2.loss_function import combined_masked_dice_bce_loss
 from models.memory_usage import estimate_model_memory_usage
 from models.common_utils.config import load_config, ModelConfig
-from models.common_utils.model_utils import get_optimizer
+from models.common_utils.model_utils import get_optimizer, estimate_flops
 
 def UnetMobileNetV2(shape):
     inputs = Input(shape=shape, name='input_image')
@@ -49,6 +49,8 @@ def UnetMobileNetV2(shape):
     estimate_model_memory_usage(model, batch_size=ModelConfig.BATCH_SIZE)
 
     keras.utils.plot_model(model, os.path.join(ModelConfig.MODEL_DIR, "Unet-MobileNetV2_model.png"), show_shapes=True)
+
+    estimate_flops(model)
 
     return model
 

@@ -1,6 +1,8 @@
 import tensorflow_addons as tfa
 import tensorflow as tf
 import os
+from keras_flops import get_flops
+
 from models.common_utils.config import ModelConfig
 
 def get_optimizer():
@@ -37,3 +39,11 @@ def get_model_save_file_name(optimizer, enable_clrs):
                                         f'{ModelConfig.SAVED_FILE_NAME}_{optimizer}_without_CLRS.h5')
 
     return saved_model_path
+
+def estimate_flops(model):
+    flops = get_flops(model, batch_size=1)
+    params = model.count_params()
+
+    # Print the results
+    print(f"Model Parameters: {params / 1e6:.2f} M")
+    print(f"Estimated FLOPS: {flops / 1e9:.2f} G")
