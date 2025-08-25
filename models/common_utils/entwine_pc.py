@@ -109,6 +109,9 @@ def read_entwine(entwine_path):
             colors = point_data[['Red', 'Green', 'Blue']]
             print(f"First 5 RGB colors: {colors[:5]}")
 
+        print(f"Z coordinates: {z}")
+        print(f"Z coordinates length: {len(z)}")
+
 
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -125,7 +128,8 @@ if __name__ == "__main__":
     # Example: "https://assets.entwine.io/nyc/ept/" (for a remote dataset)
     # Example: "C:/path/to/my_entwine_data/ept.json" (for a local dataset)
     # entwine_path = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\input\samples\pc_data\entwine_pointcloud\ept.json"
-    entwine_path = r"C:\Users\AdikariAdikari\PycharmProjects\Segmentation\input\samples\pc_data\entwine_pointcloud\ept.json"
+    # entwine_path = r"C:\Users\AdikariAdikari\PycharmProjects\Segmentation\input\samples\pc_data\entwine_pointcloud\ept.json"
+    entwine_path = r"C:\Users\AdikariAdikari\DataCollection\DroneSurvey\Crookstown\WebODM\entwine_pointcloud\ept.json"
 
     # read_file(entwine_path)
     read_entwine(entwine_path)

@@ -1,43 +1,43 @@
 
 ======================UNET==========================
 Model Parameters: 34.62 M
-Estimated FLOPS: 37.75 G
+Estimated FLOPS: 37.75 G - 0.0142175 - 0.7108764
 
 ======================UNET-VGG16==========================
 Model Parameters: 25.86 M
-Estimated FLOPS: 407.67 G
+Estimated FLOPS: 407.67 G - 0.3564 - 17.82
 
 ======================UNET-ResNet50==========================
 Model Parameters: 43.94 M
-Estimated FLOPS: 142.02 G
+Estimated FLOPS: 142.02 G - 0.1106692 - 5.53346
 
 ======================UNET-MobileNetV2==========================
 Model Parameters: 2.57 M
-Estimated FLOPS: 22.38 G
+Estimated FLOPS: 22.38 G - 0 - 0
 
 ======================UNET++==========================
 Model Parameters: 36.64 M
-Estimated FLOPS: 1103.44 G
+Estimated FLOPS: 1103.44 G - 1 - 50
 
 ======================UNET-FFC==========================
 Model Parameters: 34.62 M
-Estimated FLOPS: 37.82 G
+Estimated FLOPS: 37.82 G - 0.0142823 - 0.714115
 
 ======================SegNet==========================
 Model Parameters: 4.07 M
-Estimated FLOPS: 271.93 G
+Estimated FLOPS: 271.93 G - 0.230838 - 11.5419
 
 ======================SegNet-VGG16==========================
 Model Parameters: 17.66 M
-Estimated FLOPS: 223.39 G
+Estimated FLOPS: 223.39 G - 0.1859379 - 9.296895
 
 ======================ResUNET++==========================
 Model Parameters: 4.09 M
-Estimated FLOPS: 127.49 G
+Estimated FLOPS: 127.49 G - 0.0972286 - 4.86143
 
 ======================DeepLabV3+==========================
 Model Parameters: 11.54 M
-Estimated FLOPS: 78.92 G
+Estimated FLOPS: 78.92 G - 0.052301 - 2.61505
 
 
 
