@@ -1,0 +1,152 @@
+
+
+UNET-WSL
+Estimated model memory usage (batch size 4):
+- Parameters       : 132.05 MB
+- Gradients        : 132.05 MB
+- Optimizer states : 264.11 MB
+- Activations      : 1299.00 MB
+≈ Total            : 1.78 GB (approx)
+
+Total params: 34,616,637
+Trainable params: 34,610,583
+Non-trainable params: 6,054
+
+Estimated FLOPS: 37.75 G
+__________________________________________________________________________________________________
+
+UNET-VGG16
+Estimated model memory usage (batch size 4):
+- Parameters       : 98.66 MB
+- Gradients        : 98.66 MB
+- Optimizer states : 197.31 MB
+- Activations      : 5536.00 MB
+≈ Total            : 5.79 GB (approx)
+
+Total params: 25,862,337
+Trainable params: 25,858,497
+Non-trainable params: 3,840
+
+Estimated FLOPS: 407.67 G
+__________________________________________________________________________________________________
+
+UNET-ResNet50
+Estimated model memory usage (batch size 4):
+- Parameters       : 167.61 MB
+- Gradients        : 167.61 MB
+- Optimizer states : 335.23 MB
+- Activations      : 1276.00 MB
+≈ Total            : 1.90 GB (approx)
+
+Total params: 43,938,637
+Trainable params: 43,885,517
+Non-trainable params: 53,120
+
+Estimated FLOPS: 142.02 G
+__________________________________________________________________________________________________
+
+UNET++
+Estimated model memory usage (batch size 4):
+- Parameters       : 139.82 MB
+- Gradients        : 139.82 MB
+- Optimizer states : 279.63 MB
+- Activations      : 18268.00 MB
+≈ Total            : 18.39 GB (approx)
+
+Total params: 36,651,713
+Trainable params: 36,637,121
+Non-trainable params: 14,592
+
+Estimated FLOPS: 1103.44 G
+__________________________________________________________________________________________________
+
+UNET-MobileNetV2
+Estimated model memory usage (batch size 4):
+- Parameters       : 9.81 MB
+- Gradients        : 9.81 MB
+- Optimizer states : 19.63 MB
+- Activations      : 2039.94 MB
+≈ Total            : 2.03 GB (approx)
+
+Total params: 2,572,881
+Trainable params: 2,563,185
+Non-trainable params: 9,696
+
+Estimated FLOPS: 22.38 G
+__________________________________________________________________________________________________
+
+UNET-FFC
+Estimated model memory usage (batch size 4):
+- Parameters       : 132.07 MB
+- Gradients        : 132.07 MB
+- Optimizer states : 264.14 MB
+- Activations      : 1315.00 MB
+≈ Total            : 1.80 GB (approx)
+
+Total params: 34,621,191
+Trainable params: 34,615,133
+Non-trainable params: 6,058
+
+Estimated FLOPS: 37.82 G
+__________________________________________________________________________________________________
+
+SegNet
+Estimated model memory usage (batch size 4):
+- Parameters       : 15.52 MB
+- Gradients        : 15.52 MB
+- Optimizer states : 31.04 MB
+- Activations      : 6724.00 MB
+≈ Total            : 6.63 GB (approx)
+
+Total params: 4,068,353
+Trainable params: 4,063,745
+Non-trainable params: 4,608
+
+Estimated FLOPS: 271.93 G
+__________________________________________________________________________________________________
+
+SegNet-VGG16
+Estimated model memory usage (batch size 4):
+- Parameters       : 67.37 MB
+- Gradients        : 67.37 MB
+- Optimizer states : 134.74 MB
+- Activations      : 3188.00 MB
+≈ Total            : 3.38 GB (approx)
+
+Total params: 17,660,705
+Trainable params: 17,658,273
+Non-trainable params: 2,432
+
+Estimated FLOPS: 223.39 G
+__________________________________________________________________________________________________
+
+ResUNET++
+Estimated model memory usage (batch size 4):
+- Parameters       : 15.61 MB
+- Gradients        : 15.61 MB
+- Optimizer states : 31.22 MB
+- Activations      : 7588.03 MB
+≈ Total            : 7.47 GB (approx)
+
+Total params: 4,092,657
+Trainable params: 4,086,193
+Non-trainable params: 6,464
+
+Estimated FLOPS: 127.49 G
+__________________________________________________________________________________________________
+
+DeepLabV3+
+Estimated model memory usage (batch size 4):
+- Parameters       : 44.02 MB
+- Gradients        : 44.02 MB
+- Optimizer states : 88.03 MB
+- Activations      : 1121.67 MB
+≈ Total            : 1.27 GB (approx)
+
+Total params: 11,538,753
+Trainable params: 11,503,969
+Non-trainable params: 34,784
+
+Estimated FLOPS: 78.92 G
+__________________________________________________________________________________________________
+
