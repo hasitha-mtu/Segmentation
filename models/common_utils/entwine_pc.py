@@ -129,7 +129,8 @@ if __name__ == "__main__":
     # Example: "C:/path/to/my_entwine_data/ept.json" (for a local dataset)
     # entwine_path = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\input\samples\pc_data\entwine_pointcloud\ept.json"
     # entwine_path = r"C:\Users\AdikariAdikari\PycharmProjects\Segmentation\input\samples\pc_data\entwine_pointcloud\ept.json"
-    entwine_path = r"C:\Users\AdikariAdikari\DataCollection\DroneSurvey\Crookstown\WebODM\entwine_pointcloud\ept.json"
+    # entwine_path = r"C:\Users\AdikariAdikari\DataCollection\DroneSurvey\Crookstown\WebODM\entwine_pointcloud\ept.json"
+    entwine_path = r"D:\DataCollection\DroneSurveys\Crookstown\WebODM\entwine_pointcloud\ept.json"
 
     # read_file(entwine_path)
     read_entwine(entwine_path)
