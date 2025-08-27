@@ -59,13 +59,39 @@ def read_laz_file(file_path):
     las = laspy.read(file_path)
     print(set(las.classification))
 
-# if __name__ == "__main__":
-#     input_file = "../../input/samples/Cloghmacow-Road-3-24-2025-georeferenced_model.laz"
-#     read_laz_file(input_file)
+def edit_laz_file(input_file, output_file):
+    # Open the LAZ file
+    laz_file = laspy.read(input_file)
+
+    # Get the Z-axis range directly from the header
+    z_min = laz_file.header.z_min
+    z_max = laz_file.header.z_max
+
+    print(f"Z-axis minimum: {z_min:.2f}")
+    print(f"Z-axis maximum: {z_max:.2f}")
+
+    # Get the Z coordinates and create a mask
+    z_coords = laz_file.z
+    points_to_keep = z_coords <= 20
+    filtered_points = laz_file.points[points_to_keep]
+
+    # Create a new LasData object
+    new_laz_file = laspy.LasData(laz_file.header, points=filtered_points)
+
+    # Write the new data to a new LAZ file
+    new_laz_file.write(output_file)
+
+    print(f"Original points: {len(laz_file.points)}")
+    print(f"Edited points: {len(new_laz_file.points)}")
 
 if __name__ == "__main__":
-    # input_file = "../../input/samples/G_Sw_Anny.laz"
-    input_file = "../../input/samples/Cloghmacow-Road-3-24-2025-georeferenced_model.laz"
-    output_file = "../../input/samples/filtered_ground_water.las"
-    filter_point_cloud(input_file, output_file)
+    input_file = "D:\DataCollection\DroneSurveys\Crookstown\WebODM\odm_georeferencing\odm_georeferenced_model.laz"
+    output_file = "../../output/point_cloud/updated_odm_georeferenced_model.laz"
+    edit_laz_file(input_file, output_file)
+
+# if __name__ == "__main__":
+#     # input_file = "../../input/samples/G_Sw_Anny.laz"
+#     input_file = "../../input/samples/Cloghmacow-Road-3-24-2025-georeferenced_model.laz"
+#     output_file = "../../input/samples/filtered_ground_water.las"
+#     filter_point_cloud(input_file, output_file)
 
