@@ -165,6 +165,41 @@ def load_datasets(config_file, config_loaded=False):
     return train_dataset, validation_dataset
 
 
+def load_datasets_all(config_file, config_loaded=False):
+    if not config_loaded:
+        load_config(config_file)
+    image_dir = f'{ModelConfig.DATASET_PATH}/images'
+    mask_dir = f'{ModelConfig.DATASET_PATH}/masks'
+    all_paired_paths = get_image_mask_paths(image_dir, mask_dir)
+    train_paths, remaining_paths = train_test_split(all_paired_paths,
+                                              test_size=ModelConfig.TEST_SIZE,
+                                              random_state=ModelConfig.SEED)
+
+    validation_paths, test_paths = train_test_split(all_paired_paths,
+                                                    test_size=0.5,
+                                                    random_state=ModelConfig.SEED)
+
+    train_dataset = create_tf_dataset(train_paths,
+                                      ModelConfig.BATCH_SIZE,
+                                      ModelConfig.BUFFER_SIZE,
+                                      augment=True,
+                                      shuffle=True)
+
+    validation_dataset = create_tf_dataset(validation_paths,
+                                           ModelConfig.BATCH_SIZE,
+                                           ModelConfig.BUFFER_SIZE,
+                                           augment=False,
+                                           shuffle=False)  # No augmentation/shuffle for validation
+
+    test_dataset = create_tf_dataset(test_paths,
+                                           ModelConfig.BATCH_SIZE,
+                                           ModelConfig.BUFFER_SIZE,
+                                           augment=False,
+                                           shuffle=False)  # No augmentation/shuffle for testing
+
+    return train_dataset, validation_dataset, test_dataset
+
+
 def check_class_imbalance(train_ds):
     all_labels = []
     for _, labels_batch in train_ds:
@@ -334,34 +369,43 @@ def augmented_images(config_file):
 #     train_dataset, _validation_dataset = load_datasets(config_path)
 #     check_class_imbalance(train_dataset)
 #
-# if __name__ == '__main__':
-#     config_path = '../unet_wsl/config.yaml'
-#     output_path = '../../output'
-#
-#     train_dataset, validation_dataset = load_datasets(config_path)
-#
-#     # Take a batch from the training dataset and display
-#     print("\nDisplaying a sample batch from the training dataset (with augmentation):")
-#     for image_batch, mask_batch in train_dataset.take(1):
-#         for i in range(min(3, 4)):  # Display first 3 samples from the batch
-#             display_sample(image_batch[i].numpy(), mask_batch[i].numpy())
-#
-#     # Take a batch from the validation dataset and display
-#     print("\nDisplaying a sample batch from the validation dataset (without augmentation):")
-#     for image_batch, mask_batch in validation_dataset.take(1):
-#         for i in range(min(3, 4)):  # Display first 3 samples from the batch
-#             mask_data = mask_batch[i].numpy().squeeze()
-#             print(mask_data.shape)
-#             np.savetxt(f"{output_path}/matrix_{i}.txt", mask_data, fmt='%d', delimiter=' ')
-#             display_sample(image_batch[i].numpy(), mask_data)
+
+if __name__ == '__main__':
+    config_path = '../unet_wsl/config.yaml'
+    output_path = '../../output'
+
+    train_dataset, validation_dataset, test_dataset = load_datasets(config_path)
+
+    # Take a batch from the training dataset and display
+    print("\nDisplaying a sample batch from the training dataset (with augmentation):")
+    for image_batch, mask_batch in train_dataset.take(1):
+        for i in range(min(3, 4)):  # Display first 3 samples from the batch
+            display_sample(image_batch[i].numpy(), mask_batch[i].numpy())
+
+    # Take a batch from the validation dataset and display
+    print("\nDisplaying a sample batch from the validation dataset (without augmentation):")
+    for image_batch, mask_batch in validation_dataset.take(1):
+        for i in range(min(3, 4)):  # Display first 3 samples from the batch
+            mask_data = mask_batch[i].numpy().squeeze()
+            # print(mask_data.shape)
+            # np.savetxt(f"{output_path}/matrix_{i}.txt", mask_data, fmt='%d', delimiter=' ')
+            display_sample(image_batch[i].numpy(), mask_data)
+
+    print("\nDisplaying a sample batch from the test dataset (without augmentation):")
+    for image_batch, mask_batch in test_dataset.take(1):
+        for i in range(min(3, 4)):  # Display first 3 samples from the batch
+            mask_data = mask_batch[i].numpy().squeeze()
+            # print(mask_data.shape)
+            # np.savetxt(f"{output_path}/matrix_{i}.txt", mask_data, fmt='%d', delimiter=' ')
+            display_sample(image_batch[i].numpy(), mask_data)
 
 
 # if __name__ == '__main__':
 #     config_file = '../unet_wsl/config.yaml'
 #     plot_augmented_images(config_file)
 
-if __name__ == '__main__':
-    config_file = '../unet_wsl/config.yaml'
-    augmented_images(config_file)
+# if __name__ == '__main__':
+#     config_file = '../unet_wsl/config.yaml'
+#     augmented_images(config_file)
 
 
