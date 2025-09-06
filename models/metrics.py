@@ -26,7 +26,7 @@ from gradcam_keras import gradcam,gradcam_plus_plus
 
 from models.train import  train_all_models
 
-OUTPUT_DIR = "C:\\Users\AdikariAdikari\OneDrive - Munster Technological University\ModelResults\Segmentation\\08_08_2025"
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\OneDrive - Munster Technological University\ModelResults\Segmentation\\05_09_2025"
 # OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output\\08_08_2025"
 
 
@@ -284,22 +284,22 @@ def make_prediction(image, mask, index=0):
     deeplabv3_plus_metrics[f'DeepLabV3+_Adam_{True}'] = make_prediction_model('DeepLabV3+', 'Adam',
                                                                   True,
                                                                   deeplabv3_plus_output_path,
-                                                                  'conv2d_8',
+                                                                  'conv2d_176',
                                                                   image, mask, index, load_saved_deeplabv3_plus_model)
     deeplabv3_plus_metrics[f'DeepLabV3+_Adam_{False}'] = make_prediction_model('DeepLabV3+', 'Adam',
                                                                    False,
                                                                    deeplabv3_plus_output_path,
-                                                                   'conv2d_8',
+                                                                   'conv2d_176',
                                                                    image, mask, index, load_saved_deeplabv3_plus_model)
     deeplabv3_plus_metrics[f'DeepLabV3+_AdamW_{True}'] = make_prediction_model('DeepLabV3+', 'AdamW',
                                                                    True,
                                                                    deeplabv3_plus_output_path,
-                                                                   'conv2d_8',
+                                                                   'conv2d_176',
                                                                    image, mask, index, load_saved_deeplabv3_plus_model)
     deeplabv3_plus_metrics[f'DeepLabV3+_AdamW_{False}'] = make_prediction_model('DeepLabV3+', 'AdamW',
                                                                     False,
                                                                     deeplabv3_plus_output_path,
-                                                                    'conv2d_8',
+                                                                    'conv2d_176',
                                                                     image, mask, index, load_saved_deeplabv3_plus_model)
     save_matrics(deeplabv3_plus_output_path, deeplabv3_plus_metrics, index)
 
@@ -485,16 +485,19 @@ def calculate_symmetric_hausdorff_distance(y_true, y_pred):
 
 if __name__=="__main__":
     path = "../input/dataset/validation/images"
-    image_count = 16
     (images, masks) = load_dataset(path,
                                    size=(512, 512),
                                    file_extension="png",
-                                   channels=['RED', 'GREEN', 'BLUE'],
-                                   image_count=image_count)
+                                   channels=['RED', 'GREEN', 'BLUE'])
+
     print(f'images shape:{images.shape}')
     print(f'masks shape:{masks.shape}')
 
+    image_count = images.shape[0]
+    print(f'image_count:{image_count}')
+
     for i in range(image_count):
+        print(f'Evaluating for image :{i}')
         image = images[i]
         mask = masks[i]
         make_prediction(images[i], masks[i], i)
