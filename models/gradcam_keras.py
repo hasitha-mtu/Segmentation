@@ -153,11 +153,11 @@ def visualize(heatmap, image):
     plt.show()
 
 if __name__=="__main__":
-    model = load_saved_deeplabv3_plus_model()
+    model = load_saved_unet_model('Adam', True)
     print(f"model summary : {model.summary()}")
 
     image_path = '../input/samples/segnet_512/images/DJI_20250324092953_0009_V.jpg'
     image_tensor = load_image(image_path)
-    target_layer_name = 'conv2d_49'
+    target_layer_name = 'conv2d_25'
     execute_gradcam(image_tensor, model, target_layer_name)
     execute_gradcam_plus_plus(image_tensor, model, target_layer_name)
