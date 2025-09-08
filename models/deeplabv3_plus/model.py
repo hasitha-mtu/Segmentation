@@ -117,14 +117,77 @@ def deeplab_v3_plus(width, height, input_channels):
     input_shape = (width, height, input_channels)
     model = DeepLabV3Plus(input_shape)
     model.compile(
-        optimizer=get_optimizer(),
+        optimizer=get_optimizer(ModelConfig.TRAINING_LR),
         loss=combined_loss_function,
         metrics=['accuracy', f1_score, precision_m, recall_m]
     )
     return model
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
+#     config_file = 'config.yaml'
+#     load_config(config_file)
+#     input_shape = (ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH, ModelConfig.MODEL_INPUT_CHANNELS)
+#     DeepLabV3Plus(input_shape)
+
+
+# ---- Debugging with one real batch ----
+def debug_with_real_training_batch(dataset, model=None):
+    # Take one batch from dataset
+    for x_batch, y_batch in dataset.take(1):
+        print("Batch shapes:", x_batch.shape, y_batch.shape)
+        print("y_batch unique values:", np.unique(y_batch.numpy()))
+
+        # Run model forward pass if provided
+        if model is not None:
+            y_pred = model(x_batch, training=False)
+        else:
+            # If no model yet, simulate predictions
+            y_pred = tf.random.uniform(y_batch.shape, 0, 1)
+
+        print("y_pred range:", float(tf.reduce_min(y_pred)), float(tf.reduce_max(y_pred)))
+
+        # Compute loss
+        loss_value = combined_loss_function(y_batch, y_pred)
+        print("Loss value:", float(loss_value.numpy()))
+
+def debug_with_real_validation_batch(dataset, model=None):
+    # Take one batch from dataset
+    problematic_batch_found = False
+    for i, (x_batch, y_batch) in enumerate(dataset):
+    # for x_batch, y_batch in dataset.take(1):
+        try:
+            print("Batch shapes:", x_batch.shape, y_batch.shape)
+            print("y_batch unique values:", np.unique(y_batch.numpy()))
+
+            # Run model forward pass if provided
+            if model is not None:
+                y_pred = model(x_batch, training=False)
+            else:
+                # If no model yet, simulate predictions
+                y_pred = tf.random.uniform(y_batch.shape, 0, 1)
+
+            print("y_pred range:", float(tf.reduce_min(y_pred)), float(tf.reduce_max(y_pred)))
+
+            # Compute loss
+            loss_value = combined_loss_function(y_batch, y_pred)
+            print(f"Validation loss for single batch: {float(loss_value.numpy())}")
+        except Exception as e:
+            print(f"Error processing batch {i}: {e}")
+            problematic_batch_found = True
+            break
+    if not problematic_batch_found:
+        print("No NaN loss found in any batch. The issue might be intermittent or due to the combination of multiple batches.")
+
+# ---- Example usage ----
+from models.common_utils.dataset import load_datasets
+import tensorflow as tf
+import numpy as np
+if __name__ == "__main__":
+    # Example: if you already have a tf.data.Dataset for training
     config_file = 'config.yaml'
     load_config(config_file)
-    input_shape = (ModelConfig.IMAGE_HEIGHT, ModelConfig.IMAGE_WIDTH, ModelConfig.MODEL_INPUT_CHANNELS)
-    DeepLabV3Plus(input_shape)
+    train_dataset, validation_dataset = load_datasets(config_file, True)
+    model = deeplab_v3_plus(512, 512, 3)
+
+    # debug_with_real_training_batch(train_dataset, model)
+    debug_with_real_validation_batch(train_dataset, model)
