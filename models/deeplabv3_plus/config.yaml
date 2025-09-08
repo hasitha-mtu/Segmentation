@@ -17,7 +17,7 @@ data:
   buffer_size: 100
   seed: 42
   enable_op_determinism: false
-  test_size: 0.2
+  test_size: 0.112
   augmentation:
     rotate: true
     flip_horizontal: true
@@ -25,7 +25,7 @@ data:
 
 training:
   epochs: 100
-  learning_rate: 0.0001
+  learning_rate: 0.0000001
   enable_clrs: false
   optimizer: "Adam"
   training_split: 0.2
@@ -47,4 +47,4 @@ paths:
   model_save_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/deeplabv3_plus/ckpt"
   log_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/deeplabv3_plus/logs"
   output_dir: "C:/Users/AdikariAdikari/PycharmProjects/Segmentation/models/deeplabv3_plus/output"
-  saved_file_name: "model_3_channels"
+  saved_file_name: "best_model"
