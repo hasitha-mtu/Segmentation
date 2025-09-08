@@ -149,9 +149,14 @@ def load_datasets(config_file, config_loaded=False):
     image_dir = f'{ModelConfig.DATASET_PATH}/images'
     mask_dir = f'{ModelConfig.DATASET_PATH}/masks'
     all_paired_paths = get_image_mask_paths(image_dir, mask_dir)
+    print(f'load_datasets|test set split: {ModelConfig.TEST_SIZE}')
     train_paths, val_paths = train_test_split(all_paired_paths,
                                               test_size=ModelConfig.TEST_SIZE,
                                               random_state=ModelConfig.SEED)
+
+    print(f'load_datasets|train_paths count: {len(train_paths)}')
+    print(f'load_datasets|val_paths count: {len(val_paths)}')
+
     train_dataset = create_tf_dataset(train_paths,
                                       ModelConfig.BATCH_SIZE,
                                       ModelConfig.BUFFER_SIZE,
@@ -374,7 +379,7 @@ if __name__ == '__main__':
     config_path = '../unet_wsl/config.yaml'
     output_path = '../../output'
 
-    train_dataset, validation_dataset, test_dataset = load_datasets(config_path)
+    train_dataset, validation_dataset = load_datasets(config_path)
 
     # Take a batch from the training dataset and display
     print("\nDisplaying a sample batch from the training dataset (with augmentation):")
@@ -385,14 +390,6 @@ if __name__ == '__main__':
     # Take a batch from the validation dataset and display
     print("\nDisplaying a sample batch from the validation dataset (without augmentation):")
     for image_batch, mask_batch in validation_dataset.take(1):
-        for i in range(min(3, 4)):  # Display first 3 samples from the batch
-            mask_data = mask_batch[i].numpy().squeeze()
-            # print(mask_data.shape)
-            # np.savetxt(f"{output_path}/matrix_{i}.txt", mask_data, fmt='%d', delimiter=' ')
-            display_sample(image_batch[i].numpy(), mask_data)
-
-    print("\nDisplaying a sample batch from the test dataset (without augmentation):")
-    for image_batch, mask_batch in test_dataset.take(1):
         for i in range(min(3, 4)):  # Display first 3 samples from the batch
             mask_data = mask_batch[i].numpy().squeeze()
             # print(mask_data.shape)
