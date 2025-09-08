@@ -5,8 +5,8 @@ from keras_flops import get_flops
 
 from models.common_utils.config import ModelConfig
 
-def get_optimizer():
-    initial_learning_rate = 1e-4  # A smaller initial learning rate
+def get_optimizer(initial_learning_rate = 1e-4):
+    print(f'Initial learning rate: {initial_learning_rate}')
     weight_decay = 1e-5  # A small, but effective weight decay
     if ModelConfig.TRAINING_OPTIMIZER == 'AdamW':
         return tfa.optimizers.AdamW(
@@ -14,7 +14,10 @@ def get_optimizer():
             learning_rate=initial_learning_rate
         )
     else:
-        return tf.optimizers.Adam()
+        return tf.optimizers.Adam(
+            learning_rate = initial_learning_rate,
+            clipnorm=1.0,
+            epsilon=1e-7)
 
 def get_model_save_file_name1():
     if ModelConfig.ENABLE_CLRS == True:
