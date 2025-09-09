@@ -198,7 +198,6 @@ def execute_model(config_file, make_or_restore_model, load_saved_model):
                 print("⚠️ Empty mask in validation set")
 
         for i, (img, mask) in enumerate(train_dataset):
-            print(f'Training {i}')
             if tf.reduce_sum(mask) == 0:
                 print(f"Train Sample {i} has an empty mask (all background)")
             elif (tf.cast(tf.reduce_sum(mask), tf.int32)) == tf.size(mask):
@@ -208,7 +207,6 @@ def execute_model(config_file, make_or_restore_model, load_saved_model):
                 print(f"Train Tiny mask at index {i}, sum={np.sum(mask)}")
 
         for i, (img, mask) in enumerate(validation_dataset):
-            print(f'Validation {i}')
             if tf.reduce_sum(mask) == 0:
                 print(f"Validation Sample {i} has an empty mask (all background)")
             elif (tf.cast(tf.reduce_sum(mask), tf.int32)) == tf.size(mask):
