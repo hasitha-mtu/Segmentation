@@ -14,6 +14,7 @@ from models.common_utils.plot import plot_model_history, plot_prediction
 from models.common_utils.dataset import set_seed, load_datasets
 from models.common_utils.config import load_config, ModelConfig
 from models.common_utils.model_utils import get_model_save_file_name
+from models.common_utils.dataset import display_sample
 
 from models.common_utils.loss_functions import  recall_m, precision_m, f1_score, combined_loss_function
 
@@ -109,8 +110,6 @@ def train_model(epoch_count, batch_size, train_dataset, validation_dataset, num_
             for step, (x, y) in enumerate(self.val_dataset):
                 preds = self.model(x, training=False)
                 # Debug numerics here
-                tf.debugging.check_numerics(preds, f"Preds contain NaN/Inf at val batch {step}")
-                tf.debugging.check_numerics(y, f"Labels contain NaN/Inf at val batch {step}")
 
                 loss = self.loss_fn(y, preds)
                 if tf.reduce_any(tf.math.is_nan(loss)):
@@ -197,11 +196,21 @@ def execute_model(config_file, make_or_restore_model, load_saved_model):
         for imgs, masks in validation_dataset:
             if tf.reduce_sum(masks) == 0:
                 print("⚠️ Empty mask in validation set")
-        # train_dataset = filter_dataset(train_dataset)
-        # validation_dataset = filter_dataset(validation_dataset)
-        #
-        # print(f'filtered train_dataset: {train_dataset}')
-        # print(f'filtered validation_dataset: {validation_dataset}')
+
+        for i, (img, mask) in enumerate(train_dataset):
+            print(f'Training {i}')
+            if tf.reduce_sum(mask) == 0:
+                print(f"Train Sample {i} has an empty mask (all background)")
+            elif (tf.cast(tf.reduce_sum(mask), tf.int32)) == tf.size(mask):
+                print(f"Train Sample {i} has a full mask (all foreground)")
+
+
+        for i, (img, mask) in enumerate(validation_dataset):
+            print(f'Validation {i}')
+            if tf.reduce_sum(mask) == 0:
+                print(f"Validation Sample {i} has an empty mask (all background)")
+            elif (tf.cast(tf.reduce_sum(mask), tf.int32)) == tf.size(mask):
+                print(f"Validation Sample {i} has a full mask (all foreground)")
 
         train_model(ModelConfig.TRAINING_EPOCHS,
                     ModelConfig.BATCH_SIZE,
