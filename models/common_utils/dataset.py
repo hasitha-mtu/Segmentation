@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from collections import Counter
 from random import shuffle
 from tensorflow.keras.utils import save_img
-
+import cv2
 from models.common_utils.config import load_config, ModelConfig
 
 
@@ -25,8 +25,12 @@ def set_seed(seed_value, enable_op_determinism=True):
 def get_image_mask_paths(image_dir, mask_dir):
     image_paths = sorted(glob(os.path.join(image_dir, '*.png')))  # Assuming .jpg for images
     mask_paths = sorted(glob(os.path.join(mask_dir, '*.png')))  # Assuming .png for masks
+
     print(f'image_paths count: {len(image_paths)}')
     print(f'mask_paths count: {len(mask_paths)}')
+
+    mask_paths = validate_mask_paths(mask_paths, 100)
+    print(f'valid mask_paths count: {len(mask_paths)}')
 
     # Ensure masks match images (by filename prefix)
     # This is a critical step for segmentation datasets
@@ -46,6 +50,43 @@ def get_image_mask_paths(image_dir, mask_dir):
 
     print(f"Found {len(paired_paths)} image-mask pairs.")
     return paired_paths
+
+def validate_mask_paths(mask_paths, threshold=10):
+    """
+    Validate segmentation masks from file paths.
+
+    Args:
+        mask_paths: list of file paths to mask images
+        threshold: minimum number of positive pixels required
+
+    Returns:
+        valid_paths: list of valid mask paths
+        invalid_paths: list of invalid mask paths (empty or tiny masks)
+    """
+    valid_paths = []
+    invalid_paths = []
+
+    for i, path in enumerate(mask_paths):
+        if not os.path.exists(path):
+            print(f"❌ File not found at index {i}: {path}")
+            invalid_paths.append(path)
+            continue
+        # Load mask as grayscale
+        mask = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        if mask is None:
+            print(f"❌ Could not read mask at index {i}: {path}")
+            invalid_paths.append(path)
+            continue
+
+        pixel_sum = np.sum(mask > 0)  # count non-zero pixels
+        if pixel_sum < threshold:
+            print(f"⚠️ Tiny/Empty mask at index {i}, sum={pixel_sum}, path={path}")
+            invalid_paths.append(path)
+        else:
+            valid_paths.append(path)
+
+    print(f"\nSummary: {len(valid_paths)} valid, {len(invalid_paths)} tiny/empty/invalid masks")
+    return valid_paths
 
 def load_image(image_path):
     image = tf.io.read_file(image_path)
@@ -405,4 +446,14 @@ if __name__ == '__main__':
 #     config_file = '../unet_wsl/config.yaml'
 #     augmented_images(config_file)
 
+def get_mask_pixel_count(mask_path):
+    """Return the non-zero pixel count of a single mask."""
+    mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+    if mask is None:
+        raise ValueError(f"❌ Could not read mask: {mask_path}")
+    return int(np.sum(mask > 0))
 
+if __name__ == '__main__':
+    problematic_mask_path = "../../input/dataset_back/masks/DJI_20250324094642_0095_V.png"
+    threshold = get_mask_pixel_count(problematic_mask_path)
+    print("Using threshold =", threshold)

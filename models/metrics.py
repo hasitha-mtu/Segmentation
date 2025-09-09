@@ -26,7 +26,7 @@ from gradcam_keras import gradcam,gradcam_plus_plus
 
 from models.train import  train_all_models
 
-OUTPUT_DIR = "C:\\Users\AdikariAdikari\OneDrive - Munster Technological University\ModelResults\Segmentation\\05_09_2025"
+OUTPUT_DIR = "C:\\Users\AdikariAdikari\OneDrive - Munster Technological University\ModelResults\Segmentation\\09_09_2025"
 # OUTPUT_DIR = "C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\output\\08_08_2025"
 
 
@@ -82,226 +82,247 @@ def get_boundary(mask, dilation_ratio=0.02):
 
 
 
-def make_prediction(image, mask, index=0):
+def make_prediction(image, mask, index=0, model_list=['UNET', 'UNET-FFC', 'UNET-VGG16', 'UNET-ResNet50',
+                                                      'UNET-MobileNetV2', 'UNET++', 'SegNet', 'SegNet-Vgg16',
+                                                      'ResUNET++', 'DeepLabV3+']):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     output_path = f'{OUTPUT_DIR}/{index}'
     os.makedirs(output_path, exist_ok=True)
     save_image(output_path, image, f'image_{index}')
     save_image(output_path, mask.squeeze(), f'actual_mask_{index}')
 
-    print('UNET')
-    unet_metrics = {}
-    unet_output_path = f'{output_path}/unet'
-    unet_metrics[f'UNET_Adam_{True}'] = make_prediction_model('UNET', 'Adam', True,
-                                                              unet_output_path, 'conv2d_23', image,
-                                                              mask, index, load_saved_unet_model)
-    unet_metrics[f'UNET_Adam_{False}'] = make_prediction_model('UNET', 'Adam', False,
-                                                               unet_output_path, 'conv2d_23', image,
-                                                               mask, index, load_saved_unet_model)
-    unet_metrics[f'UNET_AdamW_{True}'] = make_prediction_model('UNET', 'AdamW', True,
-                                                               unet_output_path, 'conv2d_23', image,
-                                                               mask, index, load_saved_unet_model)
-    unet_metrics[f'UNET_AdamW_{False}'] = make_prediction_model('UNET', 'AdamW', False,
-                                                                unet_output_path, 'conv2d_23', image,
-                                                                mask, index, load_saved_unet_model)
-    save_matrics(unet_output_path, unet_metrics, index)
+    if 'UNET' in model_list:
+        print('UNET')
+        unet_metrics = {}
+        unet_output_path = f'{output_path}/unet'
+        unet_metrics[f'UNET_Adam_{True}'] = make_prediction_model('UNET', 'Adam', True,
+                                                                  unet_output_path, 'conv2d_23', image,
+                                                                  mask, index, load_saved_unet_model)
+        unet_metrics[f'UNET_Adam_{False}'] = make_prediction_model('UNET', 'Adam', False,
+                                                                   unet_output_path, 'conv2d_23', image,
+                                                                   mask, index, load_saved_unet_model)
+        unet_metrics[f'UNET_AdamW_{True}'] = make_prediction_model('UNET', 'AdamW', True,
+                                                                   unet_output_path, 'conv2d_23', image,
+                                                                   mask, index, load_saved_unet_model)
+        unet_metrics[f'UNET_AdamW_{False}'] = make_prediction_model('UNET', 'AdamW', False,
+                                                                    unet_output_path, 'conv2d_23', image,
+                                                                    mask, index, load_saved_unet_model)
+        save_matrics(unet_output_path, unet_metrics, index)
+
+        print('==================================================================================================')
+
+    if 'UNET-FFC' in model_list:
+        print('UNET-FFC')
+        unet_ffc_metrics = {}
+        unet_ffc_output_path = f'{output_path}/unet_ffc'
+        unet_ffc_metrics[f'UNET-FFC_Adam_{True}'] = make_prediction_model('UNET-FFC', 'Adam', True,
+                                                                  unet_ffc_output_path, 'conv2d_101', image,
+                                                                          mask, index, load_saved_unet_ffc_model)
+        unet_ffc_metrics[f'UNET-FFC_Adam_{False}'] = make_prediction_model('UNET-FFC', 'Adam', False,
+                                                                   unet_ffc_output_path, 'conv2d_101', image,
+                                                                           mask, index, load_saved_unet_ffc_model)
+        unet_ffc_metrics[f'UNET-FFC_AdamW_{True}'] = make_prediction_model('UNET-FFC', 'AdamW', True,
+                                                                   unet_ffc_output_path, 'conv2d_101', image,
+                                                                           mask, index, load_saved_unet_ffc_model)
+        unet_ffc_metrics[f'UNET-FFC_AdamW_{False}'] = make_prediction_model('UNET-FFC', 'AdamW', False,
+                                                                    unet_ffc_output_path, 'conv2d_101', image,
+                                                                            mask, index, load_saved_unet_ffc_model)
+        save_matrics(unet_ffc_output_path, unet_ffc_metrics, index)
+
+        print('==================================================================================================')
+
+    if 'UNET-VGG16' in model_list:
+        print('UNET-VGG16')
+        unet_vgg16_metrics = {}
+        unet_vgg16_output_path = f'{output_path}/unet_vgg16'
+        unet_vgg16_metrics[f'UNET-VGG16_Adam_{True}'] = make_prediction_model('UNET-VGG16', 'Adam', True,
+                                                                          unet_vgg16_output_path, 'conv2d_33',
+                                                                          image, mask, index, load_saved_unet_VGG16_model)
+        unet_vgg16_metrics[f'UNET-VGG16_Adam_{False}'] = make_prediction_model('UNET-VGG16', 'Adam', False,
+                                                                           unet_vgg16_output_path, 'conv2d_33',
+                                                                           image, mask, index, load_saved_unet_VGG16_model)
+        unet_vgg16_metrics[f'UNET-VGG16_AdamW_{True}'] = make_prediction_model('UNET-VGG16', 'AdamW', True,
+                                                                           unet_vgg16_output_path, 'conv2d_33',
+                                                                           image, mask, index, load_saved_unet_VGG16_model)
+        unet_vgg16_metrics[f'UNET-VGG16_AdamW_{False}'] = make_prediction_model('UNET-VGG16', 'AdamW', False,
+                                                                            unet_vgg16_output_path, 'conv2d_33',
+                                                                            image, mask, index, load_saved_unet_VGG16_model)
+        save_matrics(unet_vgg16_output_path, unet_vgg16_metrics, index)
+
+        print('==================================================================================================')
+
+    if 'UNET-ResNet50' in model_list:
+        print('UNET-ResNet50')
+        unet_resnet50_metrics = {}
+        unet_resnet50_output_path = f'{output_path}/unet_resnet50'
+        unet_resnet50_metrics[f'UNET-ResNet50_Adam_{True}'] = make_prediction_model('UNET-ResNet50', 'Adam', True,
+                                                                              unet_resnet50_output_path, 'conv2d_42',
+                                                                              image, mask, index, load_saved_unet_ResNet50_model)
+        unet_resnet50_metrics[f'UNET-ResNet50_Adam_{False}'] = make_prediction_model('UNET-ResNet50', 'Adam', False,
+                                                                               unet_resnet50_output_path, 'conv2d_42',
+                                                                               image, mask, index, load_saved_unet_ResNet50_model)
+        unet_resnet50_metrics[f'UNET-ResNet50_AdamW_{True}'] = make_prediction_model('UNET-ResNet50', 'AdamW', True,
+                                                                               unet_resnet50_output_path, 'conv2d_42',
+                                                                               image, mask, index, load_saved_unet_ResNet50_model)
+        unet_resnet50_metrics[f'UNET-ResNet50_AdamW_{False}'] = make_prediction_model('UNET-ResNet50', 'AdamW', False,
+                                                                                unet_resnet50_output_path, 'conv2d_42',
+                                                                                image, mask, index, load_saved_unet_ResNet50_model)
+        save_matrics(unet_resnet50_output_path, unet_resnet50_metrics, index)
+
+        print('==================================================================================================')
+
+    if 'UNET-MobileNetV2' in model_list:
+        print('UNET-MobileNetV2')
+        unet_mobilenetv2_metrics = {}
+        unet_mobilenetv2_output_path = f'{output_path}/unet_mobilenetv2'
+        unet_mobilenetv2_metrics[f'UNET-MobileNetV2_Adam_{True}'] = make_prediction_model('UNET-MobileNetV2', 'Adam', True,
+                                                                                 unet_mobilenetv2_output_path, 'conv2d_10',
+                                                                                 image, mask, index, load_saved_unet_MobileNetV2_model)
+        unet_mobilenetv2_metrics[f'UNET-MobileNetV2_Adam_{False}'] = make_prediction_model('UNET-MobileNetV2', 'Adam', False,
+                                                                                  unet_mobilenetv2_output_path, 'conv2d_10',
+                                                                                  image, mask, index, load_saved_unet_MobileNetV2_model)
+        unet_mobilenetv2_metrics[f'UNET-MobileNetV2_AdamW_{True}'] = make_prediction_model('UNET-MobileNetV2', 'AdamW', True,
+                                                                                  unet_mobilenetv2_output_path, 'conv2d_10',
+                                                                                  image, mask, index, load_saved_unet_MobileNetV2_model)
+        unet_mobilenetv2_metrics[f'UNET-MobileNetV2_AdamW_{False}'] = make_prediction_model('UNET-MobileNetV2', 'AdamW', False,
+                                                                                   unet_mobilenetv2_output_path, 'conv2d_10',
+                                                                                   image, mask, index, load_saved_unet_MobileNetV2_model)
+        save_matrics(unet_mobilenetv2_output_path, unet_mobilenetv2_metrics, index)
 
     print('==================================================================================================')
-    print('UNET-FFC')
-    unet_ffc_metrics = {}
-    unet_ffc_output_path = f'{output_path}/unet_ffc'
-    unet_ffc_metrics[f'UNET-FFC_Adam_{True}'] = make_prediction_model('UNET-FFC', 'Adam', True,
-                                                              unet_ffc_output_path, 'conv2d_101', image,
-                                                                      mask, index, load_saved_unet_ffc_model)
-    unet_ffc_metrics[f'UNET-FFC_Adam_{False}'] = make_prediction_model('UNET-FFC', 'Adam', False,
-                                                               unet_ffc_output_path, 'conv2d_101', image,
-                                                                       mask, index, load_saved_unet_ffc_model)
-    unet_ffc_metrics[f'UNET-FFC_AdamW_{True}'] = make_prediction_model('UNET-FFC', 'AdamW', True,
-                                                               unet_ffc_output_path, 'conv2d_101', image,
-                                                                       mask, index, load_saved_unet_ffc_model)
-    unet_ffc_metrics[f'UNET-FFC_AdamW_{False}'] = make_prediction_model('UNET-FFC', 'AdamW', False,
-                                                                unet_ffc_output_path, 'conv2d_101', image,
-                                                                        mask, index, load_saved_unet_ffc_model)
-    save_matrics(unet_ffc_output_path, unet_ffc_metrics, index)
 
-    print('==================================================================================================')
-    print('UNET-VGG16')
-    unet_vgg16_metrics = {}
-    unet_vgg16_output_path = f'{output_path}/unet_vgg16'
-    unet_vgg16_metrics[f'UNET-VGG16_Adam_{True}'] = make_prediction_model('UNET-VGG16', 'Adam', True,
-                                                                      unet_vgg16_output_path, 'conv2d_33',
-                                                                      image, mask, index, load_saved_unet_VGG16_model)
-    unet_vgg16_metrics[f'UNET-VGG16_Adam_{False}'] = make_prediction_model('UNET-VGG16', 'Adam', False,
-                                                                       unet_vgg16_output_path, 'conv2d_33',
-                                                                       image, mask, index, load_saved_unet_VGG16_model)
-    unet_vgg16_metrics[f'UNET-VGG16_AdamW_{True}'] = make_prediction_model('UNET-VGG16', 'AdamW', True,
-                                                                       unet_vgg16_output_path, 'conv2d_33',
-                                                                       image, mask, index, load_saved_unet_VGG16_model)
-    unet_vgg16_metrics[f'UNET-VGG16_AdamW_{False}'] = make_prediction_model('UNET-VGG16', 'AdamW', False,
-                                                                        unet_vgg16_output_path, 'conv2d_33',
-                                                                        image, mask, index, load_saved_unet_VGG16_model)
-    save_matrics(unet_vgg16_output_path, unet_vgg16_metrics, index)
+    if 'UNET++' in model_list:
+        print('UNET++')
+        unet_plus_plus_metrics = {}
+        unet_plus_plus_output_path = f'{output_path}/unet_plus_plus'
+        unet_plus_plus_metrics[f'UNET++_Adam_{True}'] = make_prediction_model('UNET++', 'Adam', True,
+                                                                                    unet_plus_plus_output_path,
+                                                                                    'conv2d_73',
+                                                                                    image, mask, index, load_saved_unet_plus_plus_model)
+        unet_plus_plus_metrics[f'UNET++_Adam_{False}'] = make_prediction_model('UNET++', 'Adam', False,
+                                                                                     unet_plus_plus_output_path,
+                                                                                     'conv2d_73',
+                                                                                     image, mask, index, load_saved_unet_plus_plus_model)
+        unet_plus_plus_metrics[f'UNET++_AdamW_{True}'] = make_prediction_model('UNET++', 'AdamW', True,
+                                                                                     unet_plus_plus_output_path,
+                                                                                     'conv2d_73',
+                                                                                     image, mask, index, load_saved_unet_plus_plus_model)
+        unet_plus_plus_metrics[f'UNET++_AdamW_{False}'] = make_prediction_model('UNET++', 'AdamW', False,
+                                                                                      unet_plus_plus_output_path,
+                                                                                      'conv2d_73',
+                                                                                      image, mask, index, load_saved_unet_plus_plus_model)
+        save_matrics(unet_plus_plus_output_path, unet_plus_plus_metrics, index)
 
-    print('==================================================================================================')
-    print('UNET-ResNet50')
-    unet_resnet50_metrics = {}
-    unet_resnet50_output_path = f'{output_path}/unet_resnet50'
-    unet_resnet50_metrics[f'UNET-ResNet50_Adam_{True}'] = make_prediction_model('UNET-ResNet50', 'Adam', True,
-                                                                          unet_resnet50_output_path, 'conv2d_42',
-                                                                          image, mask, index, load_saved_unet_ResNet50_model)
-    unet_resnet50_metrics[f'UNET-ResNet50_Adam_{False}'] = make_prediction_model('UNET-ResNet50', 'Adam', False,
-                                                                           unet_resnet50_output_path, 'conv2d_42',
-                                                                           image, mask, index, load_saved_unet_ResNet50_model)
-    unet_resnet50_metrics[f'UNET-ResNet50_AdamW_{True}'] = make_prediction_model('UNET-ResNet50', 'AdamW', True,
-                                                                           unet_resnet50_output_path, 'conv2d_42',
-                                                                           image, mask, index, load_saved_unet_ResNet50_model)
-    unet_resnet50_metrics[f'UNET-ResNet50_AdamW_{False}'] = make_prediction_model('UNET-ResNet50', 'AdamW', False,
-                                                                            unet_resnet50_output_path, 'conv2d_42',
-                                                                            image, mask, index, load_saved_unet_ResNet50_model)
-    save_matrics(unet_resnet50_output_path, unet_resnet50_metrics, index)
+        print('==================================================================================================')
 
-    print('==================================================================================================')
-    print('UNET-MobileNetV2')
-    unet_mobilenetv2_metrics = {}
-    unet_mobilenetv2_output_path = f'{output_path}/unet_mobilenetv2'
-    unet_mobilenetv2_metrics[f'UNET-MobileNetV2_Adam_{True}'] = make_prediction_model('UNET-MobileNetV2', 'Adam', True,
-                                                                             unet_mobilenetv2_output_path, 'conv2d_85',
-                                                                             image, mask, index, load_saved_unet_MobileNetV2_model)
-    unet_mobilenetv2_metrics[f'UNET-MobileNetV2_Adam_{False}'] = make_prediction_model('UNET-MobileNetV2', 'Adam', False,
-                                                                              unet_mobilenetv2_output_path, 'conv2d_85',
-                                                                              image, mask, index, load_saved_unet_MobileNetV2_model)
-    unet_mobilenetv2_metrics[f'UNET-MobileNetV2_AdamW_{True}'] = make_prediction_model('UNET-MobileNetV2', 'AdamW', True,
-                                                                              unet_mobilenetv2_output_path, 'conv2d_85',
-                                                                              image, mask, index, load_saved_unet_MobileNetV2_model)
-    unet_mobilenetv2_metrics[f'UNET-MobileNetV2_AdamW_{False}'] = make_prediction_model('UNET-MobileNetV2', 'AdamW', False,
-                                                                               unet_mobilenetv2_output_path, 'conv2d_85',
-                                                                               image, mask, index, load_saved_unet_MobileNetV2_model)
-    save_matrics(unet_mobilenetv2_output_path, unet_mobilenetv2_metrics, index)
+    if 'UNET-FFC' in model_list:
+        print('UNET-FFC')
+        segnet_metrics = {}
+        segnet_output_path = f'{output_path}/segnet'
+        segnet_metrics[f'SegNet_Adam_{True}'] = make_prediction_model('SegNet', 'Adam', True,
+                                                                                          segnet_output_path,
+                                                                                          'conv2d_126',
+                                                                                          image, mask, index, load_saved_segnet_model)
+        segnet_metrics[f'SegNet_Adam_{False}'] = make_prediction_model('SegNet', 'Adam',
+                                                                                           False,
+                                                                                           segnet_output_path,
+                                                                                           'conv2d_126',
+                                                                                           image, mask, index, load_saved_segnet_model)
+        segnet_metrics[f'SegNet_AdamW_{True}'] = make_prediction_model('SegNet', 'AdamW',
+                                                                                           True,
+                                                                                           segnet_output_path,
+                                                                                           'conv2d_126',
+                                                                                           image, mask, index, load_saved_segnet_model)
+        segnet_metrics[f'SegNet_AdamW_{False}'] = make_prediction_model('SegNet', 'AdamW',
+                                                                                            False,
+                                                                                            segnet_output_path,
+                                                                                            'conv2d_126',
+                                                                                            image, mask, index, load_saved_segnet_model)
+        save_matrics(segnet_output_path, segnet_metrics, index)
 
-    print('==================================================================================================')
-    print('UNET++')
-    unet_plus_plus_metrics = {}
-    unet_plus_plus_output_path = f'{output_path}/unet_plus_plus'
-    unet_plus_plus_metrics[f'UNET++_Adam_{True}'] = make_prediction_model('UNET++', 'Adam', True,
-                                                                                unet_plus_plus_output_path,
-                                                                                'conv2d_73',
-                                                                                image, mask, index, load_saved_unet_plus_plus_model)
-    unet_plus_plus_metrics[f'UNET++_Adam_{False}'] = make_prediction_model('UNET++', 'Adam', False,
-                                                                                 unet_plus_plus_output_path,
-                                                                                 'conv2d_73',
-                                                                                 image, mask, index, load_saved_unet_plus_plus_model)
-    unet_plus_plus_metrics[f'UNET++_AdamW_{True}'] = make_prediction_model('UNET++', 'AdamW', True,
-                                                                                 unet_plus_plus_output_path,
-                                                                                 'conv2d_73',
-                                                                                 image, mask, index, load_saved_unet_plus_plus_model)
-    unet_plus_plus_metrics[f'UNET++_AdamW_{False}'] = make_prediction_model('UNET++', 'AdamW', False,
-                                                                                  unet_plus_plus_output_path,
-                                                                                  'conv2d_73',
-                                                                                  image, mask, index, load_saved_unet_plus_plus_model)
-    save_matrics(unet_plus_plus_output_path, unet_plus_plus_metrics, index)
+        print('==================================================================================================')
 
-    print('==================================================================================================')
-    print('SegNet')
-    segnet_metrics = {}
-    segnet_output_path = f'{output_path}/segnet'
-    segnet_metrics[f'SegNet_Adam_{True}'] = make_prediction_model('SegNet', 'Adam', True,
-                                                                                      segnet_output_path,
-                                                                                      'conv2d_126',
-                                                                                      image, mask, index, load_saved_segnet_model)
-    segnet_metrics[f'SegNet_Adam_{False}'] = make_prediction_model('SegNet', 'Adam',
-                                                                                       False,
-                                                                                       segnet_output_path,
-                                                                                       'conv2d_126',
-                                                                                       image, mask, index, load_saved_segnet_model)
-    segnet_metrics[f'SegNet_AdamW_{True}'] = make_prediction_model('SegNet', 'AdamW',
-                                                                                       True,
-                                                                                       segnet_output_path,
-                                                                                       'conv2d_126',
-                                                                                       image, mask, index, load_saved_segnet_model)
-    segnet_metrics[f'SegNet_AdamW_{False}'] = make_prediction_model('SegNet', 'AdamW',
-                                                                                        False,
-                                                                                        segnet_output_path,
-                                                                                        'conv2d_126',
-                                                                                        image, mask, index, load_saved_segnet_model)
-    save_matrics(segnet_output_path, segnet_metrics, index)
+    if 'SegNet-Vgg16' in model_list:
+        print('SegNet-Vgg16')
+        segnet_vgg16_metrics = {}
+        segnet_vgg16_output_path = f'{output_path}/segnet_vgg16'
+        segnet_vgg16_metrics[f'SegNet-Vgg16_Adam_{True}'] = make_prediction_model('SegNet-Vgg16', 'Adam',
+                                                                      True,
+                                                                      segnet_vgg16_output_path,
+                                                                      'conv2d_111',
+                                                                      image, mask, index, load_saved_segnet_VGG16_model)
+        segnet_vgg16_metrics[f'SegNet-Vgg16_Adam_{False}'] = make_prediction_model('SegNet-Vgg16', 'Adam',
+                                                                       False,
+                                                                       segnet_vgg16_output_path,
+                                                                       'conv2d_111',
+                                                                       image, mask, index, load_saved_segnet_VGG16_model)
+        segnet_vgg16_metrics[f'SegNet-Vgg16_AdamW_{True}'] = make_prediction_model('SegNet-Vgg16', 'AdamW',
+                                                                       True,
+                                                                       segnet_vgg16_output_path,
+                                                                       'conv2d_111',
+                                                                       image, mask, index, load_saved_segnet_VGG16_model)
+        segnet_vgg16_metrics[f'SegNet-Vgg16_AdamW_{False}'] = make_prediction_model('SegNet-Vgg16', 'AdamW',
+                                                                        False,
+                                                                        segnet_vgg16_output_path,
+                                                                        'conv2d_111',
+                                                                        image, mask, index, load_saved_segnet_VGG16_model)
+        save_matrics(segnet_vgg16_output_path, segnet_vgg16_metrics, index)
 
-    print('==================================================================================================')
-    print('SegNet-Vgg16')
-    segnet_vgg16_metrics = {}
-    segnet_vgg16_output_path = f'{output_path}/segnet_vgg16'
-    segnet_vgg16_metrics[f'SegNet-Vgg16_Adam_{True}'] = make_prediction_model('SegNet-Vgg16', 'Adam',
-                                                                  True,
-                                                                  segnet_vgg16_output_path,
-                                                                  'conv2d_111',
-                                                                  image, mask, index, load_saved_segnet_VGG16_model)
-    segnet_vgg16_metrics[f'SegNet-Vgg16_Adam_{False}'] = make_prediction_model('SegNet-Vgg16', 'Adam',
-                                                                   False,
-                                                                   segnet_vgg16_output_path,
-                                                                   'conv2d_111',
-                                                                   image, mask, index, load_saved_segnet_VGG16_model)
-    segnet_vgg16_metrics[f'SegNet-Vgg16_AdamW_{True}'] = make_prediction_model('SegNet-Vgg16', 'AdamW',
-                                                                   True,
-                                                                   segnet_vgg16_output_path,
-                                                                   'conv2d_111',
-                                                                   image, mask, index, load_saved_segnet_VGG16_model)
-    segnet_vgg16_metrics[f'SegNet-Vgg16_AdamW_{False}'] = make_prediction_model('SegNet-Vgg16', 'AdamW',
-                                                                    False,
-                                                                    segnet_vgg16_output_path,
-                                                                    'conv2d_111',
-                                                                    image, mask, index, load_saved_segnet_VGG16_model)
-    save_matrics(segnet_vgg16_output_path, segnet_vgg16_metrics, index)
+        print('==================================================================================================')
 
-    print('==================================================================================================')
-    print('ResUNET++')
-    res_unet_plus_plus_metrics = {}
-    res_unet_plus_plus_output_path = f'{output_path}/res_unet_plus_plus'
-    res_unet_plus_plus_metrics[f'ResUNET++_Adam_{True}'] = make_prediction_model('ResUNET++', 'Adam',
-                                                                  True,
-                                                                  res_unet_plus_plus_output_path,
-                                                                  'conv2d_167',
-                                                                  image, mask, index, load_saved_res_unet_plus_plus_model)
-    res_unet_plus_plus_metrics[f'ResUNET++_Adam_{False}'] = make_prediction_model('ResUNET++', 'Adam',
-                                                                   False,
-                                                                   res_unet_plus_plus_output_path,
-                                                                   'conv2d_167',
-                                                                   image, mask, index, load_saved_res_unet_plus_plus_model)
-    res_unet_plus_plus_metrics[f'ResUNET++_AdamW_{True}'] = make_prediction_model('ResUNET++', 'AdamW',
-                                                                   True,
-                                                                   res_unet_plus_plus_output_path,
-                                                                   'conv2d_167',
-                                                                   image, mask, index, load_saved_res_unet_plus_plus_model)
-    res_unet_plus_plus_metrics[f'ResUNET++_AdamW_{False}'] = make_prediction_model('ResUNET++', 'AdamW',
-                                                                    False,
-                                                                    res_unet_plus_plus_output_path,
-                                                                    'conv2d_167',
-                                                                    image, mask, index, load_saved_res_unet_plus_plus_model)
-    save_matrics(res_unet_plus_plus_output_path, res_unet_plus_plus_metrics, index)
+    if 'ResUNET++' in model_list:
+        print('ResUNET++')
+        res_unet_plus_plus_metrics = {}
+        res_unet_plus_plus_output_path = f'{output_path}/res_unet_plus_plus'
+        res_unet_plus_plus_metrics[f'ResUNET++_Adam_{True}'] = make_prediction_model('ResUNET++', 'Adam',
+                                                                      True,
+                                                                      res_unet_plus_plus_output_path,
+                                                                      'conv2d_167',
+                                                                      image, mask, index, load_saved_res_unet_plus_plus_model)
+        res_unet_plus_plus_metrics[f'ResUNET++_Adam_{False}'] = make_prediction_model('ResUNET++', 'Adam',
+                                                                       False,
+                                                                       res_unet_plus_plus_output_path,
+                                                                       'conv2d_167',
+                                                                       image, mask, index, load_saved_res_unet_plus_plus_model)
+        res_unet_plus_plus_metrics[f'ResUNET++_AdamW_{True}'] = make_prediction_model('ResUNET++', 'AdamW',
+                                                                       True,
+                                                                       res_unet_plus_plus_output_path,
+                                                                       'conv2d_167',
+                                                                       image, mask, index, load_saved_res_unet_plus_plus_model)
+        res_unet_plus_plus_metrics[f'ResUNET++_AdamW_{False}'] = make_prediction_model('ResUNET++', 'AdamW',
+                                                                        False,
+                                                                        res_unet_plus_plus_output_path,
+                                                                        'conv2d_167',
+                                                                        image, mask, index, load_saved_res_unet_plus_plus_model)
+        save_matrics(res_unet_plus_plus_output_path, res_unet_plus_plus_metrics, index)
 
-    print('==================================================================================================')
-    print('DeepLabV3+')
-    deeplabv3_plus_metrics = {}
-    deeplabv3_plus_output_path = f'{output_path}/deeplabv3_plus'
-    deeplabv3_plus_metrics[f'DeepLabV3+_Adam_{True}'] = make_prediction_model('DeepLabV3+', 'Adam',
-                                                                  True,
-                                                                  deeplabv3_plus_output_path,
-                                                                  'conv2d_176',
-                                                                  image, mask, index, load_saved_deeplabv3_plus_model)
-    deeplabv3_plus_metrics[f'DeepLabV3+_Adam_{False}'] = make_prediction_model('DeepLabV3+', 'Adam',
-                                                                   False,
-                                                                   deeplabv3_plus_output_path,
-                                                                   'conv2d_176',
-                                                                   image, mask, index, load_saved_deeplabv3_plus_model)
-    deeplabv3_plus_metrics[f'DeepLabV3+_AdamW_{True}'] = make_prediction_model('DeepLabV3+', 'AdamW',
-                                                                   True,
-                                                                   deeplabv3_plus_output_path,
-                                                                   'conv2d_176',
-                                                                   image, mask, index, load_saved_deeplabv3_plus_model)
-    deeplabv3_plus_metrics[f'DeepLabV3+_AdamW_{False}'] = make_prediction_model('DeepLabV3+', 'AdamW',
-                                                                    False,
-                                                                    deeplabv3_plus_output_path,
-                                                                    'conv2d_176',
-                                                                    image, mask, index, load_saved_deeplabv3_plus_model)
-    save_matrics(deeplabv3_plus_output_path, deeplabv3_plus_metrics, index)
+        print('==================================================================================================')
+
+    if 'DeepLabV3+' in model_list:
+        print('DeepLabV3+')
+        deeplabv3_plus_metrics = {}
+        deeplabv3_plus_output_path = f'{output_path}/deeplabv3_plus'
+        deeplabv3_plus_metrics[f'DeepLabV3+_Adam_{True}'] = make_prediction_model('DeepLabV3+', 'Adam',
+                                                                      True,
+                                                                      deeplabv3_plus_output_path,
+                                                                      'conv2d_8',
+                                                                      image, mask, index, load_saved_deeplabv3_plus_model)
+        deeplabv3_plus_metrics[f'DeepLabV3+_Adam_{False}'] = make_prediction_model('DeepLabV3+', 'Adam',
+                                                                       False,
+                                                                       deeplabv3_plus_output_path,
+                                                                       'conv2d_8',
+                                                                       image, mask, index, load_saved_deeplabv3_plus_model)
+        deeplabv3_plus_metrics[f'DeepLabV3+_AdamW_{True}'] = make_prediction_model('DeepLabV3+', 'AdamW',
+                                                                       True,
+                                                                       deeplabv3_plus_output_path,
+                                                                       'conv2d_8',
+                                                                       image, mask, index, load_saved_deeplabv3_plus_model)
+        deeplabv3_plus_metrics[f'DeepLabV3+_AdamW_{False}'] = make_prediction_model('DeepLabV3+', 'AdamW',
+                                                                        False,
+                                                                        deeplabv3_plus_output_path,
+                                                                        'conv2d_8',
+                                                                        image, mask, index, load_saved_deeplabv3_plus_model)
+        save_matrics(deeplabv3_plus_output_path, deeplabv3_plus_metrics, index)
 
 def make_prediction_model(name, optimizer, enable_clrs, output_path, layer_name, image, mask, index, load_saved_model):
     print(f'make_prediction_model|name: {name}')
@@ -495,10 +516,11 @@ if __name__=="__main__":
 
     image_count = images.shape[0]
     print(f'image_count:{image_count}')
+    model_list = ['UNET-MobileNetV2']
 
     for i in range(image_count):
         print(f'Evaluating for image :{i}')
         image = images[i]
         mask = masks[i]
-        make_prediction(images[i], masks[i], i)
+        make_prediction(images[i], masks[i], i, model_list)
 
