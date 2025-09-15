@@ -25,8 +25,8 @@ MIN_PATCH_SIZE = 100  # min connected pixels to keep as water
 # --------------------------
 # Load trained model
 # --------------------------
-def load_model(config_file, load_saved_model, optimizer, clrs_enabled):
-    return load_saved_model(config_file, optimizer, clrs_enabled)
+def load_model(load_saved_model, optimizer, clrs_enabled):
+    return load_saved_model(optimizer, clrs_enabled)
 
 # --------------------------
 # Sliding-window prediction
@@ -254,53 +254,43 @@ def predict_for_the_area_given(model, input_image, output_image): ## working
 
 if __name__ == "__main__":
     input_image = '../input/webodm/odm_orthophoto.tif'
-    config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_wsl\config.yaml'
-    unet_model = load_model(config_file, load_saved_unet_model, 'AdamW', True)
+    unet_model = load_model(load_saved_unet_model, 'AdamW', True)
     output_image = '../output/model_prediction/unet_water_mask.tif'
     predict_for_the_area_given(unet_model, input_image, output_image)
 
-    config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_VGG16\config.yaml'
-    unet_vgg16_model = load_model(config_file, load_saved_unet_VGG16_model, 'AdamW', False)
+    unet_vgg16_model = load_model(load_saved_unet_VGG16_model, 'AdamW', False)
     output_image = '../output/model_prediction/unet_vgg16_water_mask.tif'
     predict_for_the_area_given(unet_vgg16_model, input_image, output_image)
 
-    config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ResNet50\config.yaml'
-    unet_resnet50_model = load_model(config_file, load_saved_unet_ResNet50_model, 'AdamW', False)
+    unet_resnet50_model = load_model(load_saved_unet_ResNet50_model, 'AdamW', False)
     output_image = '../output/model_prediction/unet_resnet50_water_mask.tif'
     predict_for_the_area_given(unet_resnet50_model, input_image, output_image)
 
-    config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_plus_plus\config.yaml'
-    unet_plus_plus_model = load_model(config_file, load_saved_unet_plus_plus_model, 'Adam', True)
+    unet_plus_plus_model = load_model(load_saved_unet_plus_plus_model, 'Adam', True)
     output_image = '../output/model_prediction/unet_plus_plus_water_mask.tif'
     predict_for_the_area_given(unet_plus_plus_model, input_image, output_image)
 
-    config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_MobileNetV2\config.yaml'
-    unet_mobilenetv2_model = load_model(config_file, load_saved_unet_MobileNetV2_model, 'Adam', True)
+    unet_mobilenetv2_model = load_model(load_saved_unet_MobileNetV2_model, 'Adam', True)
     output_image = '../output/model_prediction/unet_mobilenetv2_water_mask.tif'
     predict_for_the_area_given(unet_mobilenetv2_model, input_image, output_image)
 
-    config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\unet_ffc\config.yaml'
-    unet_ffc_model = load_model(config_file, load_saved_unet_ffc_model, 'Adam', True)
+    unet_ffc_model = load_model(load_saved_unet_ffc_model, 'Adam', True)
     output_image = '../output/model_prediction/unet_ffc_water_mask.tif'
     predict_for_the_area_given(unet_ffc_model, input_image, output_image)
 
-    config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\segnet_VGG16\config.yaml'
-    segnet_vgg16_model = load_model(config_file, load_saved_segnet_VGG16_model, 'AdamW', True)
+    segnet_vgg16_model = load_model(load_saved_segnet_VGG16_model, 'AdamW', True)
     output_image = '../output/model_prediction/segnet_vgg16_water_mask.tif'
     predict_for_the_area_given(segnet_vgg16_model, input_image, output_image)
 
-    config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\segnet\config.yaml'
-    segnet_model = load_model(config_file, load_saved_segnet_model, 'Adam', True)
+    segnet_model = load_model(load_saved_segnet_model, 'Adam', True)
     output_image = '../output/model_prediction/segnet_water_mask.tif'
     predict_for_the_area_given(segnet_model, input_image, output_image)
 
-    config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\res_unet_plus_plus\config.yaml'
-    res_unet_plus_plus_model = load_model(config_file, load_saved_res_unet_plus_plus_model, 'AdamW', True)
+    res_unet_plus_plus_model = load_model(load_saved_res_unet_plus_plus_model, 'AdamW', True)
     output_image = '../output/model_prediction/res_unet_plus_pluss_water_mask.tif'
     predict_for_the_area_given(res_unet_plus_plus_model, input_image, output_image)
 
-    config_file = 'C:\\Users\AdikariAdikari\PycharmProjects\Segmentation\models\\deeplabv3_plus\config.yaml'
-    deeplabv3_plus_model = load_model(config_file, load_saved_deeplabv3_plus_model, 'Adam', True)
+    deeplabv3_plus_model = load_model(load_saved_deeplabv3_plus_model, 'Adam', True)
     output_image = '../output/model_prediction/deeplabv3_plus_water_mask.tif'
     predict_for_the_area_given(deeplabv3_plus_model, input_image, output_image)
 
